@@ -63,22 +63,14 @@
 		A100000300000001 = {
 			isa = PBXGroup;
 			children = (
-				A100000300000002 /* OxfordWordSkills */,
-				A100000300000005 /* Products */,
-			);
-			sourceTree = "<group>";
-		};
-		A100000300000002 /* OxfordWordSkills */ = {
-			isa = PBXGroup;
-			children = (
 				A100000100000001 /* OxfordWordSkillsApp.swift */,
 				A100000300000003 /* Models */,
 				A100000300000004 /* Utilities */,
 				A100000300000006 /* ViewModels */,
 				A100000300000007 /* Views */,
 				A100000300000008 /* Resources */,
+				A100000300000005 /* Products */,
 			);
-			path = OxfordWordSkills;
 			sourceTree = "<group>";
 		};
 		A100000300000003 /* Models */ = {
@@ -283,7 +275,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CODE_SIGN_ENTITLEMENTS = OxfordWordSkills/OxfordWordSkills.entitlements;
+				CODE_SIGN_ENTITLEMENTS = OxfordWordSkills.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
@@ -307,7 +299,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CODE_SIGN_ENTITLEMENTS = OxfordWordSkills/OxfordWordSkills.entitlements;
+				CODE_SIGN_ENTITLEMENTS = OxfordWordSkills.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
