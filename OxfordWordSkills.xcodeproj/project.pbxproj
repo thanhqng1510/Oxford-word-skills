@@ -1,0 +1,355 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		A100000100100001 /* OxfordWordSkillsApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100000100000001 /* OxfordWordSkillsApp.swift */; };
+		A100000100100002 /* DataModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100000100000002 /* DataModels.swift */; };
+		A100000100100003 /* ContentParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100000100000003 /* ContentParser.swift */; };
+		A100000100100004 /* SpeechService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100000100000004 /* SpeechService.swift */; };
+		A100000100100005 /* ContentViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100000100000005 /* ContentViewModel.swift */; };
+		A100000100100006 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100000100000006 /* ContentView.swift */; };
+		A100000100100007 /* SidebarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100000100000007 /* SidebarView.swift */; };
+		A100000100100008 /* VocabularyListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100000100000008 /* VocabularyListView.swift */; };
+		A100000100100009 /* FlashcardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100000100000009 /* FlashcardView.swift */; };
+		A100000100100010 /* QuizView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100000100000010 /* QuizView.swift */; };
+		A100000100100011 /* FillInBlankView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100000100000011 /* FillInBlankView.swift */; };
+		A100000100100012 /* MatchingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100000100000012 /* MatchingView.swift */; };
+		A100000100100013 /* ExerciseContainerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100000100000013 /* ExerciseContainerView.swift */; };
+		A100000100100014 /* ProgressDashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100000100000014 /* ProgressDashboardView.swift */; };
+		A100000100100015 /* settings.xml in Resources */ = {isa = PBXBuildFile; fileRef = A100000100000015 /* settings.xml */; };
+		A100000100100016 /* extrawordlist.xml in Resources */ = {isa = PBXBuildFile; fileRef = A100000100000016 /* extrawordlist.xml */; };
+		A100000100100017 /* CategorizationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100000100000017 /* CategorizationView.swift */; };
+		A100000100100018 /* definitions.json in Resources */ = {isa = PBXBuildFile; fileRef = A100000100000018 /* definitions.json */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		A100000100000001 /* OxfordWordSkillsApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OxfordWordSkillsApp.swift; sourceTree = "<group>"; };
+		A100000100000002 /* DataModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataModels.swift; sourceTree = "<group>"; };
+		A100000100000003 /* ContentParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentParser.swift; sourceTree = "<group>"; };
+		A100000100000004 /* SpeechService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeechService.swift; sourceTree = "<group>"; };
+		A100000100000005 /* ContentViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentViewModel.swift; sourceTree = "<group>"; };
+		A100000100000006 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		A100000100000007 /* SidebarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarView.swift; sourceTree = "<group>"; };
+		A100000100000008 /* VocabularyListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VocabularyListView.swift; sourceTree = "<group>"; };
+		A100000100000009 /* FlashcardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlashcardView.swift; sourceTree = "<group>"; };
+		A100000100000010 /* QuizView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuizView.swift; sourceTree = "<group>"; };
+		A100000100000011 /* FillInBlankView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FillInBlankView.swift; sourceTree = "<group>"; };
+		A100000100000012 /* MatchingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MatchingView.swift; sourceTree = "<group>"; };
+		A100000100000013 /* ExerciseContainerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExerciseContainerView.swift; sourceTree = "<group>"; };
+		A100000100000014 /* ProgressDashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProgressDashboardView.swift; sourceTree = "<group>"; };
+		A100000100000015 /* settings.xml */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = settings.xml; sourceTree = "<group>"; };
+		A100000100000016 /* extrawordlist.xml */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = extrawordlist.xml; sourceTree = "<group>"; };
+		A100000100000017 /* CategorizationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategorizationView.swift; sourceTree = "<group>"; };
+		A100000100000018 /* definitions.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = definitions.json; sourceTree = "<group>"; };
+		A100000100000020 /* OxfordWordSkills.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = OxfordWordSkills.app; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		A100000200000001 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		A100000300000001 = {
+			isa = PBXGroup;
+			children = (
+				A100000300000002 /* OxfordWordSkills */,
+				A100000300000005 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		A100000300000002 /* OxfordWordSkills */ = {
+			isa = PBXGroup;
+			children = (
+				A100000100000001 /* OxfordWordSkillsApp.swift */,
+				A100000300000003 /* Models */,
+				A100000300000004 /* Utilities */,
+				A100000300000006 /* ViewModels */,
+				A100000300000007 /* Views */,
+				A100000300000008 /* Resources */,
+			);
+			path = OxfordWordSkills;
+			sourceTree = "<group>";
+		};
+		A100000300000003 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				A100000100000002 /* DataModels.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		A100000300000004 /* Utilities */ = {
+			isa = PBXGroup;
+			children = (
+				A100000100000003 /* ContentParser.swift */,
+				A100000100000004 /* SpeechService.swift */,
+			);
+			path = Utilities;
+			sourceTree = "<group>";
+		};
+		A100000300000005 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				A100000100000020 /* OxfordWordSkills.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		A100000300000006 /* ViewModels */ = {
+			isa = PBXGroup;
+			children = (
+				A100000100000005 /* ContentViewModel.swift */,
+			);
+			path = ViewModels;
+			sourceTree = "<group>";
+		};
+		A100000300000007 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				A100000100000006 /* ContentView.swift */,
+				A100000100000007 /* SidebarView.swift */,
+				A100000100000008 /* VocabularyListView.swift */,
+				A100000100000009 /* FlashcardView.swift */,
+				A100000100000010 /* QuizView.swift */,
+				A100000100000011 /* FillInBlankView.swift */,
+				A100000100000012 /* MatchingView.swift */,
+				A100000100000017 /* CategorizationView.swift */,
+				A100000100000013 /* ExerciseContainerView.swift */,
+				A100000100000014 /* ProgressDashboardView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		A100000300000008 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				A100000100000015 /* settings.xml */,
+				A100000100000016 /* extrawordlist.xml */,
+				A100000100000018 /* definitions.json */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		A100000400000001 /* OxfordWordSkills */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A100000600000003 /* Build configuration list for PBXNativeTarget "OxfordWordSkills" */;
+			buildPhases = (
+				A100000500000001 /* Sources */,
+				A100000200000001 /* Frameworks */,
+				A100000500000002 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = OxfordWordSkills;
+			productName = OxfordWordSkills;
+			productReference = A100000100000020 /* OxfordWordSkills.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		A100000700000001 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1500;
+				LastUpgradeCheck = 1500;
+			};
+			buildConfigurationList = A100000600000001 /* Build configuration list for PBXProject "OxfordWordSkills" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = A100000300000001;
+			productRefGroup = A100000300000005 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				A100000400000001 /* OxfordWordSkills */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		A100000500000002 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A100000100100015 /* settings.xml in Resources */,
+				A100000100100016 /* extrawordlist.xml in Resources */,
+				A100000100100018 /* definitions.json in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		A100000500000001 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A100000100100001 /* OxfordWordSkillsApp.swift in Sources */,
+				A100000100100002 /* DataModels.swift in Sources */,
+				A100000100100003 /* ContentParser.swift in Sources */,
+				A100000100100004 /* SpeechService.swift in Sources */,
+				A100000100100005 /* ContentViewModel.swift in Sources */,
+				A100000100100006 /* ContentView.swift in Sources */,
+				A100000100100007 /* SidebarView.swift in Sources */,
+				A100000100100008 /* VocabularyListView.swift in Sources */,
+				A100000100100009 /* FlashcardView.swift in Sources */,
+				A100000100100010 /* QuizView.swift in Sources */,
+				A100000100100011 /* FillInBlankView.swift in Sources */,
+				A100000100100012 /* MatchingView.swift in Sources */,
+				A100000100100013 /* ExerciseContainerView.swift in Sources */,
+				A100000100100014 /* ProgressDashboardView.swift in Sources */,
+				A100000100100017 /* CategorizationView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		A100000600000002 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				MACOSX_DEPLOYMENT_TARGET = 26.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		A100000600000004 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				MACOSX_DEPLOYMENT_TARGET = 26.0;
+				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
+			};
+			name = Release;
+		};
+		A100000600000005 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = OxfordWordSkills/OxfordWordSkills.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "© 2026 Oxford Word Skills";
+				INFOPLIST_KEY_NSMainStoryboardFile = "";
+				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.oxfordwordskills.app;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		A100000600000006 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = OxfordWordSkills/OxfordWordSkills.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "© 2026 Oxford Word Skills";
+				INFOPLIST_KEY_NSMainStoryboardFile = "";
+				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.oxfordwordskills.app;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		A100000600000001 /* Build configuration list for PBXProject "OxfordWordSkills" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A100000600000002 /* Debug */,
+				A100000600000004 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A100000600000003 /* Build configuration list for PBXNativeTarget "OxfordWordSkills" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A100000600000005 /* Debug */,
+				A100000600000006 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+
+	};
+	rootObject = A100000700000001 /* Project object */;
+}

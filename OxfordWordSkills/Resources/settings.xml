@@ -1,0 +1,337 @@
+﻿<settings>
+	<module title="Learning">
+		<unit number="1" title="talk about vocabulary learning">			
+			<section title="A Reading" type="Diamond"/>
+			<section title="B Speaking and listening" type="Diamond"/>
+		</unit>
+		<unit number="2" title="describe my progress and aims">			
+			<section title="A Making progress" type="Diamond"/>
+			<section title="B Future goals" type="Cross"/>
+		</unit>
+		<unit number="3" title="understand a learner's dictionary">			
+			<section title="Understanding a learner's dictionary" type="Circle"/>
+		</unit>
+		<unit number="4" title="talk about English pronunciation">			
+			<section title="A Punctuation marks" type="Rectangle"/>
+			<section title="B Punctuation rules" type="Diamond"/> 
+		</unit>
+</module>
+<module title="People">
+		<unit number="5" title="talk about appearance">			
+			<section title="A Male appearance" type="Rectangle"/>
+			<section title="B Female appearance" type="Circle"/>
+		</unit>
+		<unit number="6" title="talk about character">			
+			<section title="Talking about character" type="Triangle"/>
+		</unit>
+		<unit number="7" title="describe my feelings">			
+			<section title="Feelings" type="Triangle"/>
+		</unit>
+		<unit number="8" title="talk about relationships">			
+			<section title="A Friendship" type="Triangle"/>
+			<section title="B When things go wrong" type="Diamond"/>
+		</unit>
+		<unit number="9" title="talk about families">			
+			<section title="A Family relationships" type="Diamond"/>
+			<section title="B Family history" type="Hexagon"/>
+		</unit>
+		<unit number="10" title="talk about weddings and funerals">			
+			<section title="A A typical British wedding" type="Circle"/>
+			<section title="B The end of a life" type="Triangle"/> 
+		</unit>
+</module>
+<module title="The world around us">
+		<unit number="11" title="describe the universe">			
+			<section title="A The universe" type="Diamond"/>
+			<section title="B Scientific exploration" type="Diamond"/>
+		</unit>
+		<unit number="12" title="talk about rivers and the sea">			
+			<section title="A Water" type="Rectangle"/>
+			<section title="B The coast" type="Circle"/>
+		</unit>
+		<unit number="13" title="describe the climate">			
+			<section title="A The weather" type="Triangle"/>
+			<section title="B Climate change" type="Diamond"/>
+		</unit>
+		<unit number="14" title="describe natural disasters">			
+			<section title="A Types of disaster" type="Rectangle"/>
+			<section title="B Effects" type="Diamond"/>
+		</unit>
+		<unit number="15" title="describe animals and insects">			
+			<section title="A Wild creatures" type="Rectangle"/>
+			<section title="B Unusual facts about animals" type="Diamond"/>
+			<section title="C Farm and small animals" type="Circle"/> 
+		</unit>
+</module>
+<module title="Daily life">
+		<unit number="16" title="describe a range of food">			
+			<section title="A Fruit" type="Rectangle"/>
+			<section title="B Vegetables and herbs (1)" type="Rectangle"/>
+			<section title="C Vegetables and herbs (2)" type="Rectangle"/>
+			<section title="D Meat, fish, and seafood (1)" type="Rectangle"/>
+			<section title="E Meat, fish, and seafood (2)" type="Rectangle"/>
+		</unit>
+		<unit number="17" title="talk about diets and cooking">			
+			<section title="A Diets" type="Diamond"/>
+			<section title="B Cooking" type="Rectangle"/>
+		</unit>
+		<unit number="18" title="talk about money">			
+			<section title="A Buying things" type="Hexagon"/>
+			<section title="B I'm not very good with money" type="Diamond"/>
+		</unit>
+		<unit number="19" title="talk about sleep">			
+			<section title="A Before, during, and after sleep" type="Rectangle"/>
+			<section title="B Sleep habits" type="Cross"/>
+		</unit>
+		<unit number="20" title="talk about injuries">			
+			<section title="A Burns and cuts" type="Diamond"/>
+			<section title="B A nasty injury" type="Diamond"/>
+		</unit>
+		<unit number="21" title="talk about cars and driving">			
+			<section title="A The car" type="Circle"/>
+			<section title="B Driving tips" type="Diamond"/>
+		</unit>
+		<unit number="22" title="describe travel problems and accidents">			
+			<section title="A Trains and planes" type="Cross"/>
+			<section title="B On the roads" type="Diamond"/>
+			<section title="C A road accident" type="Diamond"/>
+		</unit>
+		<unit number="23" title="talk about clothes and fashion">			
+			<section title="A Clothes (1)" type="Circle"/>
+			<section title="B Clothes (2)" type="Circle"/>
+ 			<section title="C Fashion" type="Diamond"/> 
+		</unit>
+</module>
+<module title="Getting things done">	
+		<unit number="24" title="describe a visit to the dentist">			
+			<section title="Visiting the dentist" type="Diamond"/>
+		</unit>
+		<unit number="25" title="describe hospital procedures">			
+			<section title="Going into hospital" type="Triangle"/>
+		</unit>
+		<unit number="26" title="explain household tasks">			
+			<section title="A Using tools and household objects" type="Rectangle"/>
+			<section title="B Common problems" type="Cross"/>
+		</unit>
+		<unit number="27" title="describe housework">			
+			<section title="Describing housework" type="Diamond"/>
+		</unit>
+		<unit number="28" title="talk to a hairdresser">			
+			<section title="Talking to hairdressers" type="Cross"/> 
+		</unit>
+</module>
+<module title="Describing things">
+		<unit number="29" title="describe urban life">			
+			<section title="A The inner city" type="Diamond"/>
+			<section title="B In a suburb" type="Diamond"/>
+		</unit>
+		<unit number="30" title="describe parts of a building">			
+			<section title="Describing parts of a building" type="Diamond"/>
+		</unit>
+		<unit number="31" title="describe objects">			
+			<section title="A What's it made of?" type="Rectangle"/>
+			<section title="B Shapes and lines" type="Rectangle"/>
+		</unit>
+		<unit number="32" title="describe the senses">			
+			<section title="A Seeing and hearing" type="Triangle"/>
+			<section title="B Smelling, tasting, and touching" type="Triangle"/>
+		</unit>
+		<unit number="33" title="describe a painting">			
+			<section title="Describing paintings" type="Diamond"/>
+		</unit>
+		<unit number="34" title="describe actions">			
+			<section title="A Using your hands" type="Rectangle"/>
+			<section title="B Making noises" type="Triangle"/> 
+		</unit>
+</module>
+<module title="Social and political issues">
+		<unit number="35" title="talk about crime">			
+			<section title="A What is crime?" type="Diamond"/>
+			<section title="B Types of crime" type="Triangle"/>
+		</unit>
+		<unit number="36" title="describe the justice system">			
+			<section title="A A police investigation" type="Cross"/>
+			<section title="B In court" type="Diamond"/>
+		</unit>
+		<unit number="37" title="discuss health issues">			
+			<section title="A Diseases common among younger people" type="Diamond"/>
+			<section title="B Diseases common among older people" type="Triangle"/>
+		</unit>
+		<unit number="38" title="talk about politics">			
+			<section title="A The British political system" type="Diamond"/>
+			<section title="B Political objectives" type="Diamond"/>
+		</unit>
+		<unit number="39" title="talk about war and peace">			
+			<section title="A Conflict" type="Diamond"/>
+			<section title="B Compromise" type="Diamond"/>
+		</unit>
+		<unit number="40" title="talk about events in history">			
+			<section title="Talking about historical events" type="Triangle"/>
+		</unit>
+		<unit number="41" title="understand newspapers">			
+			<section title="A Newspaper publishing" type="Diamond"/>
+			<section title="B Headlines" type="Hexagon"/> 
+		</unit>
+</module>
+<module title="Media and entertainment">
+		<unit number="42" title="talk about films">			
+			<section title="A Film awards" type="Diamond"/>
+			<section title="B Opinions" type="Cross"/>
+		</unit>
+		<unit number="43" title="talk about art and photography">			
+			<section title="A Paintings and drawing" type="Rectangle"/>
+			<section title="B Photography" type="Circle"/>
+		</unit>
+		<unit number="44" title="talk about music">			
+			<section title="A Instruments and musicians" type="Rectangle"/>
+			<section title="B Who do you admire?" type="Cross"/>
+		</unit>
+		<unit number="45" title="talk about people and places in sport">			
+			<section title="A People" type="Hexagon"/>
+			<section title="B Places" type="Diamond"/>
+		</unit>
+		<unit number="46" title="describe sporting events">			
+			<section title="A The Olympics" type="Diamond"/>
+			<section title="B Winners and losers" type="Diamond"/>
+		</unit>
+		<unit number="47" title="talk about books">			
+			<section title="A Types of book" type="Diamond"/>
+			<section title="B Choosing a book" type="Cross"/>
+		</unit>
+		<unit number="48" title="describe festivals">			
+			<section title="A Describing festivals (1)" type="Diamond"/>
+			<section title="B Describing festivals (2)" type="Diamond"/>
+		</unit>
+	</module>
+	<module title="Work and study">
+		<unit number="49" title="get through exams">			
+			<section title="Getting through exams" type="Diamond"/>
+		</unit>
+		<unit number="50" title="describe university life">			
+			<section title="A Academic life" type="Hexagon"/>
+			<section title="B Student life" type="Diamond"/>
+		</unit>
+		<unit number="51" title="apply for a job">			
+			<section title="Applying for a job" type="Triangle"/>
+		</unit>
+		<unit number="52" title="describe jobs">			
+			<section title="A Careers" type="Rectangle"/>
+			<section title="B Jobs" type="Rectangle"/>
+		</unit>
+		<unit number="53" title="describe a career">			
+			<section title="A Career structure" type="Diamond"/>
+			<section title="B A job with responsibility" type="Cross"/>
+		</unit>
+		<unit number="54" title="describe working conditions">			
+			<section title="Describing working conditions" type="Cross"/>
+		</unit>
+	</module>
+	<module title="Business">
+		<unit number="55" title="talk about finance">			
+			<section title="A Financial terms" type="Triangle"/>
+			<section title="B Financial trends" type="Circle"/>
+		</unit>
+		<unit number="56" title="talk about companies">			
+			<section title="A Setting up a business" type="Diamond"/>
+			<section title="B Growth" type="Diamond"/>
+		</unit>
+		<unit number="57" title="describe a successful business">			
+			<section title="Describing successful businesses" type="Diamond"/>
+		</unit>
+		<unit number="58" title="discuss marketing">			
+			<section title="A The basis of marketing" type="Diamond"/>
+			<section title="B Developing a marketing strategy" type="Hexagon"/>
+		</unit>
+	</module>
+	<module title="Social English">
+		<unit number="59" title="express probability">			
+			<section title="Expressing possibility" type="Diamond"/>
+		</unit>
+		<unit number="60" title="explain similarities and differences">			
+			<section title="Explaining similarities and differences" type="Diamond"/>
+		</unit>
+		<unit number="61" title="make arrangements to meet">			
+			<section title="Making arrangements to meet" type="Cross"/>
+		</unit>
+		<unit number="62" title="discuss my likes and dislikes">			
+			<section title="Discussing likes and dislikes" type="Diamond"/>
+		</unit>
+		<unit number="63" title="give my opinion">			
+			<section title="A Asking for and giving opinions" type="Cross"/>
+			<section title="B For or against?" type="Triangle"/>
+		</unit>
+		<unit number="64" title="talk about rules">			
+			<section title="A Rules at school" type="Diamond"/>
+			<section title="B Can you choose?" type="Triangle"/>
+		</unit>
+		<unit number="65" title="discuss hopes and plans">			
+			<section title="A Making plans" type="Cross"/>
+			<section title="B Spoken responses" type="Cross"/>
+		</unit>
+		<unit number="66" title="express dissatisfaction">			
+			<section title="A How to complain" type="Diamond"/>
+			<section title="B Having a moan" type="Cross"/>
+		</unit>
+		<unit number="67" title="understand warnings">			
+			<section title="Understanding warnings" type="Triangle"/>
+		</unit>
+	</module>
+	<module title="Language">
+		<unit number="68" title="use link words">			
+			<section title="A Reason, result, and addition" type="Diamond"/>
+			<section title="B Contrasting ideas" type="Triangle"/>
+			<section title="C Other link words" type="Triangle"/>
+		</unit>
+		<unit number="69" title="use a range of adjectives">			
+			<section title="A Describing places" type="Diamond"/>
+			<section title="B Describing feelings" type="Triangle"/>
+			<section title="C Pairs and opposites" type="Triangle"/>
+		</unit>
+		<unit number="70" title="express place and time">			
+			<section title="A Place" type="Diamond"/>
+			<section title="B Time" type="Diamond"/>
+		</unit>
+		<unit number="71" title="use prepositions in phrases">			
+			<section title="A Preposition + word(s)" type="Triangle"/>
+			<section title="B Word(s) + preposition" type="Triangle"/>
+		</unit>
+		<unit number="72" title="use prefixes">			
+			<section title="A Negative prefixes" type="Triangle"/>
+			<section title="B Reversing an action" type="Rectangle"/>
+		</unit>
+		<unit number="73" title="use suffixes">			
+			<section title="A Noun suffixes" type="Triangle"/>
+			<section title="B Adjective suffixes" type="Hexagon"/>
+		</unit>
+		<unit number="74" title="use verb patterns">			
+			<section title="Using verb patterns" type="Triangle"/>
+		</unit>
+		<unit number="75" title="use phrasal verbs">			
+			<section title="A Grammar" type="Triangle"/>
+			<section title="B In the classroom" type="Cross"/>
+		</unit>
+		<unit number="76" title="use a range of adverbs">			
+			<section title="A Other ways of saying 'very'" type="Triangle"/>
+			<section title="B Frequency and degree" type="Cross"/>
+		</unit>
+	</module>
+	<module title="Styles of English">
+		<unit number="77" title="recognize informal English">			
+			<section title="A Formal and informal English" type="Cross"/>
+			<section title="B Common exchanges" type="Cross"/>
+			<section title="C An everyday conversation" type="Cross"/>
+		</unit>
+		<unit number="78" title="write a formal letter">			
+			<section title="Writing formal letters" type="Diamond"/>
+		</unit>
+		<unit number="79" title="understand abbreviations and short forms">			
+			<section title="A Numbers and measurements" type="Hexagon"/>
+			<section title="B Abbreviations" type="Diamond"/>
+			<section title="C Shortened forms" type="Cross"/>
+		</unit>
+		<unit number="80" title="use American English">			
+			<section title="Using American English" type="Rectangle"/> 
+		</unit>
+</module>
+
+</settings>
