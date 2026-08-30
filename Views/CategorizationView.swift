@@ -43,7 +43,23 @@ struct CategorizationView: View {
     }
 
     private var header: some View {
-        HStack {
+        HStack(spacing: 12) {
+            Button {
+                if let unitNum = unitNumber {
+                    viewModel.selectedNavigation = .unit(unitNum)
+                } else {
+                    viewModel.selectedNavigation = .allWords
+                }
+            } label: {
+                HStack(spacing: 4) {
+                    Image(systemName: "chevron.left")
+                        .fontWeight(.semibold)
+                    Text(unitNumber != nil ? "Unit \(unitNumber!)" : "Words")
+                }
+            }
+            .buttonStyle(.bordered)
+            .help("Back to vocabulary list")
+
             Text(headerTitle)
                 .font(.title2)
                 .fontWeight(.bold)
@@ -78,10 +94,12 @@ struct CategorizationView: View {
                 }
             }
             .padding()
-            .background {
+            .background(Color(nsColor: .controlBackgroundColor), in: RoundedRectangle(cornerRadius: 12))
+            .overlay(
                 RoundedRectangle(cornerRadius: 12)
-                    .glassEffect()
-            }
+                    .strokeBorder(Color(nsColor: .separatorColor).opacity(0.6), lineWidth: 1)
+            )
+            .shadow(color: .black.opacity(0.04), radius: 6, x: 0, y: 2)
 
             // Categories
             LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 16) {
@@ -125,7 +143,7 @@ struct CategorizationView: View {
             HStack {
                 Button("Play Again") { generateGame() }
                     .buttonStyle(.bordered)
-                Button("Back to Words") {
+                Button(unitNumber != nil ? "Back to Unit" : "Back to Words") {
                     viewModel.selectedNavigation = unitNumber.map { .unit($0) } ?? .allWords
                 }
                 .buttonStyle(.borderedProminent)

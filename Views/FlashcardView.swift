@@ -33,7 +33,23 @@ struct FlashcardView: View {
     }
 
     private var header: some View {
-        HStack {
+        HStack(spacing: 12) {
+            Button {
+                if let unitNum = unitNumber {
+                    viewModel.selectedNavigation = .unit(unitNum)
+                } else {
+                    viewModel.selectedNavigation = .allWords
+                }
+            } label: {
+                HStack(spacing: 4) {
+                    Image(systemName: "chevron.left")
+                        .fontWeight(.semibold)
+                    Text(unitNumber != nil ? "Unit \(unitNumber!)" : "Words")
+                }
+            }
+            .buttonStyle(.bordered)
+            .help("Back to vocabulary list")
+
             Text(unitNumber != nil ? "Unit \(unitNumber!) — Flashcards" : "All Words — Flashcards")
                 .font(.title2)
                 .fontWeight(.bold)
@@ -51,10 +67,6 @@ struct FlashcardView: View {
     private var cardArea: some View {
         ZStack {
             if let word = currentWord {
-                RoundedRectangle(cornerRadius: 20)
-                    .fill(.ultraThinMaterial)
-                    .shadow(color: .black.opacity(0.1), radius: 10, x: 0, y: 5)
-
                 VStack(spacing: 16) {
                     if isFlipped {
                         // Back: definition + example
@@ -125,7 +137,13 @@ struct FlashcardView: View {
                     }
                 }
                 .padding(36)
-                .frame(maxWidth: 480, maxHeight: 360)
+                .frame(maxWidth: 480, minHeight: 280, maxHeight: 360)
+                .background(Color(nsColor: .controlBackgroundColor), in: RoundedRectangle(cornerRadius: 20))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 20)
+                        .strokeBorder(Color(nsColor: .separatorColor).opacity(0.6), lineWidth: 1)
+                )
+                .shadow(color: .black.opacity(0.06), radius: 12, x: 0, y: 4)
                 .onTapGesture {
                     withAnimation(.spring(duration: 0.6)) {
                         isFlipped.toggle()
