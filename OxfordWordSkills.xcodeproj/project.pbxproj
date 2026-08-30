@@ -25,6 +25,7 @@
 		A100000100100016 /* extrawordlist.xml in Resources */ = {isa = PBXBuildFile; fileRef = A100000100000016 /* extrawordlist.xml */; };
 		A100000100100017 /* CategorizationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100000100000017 /* CategorizationView.swift */; };
 		A100000100100018 /* definitions.json in Resources */ = {isa = PBXBuildFile; fileRef = A100000100000018 /* definitions.json */; };
+		A100000100100019 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A100000100000019 /* Assets.xcassets */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -46,6 +47,7 @@
 		A100000100000016 /* extrawordlist.xml */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = extrawordlist.xml; sourceTree = "<group>"; };
 		A100000100000017 /* CategorizationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategorizationView.swift; sourceTree = "<group>"; };
 		A100000100000018 /* definitions.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = definitions.json; sourceTree = "<group>"; };
+		A100000100000019 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		A100000100000020 /* OxfordWordSkills.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = OxfordWordSkills.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -126,6 +128,7 @@
 		A100000300000008 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				A100000100000019 /* Assets.xcassets */,
 				A100000100000015 /* settings.xml */,
 				A100000100000016 /* extrawordlist.xml */,
 				A100000100000018 /* definitions.json */,
@@ -186,6 +189,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A100000100100019 /* Assets.xcassets in Resources */,
 				A100000100100015 /* settings.xml in Resources */,
 				A100000100100016 /* extrawordlist.xml in Resources */,
 				A100000100100018 /* definitions.json in Resources */,
