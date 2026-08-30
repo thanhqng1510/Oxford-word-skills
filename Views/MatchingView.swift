@@ -4,16 +4,26 @@ struct MatchingView: View {
     @Bindable var viewModel: ContentViewModel
     let unitNumber: Int?
     @State private var pairs: [MatchPair] = []
+    @State private var rightOptions: [RightOption] = []
     @State private var selectedLeft: UUID?
     @State private var selectedRight: UUID?
     @State private var matchedPairs: Set<UUID> = []
     @State private var attempts = 0
     @State private var isFinished = false
     @State private var wrongRightIDs: Set<UUID> = []
+    @State private var wrongLeftIDs: Set<UUID> = []
 
     private var progress: Double {
         guard !pairs.isEmpty else { return 0 }
         return Double(matchedPairs.count) / Double(pairs.count)
+    }
+
+    private var headerTitle: String {
+        if let unitNum = unitNumber {
+            return "Unit \(unitNum) — Synonym Match"
+        } else {
+            return "All Words — Synonym Match"
+        }
     }
 
     var body: some View {
@@ -21,7 +31,11 @@ struct MatchingView: View {
             header
 
             if pairs.isEmpty {
-                ContentUnavailableView("No Words with Synonyms", systemImage: "arrow.triangle.branch", description: Text("Need words with synonym data"))
+                ContentUnavailableView(
+                    "No Words with Synonyms",
+                    systemImage: "arrow.triangle.branch",
+                    description: Text("Need words with synonym data")
+                )
             } else if isFinished {
                 resultScreen
             } else {
@@ -34,7 +48,7 @@ struct MatchingView: View {
 
     private var header: some View {
         HStack {
-            Text(unitNumber != nil ? "Unit \(unitNumber!) — Synonym Match" : "All Words — Synonym Match")
+            Text(headerTitle)
                 .font(.title2)
                 .fontWeight(.bold)
             Spacer()
@@ -58,10 +72,10 @@ struct MatchingView: View {
                     .foregroundStyle(.secondary)
                 ForEach(pairs) { pair in
                     matchButton(
-                        id: pair.id,
                         text: pair.word.word,
                         isSelected: selectedLeft == pair.id,
-                        isMatched: matchedPairs.contains(pair.id)
+                        isMatched: matchedPairs.contains(pair.id),
+                        isWrong: wrongLeftIDs.contains(pair.id)
                     ) {
                         selectLeft(pair.id)
                     }
@@ -77,14 +91,13 @@ struct MatchingView: View {
                     .foregroundStyle(.secondary)
             }
 
-            // Right column: synonyms (shuffled)
+            // Right column: synonyms (stable shuffled @State)
             VStack(spacing: 8) {
                 Text("Synonyms")
                     .font(.headline)
                     .foregroundStyle(.secondary)
                 ForEach(rightOptions) { option in
                     matchButton(
-                        id: option.id,
                         text: option.synonym,
                         isSelected: selectedRight == option.id,
                         isMatched: matchedPairs.contains(option.pairID),
@@ -98,21 +111,16 @@ struct MatchingView: View {
         .frame(maxWidth: 600)
     }
 
-    private struct RightOption: Identifiable {
-        let id = UUID()
-        let pairID: UUID
-        let synonym: String
-    }
-
-    private var rightOptions: [RightOption] {
-        pairs.flatMap { pair in
-            pair.synonyms.prefix(2).map { RightOption(pairID: pair.id, synonym: $0) }
-        }.shuffled()
-    }
-
-    private func matchButton(id: UUID, text: String, isSelected: Bool, isMatched: Bool, isWrong: Bool = false, action: @escaping () -> Void) -> some View {
+    private func matchButton(
+        text: String,
+        isSelected: Bool,
+        isMatched: Bool,
+        isWrong: Bool = false,
+        action: @escaping () -> Void
+    ) -> some View {
         Button(action: action) {
             Text(text)
+                .font(.body)
                 .frame(maxWidth: .infinity, minHeight: 44)
                 .padding(.horizontal)
         }
@@ -124,13 +132,13 @@ struct MatchingView: View {
 
     private func selectLeft(_ id: UUID) {
         guard !matchedPairs.contains(id) else { return }
-        selectedLeft = id
+        selectedLeft = (selectedLeft == id) ? nil : id
         checkMatch()
     }
 
     private func selectRight(_ option: RightOption) {
         guard !matchedPairs.contains(option.pairID) else { return }
-        selectedRight = option.id
+        selectedRight = (selectedRight == option.id) ? nil : option.id
         checkMatch()
     }
 
@@ -138,15 +146,24 @@ struct MatchingView: View {
         guard let leftID = selectedLeft, let rightID = selectedRight else { return }
         attempts += 1
 
-        let matchedOption = rightOptions.first { $0.id == rightID }
+        guard let matchedOption = rightOptions.first(where: { $0.id == rightID }) else {
+            selectedLeft = nil
+            selectedRight = nil
+            return
+        }
 
-        if let option = matchedOption, option.pairID == leftID {
+        if matchedOption.pairID == leftID {
             matchedPairs.insert(leftID)
             wrongRightIDs.remove(rightID)
+            wrongLeftIDs.remove(leftID)
         } else {
             wrongRightIDs.insert(rightID)
+            wrongLeftIDs.insert(leftID)
+            let capturedRight = rightID
+            let capturedLeft = leftID
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                wrongRightIDs.remove(rightID)
+                wrongRightIDs.remove(capturedRight)
+                wrongLeftIDs.remove(capturedLeft)
             }
         }
 
@@ -155,7 +172,9 @@ struct MatchingView: View {
 
         if matchedPairs.count == pairs.count {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                isFinished = true
+                withAnimation(.smooth) {
+                    isFinished = true
+                }
             }
         }
     }
@@ -192,12 +211,55 @@ struct MatchingView: View {
             sourceWords = viewModel.allWords
         }
 
-        let valid = sourceWords.filter { !$0.synonyms.isEmpty }
-        let shuffled = valid.shuffled()
-
-        pairs = Array(shuffled.prefix(min(6, shuffled.count))).map {
-            MatchPair(word: $0, synonyms: Array($0.synonyms.prefix(2)))
+        // Filter words that have at least one non-empty synonym distinct from the word itself
+        let validWords = sourceWords.filter { word in
+            !word.synonyms.isEmpty &&
+            word.synonyms.contains { syn in
+                let trimmed = syn.trimmingCharacters(in: .whitespacesAndNewlines)
+                return !trimmed.isEmpty && trimmed.caseInsensitiveCompare(word.word) != .orderedSame
+            }
         }
+
+        let shuffled = validWords.shuffled()
+        var selectedPairs: [MatchPair] = []
+        var usedSynonyms = Set<String>()
+
+        for word in shuffled {
+            let availableSynonyms = word.synonyms
+                .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+                .filter { syn in
+                    !syn.isEmpty &&
+                    syn.caseInsensitiveCompare(word.word) != .orderedSame &&
+                    !usedSynonyms.contains(syn.lowercased())
+                }
+
+            if let chosenSyn = availableSynonyms.first {
+                let pairID = UUID()
+                selectedPairs.append(MatchPair(id: pairID, word: word, synonym: chosenSyn))
+                usedSynonyms.insert(chosenSyn.lowercased())
+
+                if selectedPairs.count == 6 {
+                    break
+                }
+            }
+        }
+
+        // Fallback: If strict deduplication yielded fewer than 2 pairs, allow secondary synonyms
+        if selectedPairs.count < 2 && !shuffled.isEmpty {
+            selectedPairs.removeAll()
+            for word in shuffled.prefix(6) {
+                if let syn = word.synonyms.first(where: {
+                    let trimmed = $0.trimmingCharacters(in: .whitespacesAndNewlines)
+                    return !trimmed.isEmpty && trimmed.caseInsensitiveCompare(word.word) != .orderedSame
+                }) {
+                    let pairID = UUID()
+                    selectedPairs.append(MatchPair(id: pairID, word: word, synonym: syn.trimmingCharacters(in: .whitespacesAndNewlines)))
+                }
+            }
+        }
+
+        pairs = selectedPairs
+        rightOptions = selectedPairs.map { RightOption(id: UUID(), pairID: $0.id, synonym: $0.synonym) }.shuffled()
 
         matchedPairs.removeAll()
         selectedLeft = nil
@@ -205,11 +267,38 @@ struct MatchingView: View {
         attempts = 0
         isFinished = false
         wrongRightIDs.removeAll()
+        wrongLeftIDs.removeAll()
     }
 }
 
-struct MatchPair: Identifiable {
-    let id = UUID()
+struct MatchPair: Identifiable, Equatable {
+    let id: UUID
     let word: Word
-    let synonyms: [String]
+    let synonym: String
+
+    init(id: UUID = UUID(), word: Word, synonym: String) {
+        self.id = id
+        self.word = word
+        self.synonym = synonym
+    }
+
+    static func == (lhs: MatchPair, rhs: MatchPair) -> Bool {
+        lhs.id == rhs.id
+    }
+}
+
+struct RightOption: Identifiable, Equatable {
+    let id: UUID
+    let pairID: UUID
+    let synonym: String
+
+    init(id: UUID = UUID(), pairID: UUID, synonym: String) {
+        self.id = id
+        self.pairID = pairID
+        self.synonym = synonym
+    }
+
+    static func == (lhs: RightOption, rhs: RightOption) -> Bool {
+        lhs.id == rhs.id
+    }
 }

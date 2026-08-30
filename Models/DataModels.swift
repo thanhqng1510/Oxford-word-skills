@@ -8,7 +8,7 @@ struct WordDefinition: Codable, Hashable {
 
 struct WordDetail: Codable {
     let word: String
-    let phonetic: String
+    let phonetic: String?
     let meanings: [MeaningDetail]
 }
 
@@ -110,3 +110,74 @@ enum NavigationTarget: Hashable {
     case exercise(ExerciseType, Int?)
     case progress
 }
+
+// MARK: - Word Clean Headword & Spelling Normalization
+
+extension Word {
+    /// The base word stripped of parenthetical glosses, e.g. "ad (= advertisement)" -> "ad"
+    var cleanWord: String {
+        if let parenIndex = word.firstIndex(of: "(") {
+            let base = word[..<parenIndex].trimmingCharacters(in: .whitespaces)
+            return base.isEmpty ? word : String(base)
+        }
+        return word
+    }
+
+    /// The parenthetical context gloss if present, e.g. "(= advertisement)"
+    var parentheticalGloss: String? {
+        guard let openParen = word.firstIndex(of: "(") else { return nil }
+        let gloss = word[openParen...].trimmingCharacters(in: .whitespaces)
+        return gloss.isEmpty ? nil : String(gloss)
+    }
+
+    /// Set of acceptable normalized spelling variations for listening & spelling exercises.
+    var acceptedSpellings: [String] {
+        var accepted: Set<String> = []
+
+        // 1. Raw word string (lowercased, trimmed)
+        accepted.insert(word.trimmingCharacters(in: .whitespaces).lowercased())
+
+        // 2. Clean base word
+        let clean = cleanWord.trimmingCharacters(in: .whitespaces).lowercased()
+        if !clean.isEmpty {
+            accepted.insert(clean)
+        }
+
+        // 3. Optional suffix variations e.g. "backward(s)" -> "backward" and "backwards"
+        if word.contains("(s)") {
+            let withS = word.replacingOccurrences(of: "(s)", with: "s")
+                .split(separator: "(")[0]
+                .trimmingCharacters(in: .whitespaces)
+                .lowercased()
+            let withoutS = word.replacingOccurrences(of: "(s)", with: "")
+                .split(separator: "(")[0]
+                .trimmingCharacters(in: .whitespaces)
+                .lowercased()
+            if !withS.isEmpty { accepted.insert(withS) }
+            if !withoutS.isEmpty { accepted.insert(withoutS) }
+        }
+
+        // 4. Normalized without punctuation/parentheses/equal signs
+        let stripped = word
+            .replacingOccurrences(of: "(", with: "")
+            .replacingOccurrences(of: ")", with: "")
+            .replacingOccurrences(of: "=", with: "")
+            .replacingOccurrences(of: "  ", with: " ")
+            .trimmingCharacters(in: .whitespaces)
+            .lowercased()
+        if !stripped.isEmpty {
+            accepted.insert(stripped)
+        }
+
+        return Array(accepted)
+    }
+
+    /// Clean spoken text for TTS synthesis (strips parenthetical glosses and trailing ellipses)
+    var speechText: String {
+        var text = cleanWord
+        text = text.replacingOccurrences(of: "...", with: "")
+        text = text.trimmingCharacters(in: .whitespaces)
+        return text.isEmpty ? word : text
+    }
+}
+

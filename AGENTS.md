@@ -6,6 +6,7 @@
 - 12 modules, 80 units, ~11,800 words with IPA, definitions, synonyms, antonyms
 - Zero dependencies — Apple frameworks only (SwiftUI, Foundation, AVFoundation)
 - Build: `xcodebuild build -scheme OxfordWordSkills -destination 'platform=macOS'`
+- Test: `./run_e2e_tests.sh` or `python3 tests/run_all_tests.py`
 
 ## File Map
 
@@ -168,6 +169,33 @@ Use `.symbolEffect(.bounce)` on interactive SF Symbols:
 - Checkmarks, stars, speaker icons
 - Toggle states, navigation indicators
 
+## Testing & Quality Assurance
+
+### Master Test Runner
+Run the full 3-phase automated validation suite (Python 4-tier tests, Swift engine integration, Xcode compilation):
+```bash
+./run_e2e_tests.sh
+```
+
+### Python E2E Test Suite (80 Tests)
+Verifies schema validity, curriculum alignment, definition completeness, and game mechanics:
+```bash
+python3 tests/run_all_tests.py
+```
+
+### Swift Engine Integration Tests
+Verifies `ContentParser.buildModules()`, `WordDetail` decoding, and module hierarchy:
+```bash
+swift Models/DataModels.swift Utilities/ContentParser.swift tests/test_engine_pipeline.swift
+```
+
+### Swift Stress & Simulation Suites
+Simulates 10,000+ quiz questions and 85,000+ categorization runs to verify 0 intra-unit distractor collisions and robust game state transitions:
+```bash
+swift Models/DataModels.swift Utilities/ContentParser.swift tests/stress_test_quiz_matching.swift
+swift Models/DataModels.swift Utilities/ContentParser.swift tests/stress_test_headwords_and_categorization.swift
+```
+
 ## What to Avoid
 
 - No SPM dependencies — the project is dependency-free
@@ -177,3 +205,4 @@ Use `.symbolEffect(.bounce)` on interactive SF Symbols:
 - No forced unwrapping
 - No `.ultraThinMaterial` — use `.glassEffect()` instead
 - No `NavigationLink` — use enum-driven routing
+

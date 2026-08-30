@@ -2,3 +2,7 @@
 *.xcuserstate
 DerivedData/
 build/
+.agents/
+__pycache__/
+*.pyc
+tests/test_results.json

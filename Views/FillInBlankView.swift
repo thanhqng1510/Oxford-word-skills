@@ -22,6 +22,14 @@ struct FillInBlankView: View {
         return Double(currentIndex + 1) / Double(words.count)
     }
 
+    private var headerTitle: String {
+        if let unitNum = unitNumber {
+            return "Unit \(unitNum) — Listening & Spelling"
+        } else {
+            return "All Words — Listening & Spelling"
+        }
+    }
+
     var body: some View {
         VStack(spacing: 20) {
             header
@@ -42,7 +50,7 @@ struct FillInBlankView: View {
 
     private var header: some View {
         HStack {
-            Text(unitNumber != nil ? "Unit \(unitNumber!) — Listening & Spelling" : "All Words — Listening & Spelling")
+            Text(headerTitle)
                 .font(.title2)
                 .fontWeight(.bold)
             Spacer()
@@ -63,7 +71,7 @@ struct FillInBlankView: View {
                         .foregroundStyle(.secondary)
 
                     Button {
-                        SpeechService.shared.speak(word.word)
+                        SpeechService.shared.speak(word.speechText)
                     } label: {
                         Label("Play Again", systemImage: "speaker.wave.2.fill")
                             .font(.title2)
@@ -87,8 +95,13 @@ struct FillInBlankView: View {
                                 .foregroundStyle(isCorrect ? .green : .red)
                                 .font(.title2)
                             if !isCorrect {
-                                Text("Answer: **\(word.word)**")
-                                    .font(.headline)
+                                if let gloss = word.parentheticalGloss {
+                                    Text("Answer: **\(word.cleanWord)** \(gloss)")
+                                        .font(.headline)
+                                } else {
+                                    Text("Answer: **\(word.word)**")
+                                        .font(.headline)
+                                }
                             } else {
                                 Text("Correct!")
                                     .font(.headline)
@@ -100,14 +113,18 @@ struct FillInBlankView: View {
                 }
                 .padding(28)
                 .frame(maxWidth: .infinity)
-                .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 16))
+                .background {
+                    RoundedRectangle(cornerRadius: 16)
+                        .glassEffect()
+                }
             }
         }
     }
 
     private var isCorrect: Bool {
         guard let word = currentWord else { return false }
-        return userAnswer.trimmingCharacters(in: .whitespaces).lowercased() == word.word.lowercased()
+        let input = userAnswer.trimmingCharacters(in: .whitespaces).lowercased()
+        return word.acceptedSpellings.contains(input)
     }
 
     private var answerArea: some View {
@@ -186,8 +203,9 @@ struct FillInBlankView: View {
 
     private func giveHint() {
         guard let word = currentWord else { return }
-        hintIndex = min(hintIndex + 1, word.word.count)
-        let hint = String(word.word.prefix(hintIndex))
+        let target = word.cleanWord
+        hintIndex = min(hintIndex + 1, target.count)
+        let hint = String(target.prefix(hintIndex))
         userAnswer = hint
     }
 
@@ -215,7 +233,7 @@ struct FillInBlankView: View {
 
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
             if let word = words.first {
-                SpeechService.shared.speak(word.word)
+                SpeechService.shared.speak(word.speechText)
             }
         }
     }
@@ -230,7 +248,7 @@ struct FillInBlankView: View {
             // Auto-play next word
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
                 if let word = words[safe: currentIndex] {
-                    SpeechService.shared.speak(word.word)
+                    SpeechService.shared.speak(word.speechText)
                 }
             }
         } else {

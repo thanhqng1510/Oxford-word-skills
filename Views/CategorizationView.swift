@@ -18,6 +18,14 @@ struct CategorizationView: View {
         var placedWords: [Word] = []
     }
 
+    private var headerTitle: String {
+        if let unitNum = unitNumber {
+            return "Unit \(unitNum) — Categorize"
+        } else {
+            return "All Words — Categorize"
+        }
+    }
+
     var body: some View {
         VStack(spacing: 20) {
             header
@@ -36,7 +44,7 @@ struct CategorizationView: View {
 
     private var header: some View {
         HStack {
-            Text(unitNumber != nil ? "Unit \(unitNumber!) — Categorize" : "All Words — Categorize")
+            Text(headerTitle)
                 .font(.title2)
                 .fontWeight(.bold)
             Spacer()
@@ -70,19 +78,26 @@ struct CategorizationView: View {
                 }
             }
             .padding()
-            .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 12))
+            .background {
+                RoundedRectangle(cornerRadius: 12)
+                    .glassEffect()
+            }
 
             // Categories
             LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 16) {
                 ForEach(categories) { category in
                     CategoryDropZone(
                         category: category,
-                        isTarget: draggedWord != nil
-                    ) {
-                        if let word = draggedWord {
-                            placeWord(word, in: category)
+                        isTarget: draggedWord != nil,
+                        onDrop: {
+                            if let word = draggedWord {
+                                placeWord(word, in: category)
+                            }
+                        },
+                        onRemoveWord: { word in
+                            removePlacedWord(word, from: category)
                         }
-                    }
+                    )
                 }
             }
 
@@ -90,7 +105,7 @@ struct CategorizationView: View {
                 checkComplete()
             }
             .buttonStyle(.borderedProminent)
-            .disabled(unsortedWords.isEmpty)
+            .disabled(unsortedWords.isEmpty && categories.allSatisfy { $0.placedWords.isEmpty })
         }
     }
 
@@ -127,18 +142,28 @@ struct CategorizationView: View {
         draggedWord = nil
     }
 
+    private func removePlacedWord(_ word: Word, from category: CategoryGroup) {
+        guard let catIdx = categories.firstIndex(where: { $0.id == category.id }) else { return }
+        if let placedIdx = categories[catIdx].placedWords.firstIndex(where: { $0.id == word.id }) {
+            categories[catIdx].placedWords.remove(at: placedIdx)
+            unsortedWords.append(word)
+        }
+    }
+
     private func checkComplete() {
         for catIdx in categories.indices {
+            var remainingPlaced: [Word] = []
             for word in categories[catIdx].placedWords {
                 totalAttempts += 1
                 if categories[catIdx].unitNumbers.contains(where: word.unitNumbers.contains) {
                     correctCount += 1
+                    remainingPlaced.append(word)
                 } else {
-                    // Wrong placement - put back
+                    // Wrong placement - return to unsorted pool
                     unsortedWords.append(word)
                 }
             }
-            categories[catIdx].placedWords.removeAll()
+            categories[catIdx].placedWords = remainingPlaced
         }
 
         if unsortedWords.isEmpty {
@@ -147,52 +172,96 @@ struct CategorizationView: View {
     }
 
     private func generateGame() {
-        let sourceWords: [Word]
+        let targetCategories: [CategoryGroup]
+
         if let unitNum = unitNumber {
-            sourceWords = viewModel.wordsForUnit(unitNum)
-        } else {
-            sourceWords = viewModel.allWords
-        }
-
-        // Group words by their first unit number
-        var unitGroups: [Int: [Word]] = [:]
-        for word in sourceWords {
-            if let firstUnit = word.unitNumbers.first {
-                unitGroups[firstUnit, default: []].append(word)
-            }
-        }
-
-        // Pick 2-3 units with enough words
-        let validGroups = unitGroups.filter { $0.value.count >= 3 }
-        let selectedUnits = Array(validGroups.keys.shuffled().prefix(3))
-
-        categories = selectedUnits.compactMap { unitNum in
-            guard let words = unitGroups[unitNum], words.count >= 3 else { return nil }
-            // Find module title for this unit
-            var moduleName = "Unit \(unitNum)"
+            // Single-Unit Mode: Intra-module sibling unit comparison
+            var moduleUnits: [Unit] = []
             for module in viewModel.modules {
-                if let unit = module.units.first(where: { $0.number == unitNum }) {
-                    moduleName = "\(module.title) (\(unit.title))"
+                if module.units.contains(where: { $0.number == unitNum }) {
+                    moduleUnits = module.units
                     break
                 }
             }
-            return CategoryGroup(
-                name: moduleName,
-                unitNumbers: [unitNum],
-                words: Array(words.shuffled().prefix(4))
-            )
+
+            // Find sibling units in the same module with >= 3 words
+            let validSiblingUnits = moduleUnits.filter { unit in
+                unit.number != unitNum && viewModel.wordsForUnit(unit.number).count >= 3
+            }
+
+            var selectedUnits: [Int] = [unitNum]
+            if !validSiblingUnits.isEmpty {
+                let siblings = validSiblingUnits.shuffled().prefix(2).map { $0.number }
+                selectedUnits.append(contentsOf: siblings)
+            } else {
+                // Fallback to any other units in curriculum
+                let otherUnits = viewModel.modules.flatMap { $0.units }
+                    .filter { $0.number != unitNum && $0.words.count >= 3 }
+                    .shuffled()
+                    .prefix(2)
+                    .map { $0.number }
+                selectedUnits.append(contentsOf: otherUnits)
+            }
+
+            targetCategories = selectedUnits.compactMap { uNum in
+                let words = viewModel.wordsForUnit(uNum)
+                guard words.count >= 3 else { return nil }
+
+                var catName = "Unit \(uNum)"
+                for module in viewModel.modules {
+                    if let unit = module.units.first(where: { $0.number == uNum }) {
+                        catName = "Unit \(uNum): \(unit.title)"
+                        break
+                    }
+                }
+
+                return CategoryGroup(
+                    name: catName,
+                    unitNumbers: [uNum],
+                    words: Array(words.shuffled().prefix(4))
+                )
+            }
+        } else {
+            // Multi-Unit / All Words Mode
+            var unitGroups: [Int: [Word]] = [:]
+            for word in viewModel.allWords {
+                if let firstUnit = word.unitNumbers.first {
+                    unitGroups[firstUnit, default: []].append(word)
+                }
+            }
+
+            let validGroups = unitGroups.filter { $0.value.count >= 3 }
+            let selectedUnits = Array(validGroups.keys.shuffled().prefix(3))
+
+            targetCategories = selectedUnits.compactMap { uNum in
+                guard let words = unitGroups[uNum], words.count >= 3 else { return nil }
+                var catName = "Unit \(uNum)"
+                for module in viewModel.modules {
+                    if let unit = module.units.first(where: { $0.number == uNum }) {
+                        catName = "\(unit.title) (Unit \(uNum))"
+                        break
+                    }
+                }
+                return CategoryGroup(
+                    name: catName,
+                    unitNumbers: [uNum],
+                    words: Array(words.shuffled().prefix(4))
+                )
+            }
         }
 
-        guard categories.count >= 2 else { categories = []; return }
+        guard targetCategories.count >= 2 else {
+            categories = []
+            return
+        }
 
-        // Pick 3 words from each category for the game
-        unsortedWords = categories.flatMap { $0.words }.shuffled()
-        categories = categories.map { cat in
+        categories = targetCategories.map { cat in
             var c = cat
             c.placedWords = []
             return c
         }
 
+        unsortedWords = categories.flatMap { $0.words }.shuffled()
         correctCount = 0
         totalAttempts = 0
         isFinished = false
@@ -219,6 +288,7 @@ struct CategoryDropZone: View {
     let category: CategorizationView.CategoryGroup
     let isTarget: Bool
     let onDrop: () -> Void
+    var onRemoveWord: ((Word) -> Void)? = nil
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -229,11 +299,17 @@ struct CategoryDropZone: View {
             if !category.placedWords.isEmpty {
                 FlowLayout(spacing: 6) {
                     ForEach(category.placedWords) { word in
-                        Text(word.word)
-                            .font(.caption)
-                            .padding(.horizontal, 8)
-                            .padding(.vertical, 4)
-                            .background(.green.opacity(0.2), in: Capsule())
+                        Button {
+                            onRemoveWord?(word)
+                        } label: {
+                            Text(word.word)
+                                .font(.caption)
+                                .padding(.horizontal, 8)
+                                .padding(.vertical, 4)
+                                .background(.green.opacity(0.2), in: Capsule())
+                        }
+                        .buttonStyle(.plain)
+                        .help("Click to return word to unsorted pool")
                     }
                 }
             }

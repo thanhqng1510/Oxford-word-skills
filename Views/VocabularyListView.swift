@@ -95,7 +95,7 @@ struct UnitHeaderView: View {
                 }
                 Spacer()
                 HStack(spacing: 12) {
-                    ForEach(ExerciseType.allCases.filter { $0 != .matching && $0 != .categorize }, id: \.self) { type in
+                    ForEach(ExerciseType.allCases, id: \.self) { type in
                         Button {
                             viewModel.selectedNavigation = .exercise(type, unit.number)
                         } label: {
