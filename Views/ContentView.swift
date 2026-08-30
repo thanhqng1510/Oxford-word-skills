@@ -3,6 +3,7 @@ import SwiftUI
 struct ContentView: View {
     @State private var viewModel = ContentViewModel()
     @State private var columnVisibility = NavigationSplitViewVisibility.automatic
+    var updateService: UpdateService
 
     var body: some View {
         NavigationSplitView(columnVisibility: $columnVisibility) {
@@ -12,6 +13,25 @@ struct ContentView: View {
         }
         .navigationTitle("Oxford Word Skills")
         .frame(minWidth: 900, minHeight: 600)
+        // ── Auto-update ──────────────────────────────────────────────────────
+        // Check for a newer release 2 s after launch (avoids blocking startup)
+        .task {
+            try? await Task.sleep(for: .seconds(2))
+            await updateService.checkOnLaunch()
+        }
+        // Present the update sheet when a newer version is found
+        .sheet(isPresented: Bindable(updateService).showingUpdateSheet) {
+            UpdateAvailableView(service: updateService)
+        }
+        // "Already up to date" alert for manual checks
+        .alert(
+            "You're Up to Date",
+            isPresented: Bindable(updateService).showingAlreadyLatestAlert
+        ) {
+            Button("OK") { }
+        } message: {
+            Text("Oxford Word Skills is already on the latest version.")
+        }
     }
 }
 

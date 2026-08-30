@@ -22,7 +22,7 @@ echo -e "${BOLD}${CYAN}=======================================================${
 FAILURES=0
 
 # 1. Run Python Comprehensive 4-Tier Test Suite
-echo -e "${BOLD}>>> Step 1/3: Executing Python 4-Tier Test Suite...${RESET}\n"
+echo -e "${BOLD}>>> Step 1/4: Executing Python 4-Tier Test Suite...${RESET}\n"
 if python3 tests/run_all_tests.py --json-out tests/test_results.json; then
     echo -e "\n${GREEN}✓ Step 1 Passed: All 4 Test Tiers executed successfully.${RESET}\n"
 else
@@ -31,7 +31,7 @@ else
 fi
 
 # 2. Run Native Swift Engine Pipeline Test
-echo -e "${BOLD}>>> Step 2/3: Executing Native Swift Engine Pipeline Test...${RESET}\n"
+echo -e "${BOLD}>>> Step 2/4: Executing Native Swift Engine Pipeline Test...${RESET}\n"
 if swift Models/DataModels.swift Utilities/ContentParser.swift tests/test_engine_pipeline.swift; then
     echo -e "\n${GREEN}✓ Step 2 Passed: Native Swift pipeline parsing & model decoding succeeded.${RESET}\n"
 else
@@ -39,23 +39,32 @@ else
     FAILURES=$((FAILURES + 1))
 fi
 
-# 3. Run Xcode Project Compilation Check
-echo -e "${BOLD}>>> Step 3/3: Executing Xcode Build Verification...${RESET}\n"
-if xcodebuild build -scheme OxfordWordSkills -destination 'platform=macOS' -derivedDataPath /tmp/DerivedData -quiet; then
-    echo -e "${GREEN}✓ Step 3 Passed: Xcode project compiled cleanly.${RESET}\n"
+# 3. Run UpdateService Unit Tests
+echo -e "${BOLD}>>> Step 3/4: Executing UpdateService Unit Tests...${RESET}\n"
+if swift tests/test_update_service.swift; then
+    echo -e "\n${GREEN}✓ Step 3 Passed: UpdateService version comparison & JSON parsing tests passed.${RESET}\n"
 else
-    echo -e "${RED}✗ Step 3 Failed: Xcode compilation failed.${RESET}\n"
+    echo -e "\n${RED}✗ Step 3 Failed: UpdateService unit tests failed.${RESET}\n"
+    FAILURES=$((FAILURES + 1))
+fi
+
+# 4. Run Xcode Project Compilation Check
+echo -e "${BOLD}>>> Step 4/4: Executing Xcode Build Verification...${RESET}\n"
+if xcodebuild build -scheme OxfordWordSkills -destination 'platform=macOS' -derivedDataPath /tmp/DerivedData -quiet; then
+    echo -e "${GREEN}✓ Step 4 Passed: Xcode project compiled cleanly.${RESET}\n"
+else
+    echo -e "${RED}✗ Step 4 Failed: Xcode compilation failed.${RESET}\n"
     FAILURES=$((FAILURES + 1))
 fi
 
 # Summary
 echo -e "${BOLD}=======================================================${RESET}"
 if [ $FAILURES -eq 0 ]; then
-    echo -e "${BOLD}${GREEN}  >>> ALL 3 VALIDATION PHASES PASSED (Exit Code: 0) <<<${RESET}"
+    echo -e "${BOLD}${GREEN}  >>> ALL 4 VALIDATION PHASES PASSED (Exit Code: 0) <<<${RESET}"
     echo -e "${BOLD}=======================================================\n"
     exit 0
 else
-    echo -e "${BOLD}${RED}  >>> $FAILURES / 3 VALIDATION PHASES FAILED (Exit Code: 1) <<<${RESET}"
+    echo -e "${BOLD}${RED}  >>> $FAILURES / 4 VALIDATION PHASES FAILED (Exit Code: 1) <<<${RESET}"
     echo -e "${BOLD}=======================================================\n"
     exit 1
 fi

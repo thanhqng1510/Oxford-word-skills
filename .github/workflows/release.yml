@@ -64,7 +64,26 @@ jobs:
           echo "tag=${TAG}" >> "$GITHUB_OUTPUT"
           echo "Resolved release tag: ${TAG}"
 
-      # ── 3. Select Xcode 26 ───────────────────────────────────────────────────
+      # ── 3. Inject version into project ───────────────────────────────────────
+      # Replace MARKETING_VERSION placeholder with the actual release tag.
+      # This is never committed — it only lives in the CI workspace.
+      - name: Inject version into project
+        run: |
+          VERSION="${{ steps.resolve_tag.outputs.tag }}"
+          VERSION="${VERSION#v}"   # strip leading v  →  e.g. "1.2.3"
+          sed -i '' \
+            "s/MARKETING_VERSION = .*;/MARKETING_VERSION = ${VERSION};/g" \
+            OxfordWordSkills.xcodeproj/project.pbxproj
+          # Verify both Debug + Release target configs were updated
+          COUNT=$(grep -c "MARKETING_VERSION = ${VERSION};" \
+                    OxfordWordSkills.xcodeproj/project.pbxproj)
+          echo "Updated ${COUNT} MARKETING_VERSION entries to ${VERSION}"
+          [ "$COUNT" -eq 2 ] || {
+            echo "ERROR: expected 2 MARKETING_VERSION entries, got ${COUNT}"
+            exit 1
+          }
+
+      # ── 4. Select Xcode 26 ───────────────────────────────────────────────────
       - name: Select Xcode 26
         run: |
           # Pick the highest available Xcode 26.x; fall back gracefully
@@ -77,11 +96,11 @@ jobs:
           fi
           xcodebuild -version
 
-      # ── 4. Install xcpretty (optional, best-effort) ──────────────────────────
+      # ── 5. Install xcpretty (optional, best-effort) ──────────────────────────
       - name: Install xcpretty
         run: gem install xcpretty --no-document 2>/dev/null || true
 
-      # ── 5. Build (Release, ad-hoc signing) ───────────────────────────────────
+      # ── 6. Build (Release, ad-hoc signing) ───────────────────────────────────
       - name: Build
         run: |
           set -o pipefail
@@ -96,7 +115,7 @@ jobs:
             BUILD_DIR="${{ github.workspace }}/build" \
             | xcpretty --color
 
-      # ── 6. Locate & archive the .app ─────────────────────────────────────────
+      # ── 7. Locate & archive the .app ─────────────────────────────────────────
       - name: Archive .app into zip
         id: archive
         run: |
@@ -119,7 +138,7 @@ jobs:
           echo "zip_name=${ZIP_NAME}" >> "$GITHUB_OUTPUT"
           echo "Archived: ${ZIP_NAME} ($(du -h "${{ github.workspace }}/${ZIP_NAME}" | cut -f1))"
 
-      # ── 7. Auto-generate changelog ───────────────────────────────────────────
+      # ── 8. Auto-generate changelog ───────────────────────────────────────────
       - name: Generate changelog
         id: changelog
         run: |
@@ -144,7 +163,7 @@ jobs:
           printf "%s" "${NOTES}" > /tmp/release_notes.md
           echo "notes_file=/tmp/release_notes.md" >> "$GITHUB_OUTPUT"
 
-      # ── 8. Create GitHub Release & upload artifact ───────────────────────────
+      # ── 9. Create GitHub Release & upload artifact ───────────────────────────
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
