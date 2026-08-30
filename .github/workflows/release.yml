@@ -25,6 +25,11 @@ on:
         required: false
         default: ""
 
+# ─── Permissions ─────────────────────────────────────────────────────────────
+# contents:write is required to create/update GitHub Releases and upload assets.
+permissions:
+  contents: write
+
 # ─── Concurrency ─────────────────────────────────────────────────────────────
 # Cancel any in-progress release for the same ref to avoid duplicate releases.
 concurrency:
