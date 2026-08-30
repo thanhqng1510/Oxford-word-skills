@@ -110,12 +110,26 @@ jobs:
             -destination 'platform=macOS' \
             CODE_SIGN_IDENTITY="-" \
             CODE_SIGNING_REQUIRED=NO \
-            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_ALLOWED=YES \
             ONLY_ACTIVE_ARCH=YES \
             BUILD_DIR="${{ github.workspace }}/build" \
             | xcpretty --color
 
-      # ── 7. Locate & archive the .app ─────────────────────────────────────────
+      # ── 7. Sign & verify .app ────────────────────────────────────────────────
+      - name: Sign & verify .app
+        run: |
+          APP_PATH=$(find "${{ github.workspace }}/build" \
+            -name "OxfordWordSkills.app" -maxdepth 5 | head -1)
+          if [[ -z "$APP_PATH" ]]; then
+            echo "ERROR: OxfordWordSkills.app not found in build directory."
+            exit 1
+          fi
+          echo "Ad-hoc signing ${APP_PATH}..."
+          codesign --force --deep --sign - --entitlements OxfordWordSkills.entitlements "${APP_PATH}"
+          echo "Verifying code signature..."
+          codesign --verify --deep --strict --verbose=2 "${APP_PATH}"
+
+      # ── 8. Locate & archive the .app ─────────────────────────────────────────
       - name: Archive .app into zip
         id: archive
         run: |
@@ -138,7 +152,7 @@ jobs:
           echo "zip_name=${ZIP_NAME}" >> "$GITHUB_OUTPUT"
           echo "Archived: ${ZIP_NAME} ($(du -h "${{ github.workspace }}/${ZIP_NAME}" | cut -f1))"
 
-      # ── 8. Auto-generate changelog ───────────────────────────────────────────
+      # ── 9. Auto-generate changelog ───────────────────────────────────────────
       - name: Generate changelog
         id: changelog
         run: |
@@ -163,7 +177,7 @@ jobs:
           printf "%s" "${NOTES}" > /tmp/release_notes.md
           echo "notes_file=/tmp/release_notes.md" >> "$GITHUB_OUTPUT"
 
-      # ── 9. Create GitHub Release & upload artifact ───────────────────────────
+      # ── 10. Create GitHub Release & upload artifact ──────────────────────────
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
