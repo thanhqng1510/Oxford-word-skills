@@ -26,6 +26,8 @@
 		A100000100100017 /* CategorizationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100000100000017 /* CategorizationView.swift */; };
 		A100000100100018 /* definitions.json in Resources */ = {isa = PBXBuildFile; fileRef = A100000100000018 /* definitions.json */; };
 		A100000100100019 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A100000100000019 /* Assets.xcassets */; };
+		A100000100100020 /* UpdateService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100000100000021 /* UpdateService.swift */; };
+		A100000100100021 /* UpdateAvailableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100000100000022 /* UpdateAvailableView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -49,6 +51,8 @@
 		A100000100000018 /* definitions.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = definitions.json; sourceTree = "<group>"; };
 		A100000100000019 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		A100000100000020 /* OxfordWordSkills.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = OxfordWordSkills.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		A100000100000021 /* UpdateService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateService.swift; sourceTree = "<group>"; };
+		A100000100000022 /* UpdateAvailableView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateAvailableView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -88,6 +92,7 @@
 			children = (
 				A100000100000003 /* ContentParser.swift */,
 				A100000100000004 /* SpeechService.swift */,
+				A100000100000021 /* UpdateService.swift */,
 			);
 			path = Utilities;
 			sourceTree = "<group>";
@@ -121,6 +126,7 @@
 				A100000100000017 /* CategorizationView.swift */,
 				A100000100000013 /* ExerciseContainerView.swift */,
 				A100000100000014 /* ProgressDashboardView.swift */,
+				A100000100000022 /* UpdateAvailableView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -218,6 +224,8 @@
 				A100000100100013 /* ExerciseContainerView.swift in Sources */,
 				A100000100100014 /* ProgressDashboardView.swift in Sources */,
 				A100000100100017 /* CategorizationView.swift in Sources */,
+				A100000100100020 /* UpdateService.swift in Sources */,
+				A100000100100021 /* UpdateAvailableView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
