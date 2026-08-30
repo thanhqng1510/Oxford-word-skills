@@ -1,0 +1,153 @@
+name: Build & Release
+
+# ─── Triggers ────────────────────────────────────────────────────────────────
+# 1. Automatic: push a semver tag  →  v1.2.3
+# 2. Manual:    GitHub UI → Actions → "Build & Release" → Run workflow
+#               Supply an optional tag (defaults to "v<date>-manual")
+on:
+  push:
+    tags:
+      - "v[0-9]+.[0-9]+.[0-9]*"  # e.g. v1.0.0, v1.2.3-beta
+
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Release tag (e.g. v1.2.3). Leave blank to auto-generate."
+        required: false
+        default: ""
+      prerelease:
+        description: "Mark as pre-release?"
+        type: boolean
+        required: false
+        default: false
+      release_notes:
+        description: "Release notes (Markdown). Leave blank to auto-generate from commits."
+        required: false
+        default: ""
+
+# ─── Concurrency ─────────────────────────────────────────────────────────────
+# Cancel any in-progress release for the same ref to avoid duplicate releases.
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-and-release:
+    name: Build & Release (macOS)
+    runs-on: macos-15   # Xcode 26 ships on macOS 15 runners
+
+    steps:
+      # ── 1. Checkout ──────────────────────────────────────────────────────────
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # full history for changelog generation
+
+      # ── 2. Resolve release tag ───────────────────────────────────────────────
+      # For tag-push events the tag is already in github.ref.
+      # For manual runs, derive or use the supplied tag.
+      - name: Resolve release tag
+        id: resolve_tag
+        run: |
+          if [[ "${{ github.event_name }}" == "push" ]]; then
+            TAG="${{ github.ref_name }}"
+          elif [[ -n "${{ inputs.tag }}" ]]; then
+            TAG="${{ inputs.tag }}"
+          else
+            TAG="v$(date -u +%Y.%m.%d)-manual"
+          fi
+          echo "tag=${TAG}" >> "$GITHUB_OUTPUT"
+          echo "Resolved release tag: ${TAG}"
+
+      # ── 3. Select Xcode 26 ───────────────────────────────────────────────────
+      - name: Select Xcode 26
+        run: |
+          # Pick the highest available Xcode 26.x; fall back gracefully
+          XCODE=$(ls /Applications/ | grep -E "^Xcode_26" | sort -V | tail -1)
+          if [[ -n "$XCODE" ]]; then
+            sudo xcode-select -s "/Applications/${XCODE}/Contents/Developer"
+          else
+            # Use whatever Xcode is available (GitHub may ship it pre-selected)
+            echo "Xcode 26 not found under /Applications; using default."
+          fi
+          xcodebuild -version
+
+      # ── 4. Install xcpretty (optional, best-effort) ──────────────────────────
+      - name: Install xcpretty
+        run: gem install xcpretty --no-document 2>/dev/null || true
+
+      # ── 5. Build (Release, ad-hoc signing) ───────────────────────────────────
+      - name: Build
+        run: |
+          set -o pipefail
+          xcodebuild build \
+            -scheme OxfordWordSkills \
+            -configuration Release \
+            -destination 'platform=macOS' \
+            CODE_SIGN_IDENTITY="-" \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO \
+            ONLY_ACTIVE_ARCH=YES \
+            BUILD_DIR="${{ github.workspace }}/build" \
+            | xcpretty --color
+
+      # ── 6. Locate & archive the .app ─────────────────────────────────────────
+      - name: Archive .app into zip
+        id: archive
+        run: |
+          APP_PATH=$(find "${{ github.workspace }}/build" \
+            -name "OxfordWordSkills.app" -maxdepth 5 | head -1)
+          if [[ -z "$APP_PATH" ]]; then
+            echo "ERROR: OxfordWordSkills.app not found in build directory."
+            find "${{ github.workspace }}/build" -type d | head -30
+            exit 1
+          fi
+          echo "Found app at: ${APP_PATH}"
+
+          TAG="${{ steps.resolve_tag.outputs.tag }}"
+          ZIP_NAME="OxfordWordSkills-${TAG}-macOS.zip"
+
+          ditto -c -k --sequesterRsrc --keepParent "${APP_PATH}" \
+            "${{ github.workspace }}/${ZIP_NAME}"
+
+          echo "zip_path=${{ github.workspace }}/${ZIP_NAME}" >> "$GITHUB_OUTPUT"
+          echo "zip_name=${ZIP_NAME}" >> "$GITHUB_OUTPUT"
+          echo "Archived: ${ZIP_NAME} ($(du -h "${{ github.workspace }}/${ZIP_NAME}" | cut -f1))"
+
+      # ── 7. Auto-generate changelog ───────────────────────────────────────────
+      - name: Generate changelog
+        id: changelog
+        run: |
+          TAG="${{ steps.resolve_tag.outputs.tag }}"
+
+          # Find the previous tag to generate a meaningful diff
+          PREV_TAG=$(git tag --sort=-version:refname | grep -v "^${TAG}$" | head -1)
+
+          if [[ -n "${{ inputs.release_notes }}" ]]; then
+            # Use manually supplied notes
+            NOTES="${{ inputs.release_notes }}"
+          elif [[ -n "${PREV_TAG}" ]]; then
+            NOTES="## What's Changed"$'\n\n'
+            NOTES+=$(git log "${PREV_TAG}..HEAD" \
+              --pretty=format:"- %s ([%h](https://github.com/${{ github.repository }}/commit/%H))" \
+              --no-merges)
+            NOTES+=$'\n\n'"**Full diff:** https://github.com/${{ github.repository }}/compare/${PREV_TAG}...${TAG}"
+          else
+            NOTES="Initial release of Oxford Word Skills for macOS."
+          fi
+
+          printf "%s" "${NOTES}" > /tmp/release_notes.md
+          echo "notes_file=/tmp/release_notes.md" >> "$GITHUB_OUTPUT"
+
+      # ── 8. Create GitHub Release & upload artifact ───────────────────────────
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.resolve_tag.outputs.tag }}
+          name: "Oxford Word Skills ${{ steps.resolve_tag.outputs.tag }}"
+          body_path: ${{ steps.changelog.outputs.notes_file }}
+          prerelease: ${{ inputs.prerelease || false }}
+          files: ${{ steps.archive.outputs.zip_path }}
+          make_latest: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
