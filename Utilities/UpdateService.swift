@@ -70,8 +70,17 @@ final class UpdateService {
 
         do {
             let zipURL = try await download(info.downloadURL)
+
+            // Hold on 100% download progress briefly so the user sees completion
+            downloadProgress = 1.0
+            try? await Task.sleep(for: .milliseconds(500))
+
             phase = .extracting
             let newAppURL = try await extract(zipURL)
+
+            // Hold on extraction/installing state briefly for smooth transition
+            try? await Task.sleep(for: .milliseconds(500))
+
             phase = .relaunching
             try await relaunch(with: newAppURL)
         } catch {
@@ -252,21 +261,27 @@ final class UpdateService {
     // MARK: - Private: Relaunch (detached shell script)
 
     private func relaunch(with newAppURL: URL) async throws {
-        // Capture paths on @MainActor before leaving isolation
+        // Capture paths and PID on @MainActor before leaving isolation
         let currentPath = Bundle.main.bundleURL.path
         let newPath = newAppURL.path
+        let currentPID = ProcessInfo.processInfo.processIdentifier
 
         try await Task.detached(priority: .userInitiated) {
             let scriptPath = FileManager.default.temporaryDirectory
                 .appendingPathComponent("oxford-update-\(UUID().uuidString).sh").path
 
             // The script runs after the app quits:
-            // 1. Clear quarantine so Gatekeeper won't block the new copy
-            // 2. Replace the old .app with the new one
-            // 3. Relaunch from the same path
+            // 1. Wait for the old process to fully terminate
+            // 2. Clear quarantine so Gatekeeper won't block the new copy
+            // 3. Replace the old .app with the new one
+            // 4. Relaunch from the same path
             let script = """
             #!/bin/bash
-            sleep 1
+            # Wait for previous app instance to terminate
+            while kill -0 \(currentPID) 2>/dev/null; do
+                sleep 0.1
+            done
+
             xattr -rc "\(newPath)" 2>/dev/null || true
             rm -rf "\(currentPath)"
             mv "\(newPath)" "\(currentPath)"
@@ -286,15 +301,15 @@ final class UpdateService {
             let bash = Process()
             bash.executableURL = URL(fileURLWithPath: "/bin/bash")
             bash.arguments = [scriptPath]
+            bash.standardInput = FileHandle.nullDevice
             bash.standardOutput = FileHandle.nullDevice
             bash.standardError = FileHandle.nullDevice
             try bash.run()
         }.value
 
-        // Give the detached script a moment to start, then terminate
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-            NSApplication.shared.terminate(nil)
-        }
+        // Allow UI to render the relaunch state briefly, then cleanly terminate the process
+        try? await Task.sleep(for: .milliseconds(800))
+        exit(0)
     }
 }
 
