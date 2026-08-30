@@ -112,7 +112,6 @@ struct UpdateAvailableView: View {
             Image(systemName: "checkmark.circle.fill")
                 .font(.system(size: 52))
                 .foregroundStyle(.green)
-                .symbolEffect(.bounce)
 
             Text("Relaunching…")
                 .font(.title2.bold())
@@ -146,7 +145,7 @@ struct UpdateAvailableView: View {
 
     private var isDismissDisabled: Bool {
         switch service.phase {
-        case .downloading, .extracting, .relaunching: return true
+        case .downloading, .extracting: return true
         default: return false
         }
     }
