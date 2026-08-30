@@ -62,7 +62,23 @@ struct QuizView: View {
     }
 
     private var header: some View {
-        HStack {
+        HStack(spacing: 12) {
+            Button {
+                if let unitNum = unitNumber {
+                    viewModel.selectedNavigation = .unit(unitNum)
+                } else {
+                    viewModel.selectedNavigation = .allWords
+                }
+            } label: {
+                HStack(spacing: 4) {
+                    Image(systemName: "chevron.left")
+                        .fontWeight(.semibold)
+                    Text(unitNumber != nil ? "Unit \(unitNumber!)" : "Words")
+                }
+            }
+            .buttonStyle(.bordered)
+            .help("Back to vocabulary list")
+
             Text(title)
                 .font(.title2)
                 .fontWeight(.bold)
@@ -177,7 +193,7 @@ struct QuizView: View {
             HStack {
                 Button("Try Again") { generateQuestions() }
                     .buttonStyle(.bordered)
-                Button("Back to Words") {
+                Button(unitNumber != nil ? "Back to Unit" : "Back to Words") {
                     viewModel.selectedNavigation = unitNumber.map { .unit($0) } ?? .allWords
                 }
                 .buttonStyle(.borderedProminent)

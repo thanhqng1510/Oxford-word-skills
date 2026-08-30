@@ -773,6 +773,24 @@ class TestTier1Feature9_ProjectCompilationAndEngineIntegrity(unittest.TestCase):
             f"Found {len(decoding_errors)} WordDetail schema violations: {decoding_errors[:10]}",
         )
 
+    def test_f9_06_exercise_views_have_back_navigation(self):
+        """Verify all exercise views provide back navigation to Unit or Word view."""
+        views_dir = os.path.join(BASE_DIR, "Views")
+        exercise_views = [
+            "FlashcardView.swift",
+            "QuizView.swift",
+            "FillInBlankView.swift",
+            "MatchingView.swift",
+            "CategorizationView.swift",
+        ]
+        for filename in exercise_views:
+            path = os.path.join(views_dir, filename)
+            self.assertTrue(os.path.exists(path), f"View file {filename} must exist")
+            with open(path, "r", encoding="utf-8") as f:
+                content = f.read()
+            self.assertIn("selectedNavigation", content, f"{filename} must route selectedNavigation on back action")
+            self.assertIn("chevron.left", content, f"{filename} must provide chevron.left back button")
+
 
 if __name__ == "__main__":
     unittest.main()
