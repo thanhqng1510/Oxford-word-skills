@@ -37,12 +37,34 @@ final class UpdateService {
     private(set) var latestRelease: UpdateInfo?
 
     /// True while the sheet should be visible
-    var showingUpdateSheet = false
+    var showingUpdateSheet = false {
+        didSet {
+            if !showingUpdateSheet {
+                switch phase {
+                case .downloadAvailable, .failed:
+                    phase = .idle
+                default:
+                    break
+                }
+            }
+        }
+    }
 
     /// True to trigger the "already up to date" alert
     var showingAlreadyLatestAlert = false
 
     var isChecking: Bool { phase == .checking }
+
+    /// True when the service is in a resting state and ready to start an update check.
+    var canCheckForUpdates: Bool {
+        guard !showingUpdateSheet else { return false }
+        switch phase {
+        case .idle, .failed:
+            return true
+        case .checking, .downloadAvailable, .downloading, .extracting, .relaunching, .alreadyLatest:
+            return false
+        }
+    }
 
     // MARK: Constants
 
@@ -52,13 +74,13 @@ final class UpdateService {
 
     /// Called automatically 2 s after launch. Silently does nothing on error.
     func checkOnLaunch() async {
-        guard phase == .idle else { return }
+        guard canCheckForUpdates else { return }
         await performCheck(showAlreadyLatest: false)
     }
 
     /// Called from the "Check for Updates…" menu item.
     func checkManually() async {
-        guard !isChecking else { return }
+        guard canCheckForUpdates else { return }
         await performCheck(showAlreadyLatest: true)
     }
 

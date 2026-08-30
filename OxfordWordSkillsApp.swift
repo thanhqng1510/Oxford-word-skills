@@ -15,7 +15,7 @@ struct OxfordWordSkillsApp: App {
                 Button("Check for Updates…") {
                     Task { await updateService.checkManually() }
                 }
-                .disabled(updateService.isChecking)
+                .disabled(!updateService.canCheckForUpdates)
             }
         }
     }
