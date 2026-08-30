@@ -124,14 +124,32 @@ class ContentParser {
                     allAntonyms.append(contentsOf: meaning.antonyms)
                 }
 
+                let cleanSynonyms = allSynonyms
+                    .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+                    .filter { syn in
+                        !syn.isEmpty &&
+                        syn.caseInsensitiveCompare(key) != .orderedSame &&
+                        !syn.localizedCaseInsensitiveContains("equivalent") &&
+                        !syn.localizedCaseInsensitiveContains("placeholder")
+                    }
+
+                let cleanAntonyms = allAntonyms
+                    .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+                    .filter { ant in
+                        !ant.isEmpty &&
+                        ant.caseInsensitiveCompare(key) != .orderedSame &&
+                        !ant.localizedCaseInsensitiveContains("equivalent") &&
+                        !ant.localizedCaseInsensitiveContains("placeholder")
+                    }
+
                 allWords[i] = Word(
                     word: allWords[i].word,
                     ipa: allWords[i].ipa,
                     unitNumbers: allWords[i].unitNumbers,
                     hasAudio: allWords[i].hasAudio,
                     definitions: defs,
-                    synonyms: Array(allSynonyms.uniqued().prefix(10)),
-                    antonyms: Array(allAntonyms.uniqued().prefix(10)),
+                    synonyms: Array(cleanSynonyms.uniqued().prefix(10)),
+                    antonyms: Array(cleanAntonyms.uniqued().prefix(10)),
                     examples: Array(allExamples.uniqued().prefix(5))
                 )
             }

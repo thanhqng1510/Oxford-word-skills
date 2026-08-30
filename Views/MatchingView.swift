@@ -203,6 +203,15 @@ struct MatchingView: View {
         }
     }
 
+    private func isCleanSynonym(_ syn: String, for word: String) -> Bool {
+        let trimmed = syn.trimmingCharacters(in: .whitespacesAndNewlines)
+        return !trimmed.isEmpty &&
+               trimmed.count > 1 &&
+               trimmed.caseInsensitiveCompare(word) != .orderedSame &&
+               !trimmed.localizedCaseInsensitiveContains("equivalent") &&
+               !trimmed.localizedCaseInsensitiveContains("placeholder")
+    }
+
     private func generatePairs() {
         let sourceWords: [Word]
         if let unitNum = unitNumber {
@@ -211,13 +220,10 @@ struct MatchingView: View {
             sourceWords = viewModel.allWords
         }
 
-        // Filter words that have at least one non-empty synonym distinct from the word itself
+        // Filter words that have at least one clean synonym distinct from the word itself
         let validWords = sourceWords.filter { word in
             !word.synonyms.isEmpty &&
-            word.synonyms.contains { syn in
-                let trimmed = syn.trimmingCharacters(in: .whitespacesAndNewlines)
-                return !trimmed.isEmpty && trimmed.caseInsensitiveCompare(word.word) != .orderedSame
-            }
+            word.synonyms.contains { isCleanSynonym($0, for: word.word) }
         }
 
         let shuffled = validWords.shuffled()
@@ -228,8 +234,7 @@ struct MatchingView: View {
             let availableSynonyms = word.synonyms
                 .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
                 .filter { syn in
-                    !syn.isEmpty &&
-                    syn.caseInsensitiveCompare(word.word) != .orderedSame &&
+                    isCleanSynonym(syn, for: word.word) &&
                     !usedSynonyms.contains(syn.lowercased())
                 }
 
@@ -244,14 +249,11 @@ struct MatchingView: View {
             }
         }
 
-        // Fallback: If strict deduplication yielded fewer than 2 pairs, allow secondary synonyms
+        // Fallback: If strict deduplication yielded fewer than 2 pairs, allow secondary clean synonyms
         if selectedPairs.count < 2 && !shuffled.isEmpty {
             selectedPairs.removeAll()
             for word in shuffled.prefix(6) {
-                if let syn = word.synonyms.first(where: {
-                    let trimmed = $0.trimmingCharacters(in: .whitespacesAndNewlines)
-                    return !trimmed.isEmpty && trimmed.caseInsensitiveCompare(word.word) != .orderedSame
-                }) {
+                if let syn = word.synonyms.first(where: { isCleanSynonym($0, for: word.word) }) {
                     let pairID = UUID()
                     selectedPairs.append(MatchPair(id: pairID, word: word, synonym: syn.trimmingCharacters(in: .whitespacesAndNewlines)))
                 }
