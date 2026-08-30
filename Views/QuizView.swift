@@ -113,23 +113,22 @@ struct QuizView: View {
                         Text(q.correctDefinition)
                             .font(.body)
                             .multilineTextAlignment(.center)
-                            .frame(maxWidth: 400)
+                            .frame(maxWidth: 500)
                             .padding()
-                            .background {
-                                RoundedRectangle(cornerRadius: 12)
-                                    .glassEffect()
-                            }
+                            .background(Color(nsColor: .windowBackgroundColor), in: RoundedRectangle(cornerRadius: 12))
                         Text("Choose the correct word:")
                             .font(.headline)
                             .foregroundStyle(.secondary)
                     }
                 }
                 .padding(24)
-                .frame(maxWidth: .infinity)
-                .background {
+                .frame(maxWidth: 600)
+                .background(Color(nsColor: .controlBackgroundColor), in: RoundedRectangle(cornerRadius: 16))
+                .overlay(
                     RoundedRectangle(cornerRadius: 16)
-                        .glassEffect()
-                }
+                        .strokeBorder(Color(nsColor: .separatorColor).opacity(0.6), lineWidth: 1)
+                )
+                .shadow(color: .black.opacity(0.04), radius: 8, x: 0, y: 2)
             }
         }
     }

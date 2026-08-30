@@ -128,11 +128,13 @@ struct FillInBlankView: View {
                     }
                 }
                 .padding(28)
-                .frame(maxWidth: .infinity)
-                .background {
+                .frame(maxWidth: 600)
+                .background(Color(nsColor: .controlBackgroundColor), in: RoundedRectangle(cornerRadius: 16))
+                .overlay(
                     RoundedRectangle(cornerRadius: 16)
-                        .glassEffect()
-                }
+                        .strokeBorder(Color(nsColor: .separatorColor).opacity(0.6), lineWidth: 1)
+                )
+                .shadow(color: .black.opacity(0.04), radius: 8, x: 0, y: 2)
             }
         }
     }
