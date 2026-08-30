@@ -27,7 +27,12 @@ struct QuizView: View {
     }
 
     private var title: String {
-        let prefix = unitNumber != nil ? "Unit \(unitNumber!)" : "All Words"
+        let prefix: String
+        if let unitNum = unitNumber {
+            prefix = "Unit \(unitNum)"
+        } else {
+            prefix = "All Words"
+        }
         switch quizMode {
         case .wordToDefinition: return "\(prefix) — Word → Definition"
         case .definitionToWord: return "\(prefix) — Definition → Word"
@@ -39,7 +44,11 @@ struct QuizView: View {
             header
 
             if questions.isEmpty {
-                ContentUnavailableView("No Words with Definitions", systemImage: "text.book.closed", description: Text("Need words with definitions loaded"))
+                ContentUnavailableView(
+                    "No Words with Definitions",
+                    systemImage: "text.book.closed",
+                    description: Text("Need words with definitions loaded")
+                )
             } else if isFinished {
                 resultScreen
             } else {
@@ -75,7 +84,7 @@ struct QuizView: View {
                         Text(q.word.word)
                             .font(.system(size: 32, weight: .bold, design: .rounded))
                         Button {
-                            SpeechService.shared.speak(q.word.word)
+                            SpeechService.shared.speak(q.word.speechText)
                         } label: {
                             Label("Listen", systemImage: "speaker.wave.2.fill")
                         }
@@ -90,7 +99,10 @@ struct QuizView: View {
                             .multilineTextAlignment(.center)
                             .frame(maxWidth: 400)
                             .padding()
-                            .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 12))
+                            .background {
+                                RoundedRectangle(cornerRadius: 12)
+                                    .glassEffect()
+                            }
                         Text("Choose the correct word:")
                             .font(.headline)
                             .foregroundStyle(.secondary)
@@ -98,7 +110,10 @@ struct QuizView: View {
                 }
                 .padding(24)
                 .frame(maxWidth: .infinity)
-                .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 16))
+                .background {
+                    RoundedRectangle(cornerRadius: 16)
+                        .glassEffect()
+                }
             }
         }
     }
@@ -195,40 +210,97 @@ struct QuizView: View {
             sourceWords = viewModel.allWords
         }
 
-        let validWords: [Word]
-        switch quizMode {
-        case .wordToDefinition:
-            validWords = sourceWords.filter { !$0.definitions.isEmpty }
-        case .definitionToWord:
-            validWords = sourceWords.filter { !$0.definitions.isEmpty }
+        // Filter valid words with meaningful definitions
+        let validSourceWords = sourceWords.filter {
+            !$0.definitions.isEmpty &&
+            $0.shortDefinition != "No definition available" &&
+            !$0.shortDefinition.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
         }
 
-        guard validWords.count >= 4 else { questions = []; return }
+        guard !validSourceWords.isEmpty else {
+            questions = []
+            return
+        }
 
-        let shuffled = validWords.shuffled()
+        let fallbackWords = viewModel.allWords.filter {
+            !$0.definitions.isEmpty &&
+            $0.shortDefinition != "No definition available" &&
+            !$0.shortDefinition.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        }
+
+        let shuffled = validSourceWords.shuffled()
         let questionWords = Array(shuffled.prefix(min(15, shuffled.count)))
 
         questions = questionWords.compactMap { word in
             switch quizMode {
             case .wordToDefinition:
-                let correctDef = word.shortDefinition
-                let wrongDefs = validWords
-                    .filter { $0.id != word.id && !$0.definitions.isEmpty }
-                    .shuffled()
-                    .prefix(3)
-                    .map { $0.shortDefinition }
-                let options = ([correctDef] + wrongDefs).shuffled()
+                let correctDef = word.shortDefinition.trimmingCharacters(in: .whitespacesAndNewlines)
+                var chosenDefs: [String] = []
+                var seenDefs = Set<String>([correctDef.lowercased()])
+
+                // 1. First-pass distractors: sample from current unit
+                let unitCandidates = validSourceWords.filter { $0.id != word.id }.shuffled()
+                for candidate in unitCandidates {
+                    let def = candidate.shortDefinition.trimmingCharacters(in: .whitespacesAndNewlines)
+                    let defKey = def.lowercased()
+                    if !def.isEmpty && !seenDefs.contains(defKey) {
+                        seenDefs.insert(defKey)
+                        chosenDefs.append(def)
+                        if chosenDefs.count == 3 { break }
+                    }
+                }
+
+                // 2. Second-pass distractors: sample from global pool if unit has < 3 distinct distractors
+                if chosenDefs.count < 3 {
+                    let globalCandidates = fallbackWords.filter { $0.id != word.id }.shuffled()
+                    for candidate in globalCandidates {
+                        let def = candidate.shortDefinition.trimmingCharacters(in: .whitespacesAndNewlines)
+                        let defKey = def.lowercased()
+                        if !def.isEmpty && !seenDefs.contains(defKey) {
+                            seenDefs.insert(defKey)
+                            chosenDefs.append(def)
+                            if chosenDefs.count == 3 { break }
+                        }
+                    }
+                }
+
+                let options = ([correctDef] + chosenDefs).shuffled()
                 return QuizQuestion(word: word, options: options, correctAnswer: correctDef, correctDefinition: correctDef)
 
             case .definitionToWord:
-                let correctDef = word.shortDefinition
-                let wrongWords = validWords
-                    .filter { $0.id != word.id }
-                    .shuffled()
-                    .prefix(3)
-                    .map { $0.word }
-                let options = ([word.word] + wrongWords).shuffled()
-                return QuizQuestion(word: word, options: options, correctAnswer: word.word, correctDefinition: correctDef)
+                let correctWord = word.word.trimmingCharacters(in: .whitespacesAndNewlines)
+                let correctDef = word.shortDefinition.trimmingCharacters(in: .whitespacesAndNewlines)
+                var chosenWords: [String] = []
+                var seenWords = Set<String>([correctWord.lowercased()])
+
+                // 1. First-pass distractors: sample from current unit
+                let unitCandidates = validSourceWords.filter { $0.id != word.id }.shuffled()
+                for candidate in unitCandidates {
+                    let candidateWord = candidate.word.trimmingCharacters(in: .whitespacesAndNewlines)
+                    let wordKey = candidateWord.lowercased()
+                    if !candidateWord.isEmpty && !seenWords.contains(wordKey) {
+                        seenWords.insert(wordKey)
+                        chosenWords.append(candidateWord)
+                        if chosenWords.count == 3 { break }
+                    }
+                }
+
+                // 2. Second-pass distractors: sample from global pool if unit has < 3 distinct distractors
+                if chosenWords.count < 3 {
+                    let globalCandidates = fallbackWords.filter { $0.id != word.id }.shuffled()
+                    for candidate in globalCandidates {
+                        let candidateWord = candidate.word.trimmingCharacters(in: .whitespacesAndNewlines)
+                        let wordKey = candidateWord.lowercased()
+                        if !candidateWord.isEmpty && !seenWords.contains(wordKey) {
+                            seenWords.insert(wordKey)
+                            chosenWords.append(candidateWord)
+                            if chosenWords.count == 3 { break }
+                        }
+                    }
+                }
+
+                let options = ([correctWord] + chosenWords).shuffled()
+                return QuizQuestion(word: word, options: options, correctAnswer: correctWord, correctDefinition: correctDef)
             }
         }
 
@@ -240,7 +312,8 @@ struct QuizView: View {
     }
 }
 
-struct QuizQuestion {
+struct QuizQuestion: Identifiable {
+    let id = UUID()
     let word: Word
     let options: [String]
     let correctAnswer: String
