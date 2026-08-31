@@ -19,9 +19,12 @@ class ContentViewModel {
     }
 
     var filteredWords: [Word] {
-        let words = selectedUnitNumber != nil
-            ? (currentUnit?.words ?? allWords)
-            : allWords
+        let words: [Word]
+        if case .unit(let unitNumber) = selectedNavigation {
+            words = wordsForUnit(unitNumber)
+        } else {
+            words = allWords
+        }
 
         guard !searchText.isEmpty else { return words }
         return words.filter {

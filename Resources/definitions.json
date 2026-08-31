@@ -134,48 +134,50 @@
   },
   "academic": {
     "word": "academic",
-    "phonetic": "/ˌækəˈdɛmɪk/",
+    "phonetic": "/ˌækəˈdemɪk/",
     "meanings": [
       {
-        "partOfSpeech": "noun",
+        "partOfSpeech": "adjective",
         "definitions": [
           {
-            "definition": "(usually capitalised) A follower of Plato, a Platonist.",
-            "example": "She described the academic in great detail in her essay."
+            "definition": "Connected with education, especially studying in schools and universities, rather than practical or technical skills.",
+            "example": "She has always shown great interest in academic subjects like history and literature."
           },
           {
-            "definition": "A senior member of an academy, college, or university; a person who attends an academy; a person engaged in scholarly pursuits; one who is academic in practice.",
-            "example": "She described the academic in great detail in her essay."
+            "definition": "Good at studying and getting high marks in academic subjects.",
+            "example": "He was not very academic at school, but he showed great talent in practical work."
           },
           {
-            "definition": "A member of the Academy; an academician.",
-            "example": "Understanding the role of an academic is essential for learners."
+            "definition": "Involving theoretical study and research rather than practical application.",
+            "example": "The question of which came first is purely academic."
           }
         ],
         "synonyms": [
           "scholarly",
           "educational",
-          "intellectual"
+          "intellectual",
+          "scholastic"
         ],
-        "antonyms": []
+        "antonyms": [
+          "practical",
+          "vocational",
+          "non-academic"
+        ]
       },
       {
-        "partOfSpeech": "adjective",
+        "partOfSpeech": "noun",
         "definitions": [
           {
-            "definition": "Belonging to the school or philosophy of Plato",
-            "example": "The academic sect or philosophy."
-          },
-          {
-            "definition": "Belonging to an academy or other higher institution of learning; also a scholarly society or organisation.",
-            "example": "It was a academic experience for everyone involved."
-          },
-          {
-            "definition": "Theoretical or speculative; abstract; scholarly, literary or classical, in distinction to practical or vocational",
-            "example": "I have always had an academic interest in hacking."
+            "definition": "A person who teaches and/or conducts research at a university or college.",
+            "example": "Leading academics gathered at Oxford to discuss new educational policies."
           }
         ],
-        "synonyms": [],
+        "synonyms": [
+          "scholar",
+          "lecturer",
+          "professor",
+          "researcher"
+        ],
         "antonyms": []
       }
     ]
