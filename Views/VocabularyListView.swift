@@ -6,11 +6,11 @@ struct VocabularyListView: View {
     var body: some View {
         Table(viewModel.filteredWords) {
             TableColumn("Word") { word in
-                HStack {
+                HStack(spacing: 6) {
                     Text(word.word)
                         .fontWeight(.medium)
                     Button {
-                        SpeechService.shared.speak(word.word)
+                        SpeechService.shared.speak(word.speechText)
                     } label: {
                         Image(systemName: "speaker.wave.2")
                             .font(.caption)
@@ -20,6 +20,15 @@ struct VocabularyListView: View {
                 }
             }
             .width(min: 120, ideal: 180)
+
+            TableColumn("Pronunciation") { word in
+                if !word.ipa.isEmpty {
+                    Text(word.ipa)
+                        .font(.system(.body, design: .serif))
+                        .foregroundStyle(.secondary)
+                }
+            }
+            .width(min: 110, ideal: 140)
 
             TableColumn("Definition") { word in
                 Text(word.shortDefinition)

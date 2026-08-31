@@ -88,10 +88,31 @@ struct PipelineTestRunner {
         let totalSections = allUnits.flatMap { $0.sections }.count
         assertTest(totalSections == 148, "Total sections parsed == 148", "Found \(totalSections)")
 
-        // 4. Test ContentParser.parseWordList
-        print("\n--- Word List Parser Tests ---")
+        // 4. Test ContentParser.parseWordList & IPA Conversion
+        print("\n--- Word List Parser & IPA Conversion Tests ---")
         let parsedWords = ContentParser.parseWordList(from: wordListURL)
         assertTest(parsedWords.count == 2781, "ContentParser.parseWordList parsed exactly 2,781 valid words", "Found \(parsedWords.count)")
+
+        // Test sampaToIPA converter precision
+        assertTest(ContentParser.sampaToIPA("@%bri:vi\"eISn") == "/əˌbriːviˈeɪʃn/", "sampaToIPA converts abbreviation to /əˌbriːviˈeɪʃn/", ContentParser.sampaToIPA("@%bri:vi\"eISn"))
+        assertTest(ContentParser.sampaToIPA("\"&bs@lu:tli") == "/ˈæbsəluːtli/", "sampaToIPA converts absolutely to /ˈæbsəluːtli/", ContentParser.sampaToIPA("\"&bs@lu:tli"))
+        assertTest(ContentParser.sampaToIPA("@\"kju:z") == "/əˈkjuːz/", "sampaToIPA converts accuse to /əˈkjuːz/", ContentParser.sampaToIPA("@\"kju:z"))
+        assertTest(ContentParser.sampaToIPA("@k\"nQlIÙ") == "/əkˈnɒlɪdʒ/", "sampaToIPA converts acknowledge to /əkˈnɒlɪdʒ/", ContentParser.sampaToIPA("@k\"nQlIÙ"))
+        assertTest(ContentParser.sampaToIPA("@\"Íi:v") == "/əˈtʃiːv/", "sampaToIPA converts achieve to /əˈtʃiːv/", ContentParser.sampaToIPA("@\"Íi:v"))
+        assertTest(ContentParser.sampaToIPA("&k\"sel@reIt@(r)") == "/ækˈseləreɪtə(r)/", "sampaToIPA converts accelerator to /ækˈseləreɪtə(r)/", ContentParser.sampaToIPA("&k\"sel@reIt@(r)"))
+
+        // Test that 100% of parsed words have valid, non-empty, slash-enclosed IPA
+        var emptyIPACount = 0
+        var invalidIPACount = 0
+        for w in parsedWords {
+            if w.ipa.isEmpty {
+                emptyIPACount += 1
+            } else if !w.ipa.hasPrefix("/") || !w.ipa.hasSuffix("/") {
+                invalidIPACount += 1
+            }
+        }
+        assertTest(emptyIPACount == 0, "100% of parsed words have non-empty IPA pronunciation", "Found \(emptyIPACount) empty")
+        assertTest(invalidIPACount == 0, "100% of parsed words have valid slash-wrapped /.../ IPA", "Found \(invalidIPACount) invalid")
 
         // 5. Test ContentParser.buildModules
         print("\n--- ContentParser.buildModules() Full Pipeline Execution ---")

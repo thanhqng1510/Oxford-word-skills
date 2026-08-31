@@ -97,8 +97,15 @@ struct QuizView: View {
                 VStack(spacing: 16) {
                     switch quizMode {
                     case .wordToDefinition:
-                        Text(q.word.word)
-                            .font(.system(size: 32, weight: .bold, design: .rounded))
+                        VStack(spacing: 6) {
+                            Text(q.word.word)
+                                .font(.system(size: 32, weight: .bold, design: .rounded))
+                            if !q.word.ipa.isEmpty {
+                                Text(q.word.ipa)
+                                    .font(.headline)
+                                    .foregroundStyle(.secondary)
+                            }
+                        }
                         Button {
                             SpeechService.shared.speak(q.word.speechText)
                         } label: {
@@ -116,6 +123,24 @@ struct QuizView: View {
                             .frame(maxWidth: 500)
                             .padding()
                             .background(Color(nsColor: .windowBackgroundColor), in: RoundedRectangle(cornerRadius: 12))
+
+                        if showResult && !q.word.ipa.isEmpty {
+                            HStack(spacing: 8) {
+                                Text(q.word.word)
+                                    .fontWeight(.bold)
+                                Text(q.word.ipa)
+                                    .foregroundStyle(.secondary)
+                                Button {
+                                    SpeechService.shared.speak(q.word.speechText)
+                                } label: {
+                                    Image(systemName: "speaker.wave.2.fill")
+                                        .font(.caption)
+                                }
+                                .buttonStyle(.plain)
+                            }
+                            .font(.callout)
+                        }
+
                         Text("Choose the correct word:")
                             .font(.headline)
                             .foregroundStyle(.secondary)

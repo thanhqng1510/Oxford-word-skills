@@ -41,6 +41,71 @@ class ContentParser {
         return modules
     }
 
+    /// Converts legacy Oxford SAMPA / ASCII phonetic encoding into standard British Unicode IPA enclosed in slashes.
+    static func sampaToIPA(_ sampa: String) -> String {
+        let trimmed = sampa.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return "" }
+
+        if trimmed.hasPrefix("/") && trimmed.hasSuffix("/") {
+            return trimmed
+        }
+
+        var text = trimmed
+        text = text.replacingOccurrences(of: "”", with: "\"")
+        text = text.replacingOccurrences(of: "Í", with: "tS")
+        text = text.replacingOccurrences(of: "Ù", with: "dZ")
+        text = text.replacingOccurrences(of: "2@", with: "@")
+        text = text.replacingOccurrences(of: "Ww", with: "w")
+        text = text.replacingOccurrences(of: "2", with: "@")
+
+        let replacements: [(String, String)] = [
+            ("\"", "ˈ"),
+            ("%", "ˌ"),
+            ("tS", "tʃ"),
+            ("dZ", "dʒ"),
+            ("eI", "eɪ"),
+            ("aI", "aɪ"),
+            ("OI", "ɔɪ"),
+            ("aU", "aʊ"),
+            ("@U", "əʊ"),
+            ("I@", "ɪə"),
+            ("e@", "eə"),
+            ("U@", "ʊə"),
+            ("3:", "ɜː"),
+            ("3", "ɜː"),
+            ("i:", "iː"),
+            ("u:", "uː"),
+            ("A:", "ɑː"),
+            ("O:", "ɔː"),
+            (":", "ː"),
+            ("@", "ə"),
+            ("&", "æ"),
+            ("A", "ɑː"),
+            ("V", "ʌ"),
+            ("O", "ɔː"),
+            ("Q", "ɒ"),
+            ("U", "ʊ"),
+            ("I", "ɪ"),
+            ("E", "e"),
+            ("T", "θ"),
+            ("D", "ð"),
+            ("S", "ʃ"),
+            ("Z", "ʒ"),
+            ("N", "ŋ")
+        ]
+
+        for (pattern, replacement) in replacements {
+            text = text.replacingOccurrences(of: pattern, with: replacement)
+        }
+
+        while text.contains("  ") {
+            text = text.replacingOccurrences(of: "  ", with: " ")
+        }
+        text = text.trimmingCharacters(in: .whitespacesAndNewlines)
+
+        return "/\(text)/"
+    }
+
     static func parseWordList(from url: URL) -> [Word] {
         guard let data = try? Data(contentsOf: url),
               let doc = try? XMLDocument(data: data, options: []) else { return [] }
@@ -58,7 +123,8 @@ class ContentParser {
                 .compactMap { Int($0) }
 
             let ipaNodes = try? wordElem.nodes(forXPath: "ipa")
-            let ipa = ipaNodes?.first?.stringValue ?? ""
+            let rawIpa = ipaNodes?.first?.stringValue ?? ""
+            let ipa = sampaToIPA(rawIpa)
 
             let audioNodes = try? wordElem.nodes(forXPath: "audio")
             let hasAudio = !(audioNodes ?? []).isEmpty
