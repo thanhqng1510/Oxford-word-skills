@@ -26,7 +26,8 @@ class ContentViewModel {
         guard !searchText.isEmpty else { return words }
         return words.filter {
             $0.word.localizedCaseInsensitiveContains(searchText) ||
-            $0.shortDefinition.localizedCaseInsensitiveContains(searchText)
+            $0.shortDefinition.localizedCaseInsensitiveContains(searchText) ||
+            $0.ipa.localizedCaseInsensitiveContains(searchText)
         }
     }
 

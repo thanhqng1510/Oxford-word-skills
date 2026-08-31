@@ -194,6 +194,67 @@ def load_settings_xml() -> Tuple[ET.ElementTree, List[ModuleData]]:
     return tree, modules
 
 
+def sampa_to_ipa(sampa: str) -> str:
+    """Converts legacy Oxford SAMPA / ASCII phonetic encoding into standard British Unicode IPA."""
+    if not sampa:
+        return ""
+    trimmed = sampa.strip()
+    if not trimmed:
+        return ""
+    if trimmed.startswith("/") and trimmed.endswith("/"):
+        return trimmed
+
+    text = trimmed
+    text = text.replace("”", "\"")
+    text = text.replace("Í", "tS")
+    text = text.replace("Ù", "dZ")
+    text = text.replace("2@", "@")
+    text = text.replace("Ww", "w")
+    text = text.replace("2", "@")
+
+    replacements = [
+        ("\"", "ˈ"),
+        ("%", "ˌ"),
+        ("tS", "tʃ"),
+        ("dZ", "dʒ"),
+        ("eI", "eɪ"),
+        ("aI", "aɪ"),
+        ("OI", "ɔɪ"),
+        ("aU", "aʊ"),
+        ("@U", "əʊ"),
+        ("I@", "ɪə"),
+        ("e@", "eə"),
+        ("U@", "ʊə"),
+        ("3:", "ɜː"),
+        ("3", "ɜː"),
+        ("i:", "iː"),
+        ("u:", "uː"),
+        ("A:", "ɑː"),
+        ("O:", "ɔː"),
+        (":", "ː"),
+        ("@", "ə"),
+        ("&", "æ"),
+        ("A", "ɑː"),
+        ("V", "ʌ"),
+        ("O", "ɔː"),
+        ("Q", "ɒ"),
+        ("U", "ʊ"),
+        ("I", "ɪ"),
+        ("E", "e"),
+        ("T", "θ"),
+        ("D", "ð"),
+        ("S", "ʃ"),
+        ("Z", "ʒ"),
+        ("N", "ŋ"),
+    ]
+
+    for old, new in replacements:
+        text = text.replace(old, new)
+
+    text = re.sub(r"\s+", " ", text).strip()
+    return f"/{text}/"
+
+
 def load_extrawordlist_xml() -> Tuple[ET.ElementTree, List[RawWordData]]:
     """Loads and parses extrawordlist.xml into RawWordData."""
     tree = ET.parse(EXTRAWORDLIST_XML_PATH)
@@ -210,7 +271,8 @@ def load_extrawordlist_xml() -> Tuple[ET.ElementTree, List[RawWordData]]:
                 unit_numbers.append(int(part_clean))
 
         ipa_elem = word_elem.find("ipa")
-        ipa = ipa_elem.text if ipa_elem is not None and ipa_elem.text else ""
+        raw_ipa = ipa_elem.text if ipa_elem is not None and ipa_elem.text else ""
+        ipa = sampa_to_ipa(raw_ipa)
 
         audio_nodes = word_elem.findall("audio")
         has_audio = len(audio_nodes) > 0

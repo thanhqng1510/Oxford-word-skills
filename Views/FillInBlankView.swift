@@ -106,22 +106,30 @@ struct FillInBlankView: View {
                     }
 
                     if showResult {
-                        HStack {
-                            Image(systemName: isCorrect ? "checkmark.circle.fill" : "xmark.circle.fill")
-                                .foregroundStyle(isCorrect ? .green : .red)
-                                .font(.title2)
-                            if !isCorrect {
-                                if let gloss = word.parentheticalGloss {
-                                    Text("Answer: **\(word.cleanWord)** \(gloss)")
-                                        .font(.headline)
+                        VStack(spacing: 6) {
+                            HStack {
+                                Image(systemName: isCorrect ? "checkmark.circle.fill" : "xmark.circle.fill")
+                                    .foregroundStyle(isCorrect ? .green : .red)
+                                    .font(.title2)
+                                if !isCorrect {
+                                    if let gloss = word.parentheticalGloss {
+                                        Text("Answer: **\(word.cleanWord)** \(gloss)")
+                                            .font(.headline)
+                                    } else {
+                                        Text("Answer: **\(word.word)**")
+                                            .font(.headline)
+                                    }
                                 } else {
-                                    Text("Answer: **\(word.word)**")
+                                    Text("Correct! **\(word.word)**")
                                         .font(.headline)
+                                        .foregroundStyle(.green)
                                 }
-                            } else {
-                                Text("Correct!")
-                                    .font(.headline)
-                                    .foregroundStyle(.green)
+                            }
+
+                            if !word.ipa.isEmpty {
+                                Text(word.ipa)
+                                    .font(.subheadline)
+                                    .foregroundStyle(.secondary)
                             }
                         }
                         .padding(.top, 8)

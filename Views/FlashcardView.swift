@@ -69,18 +69,27 @@ struct FlashcardView: View {
             if let word = currentWord {
                 VStack(spacing: 16) {
                     if isFlipped {
-                        // Back: definition + example
-                        VStack(spacing: 12) {
+                        // Back: definition + example + pronunciation
+                        VStack(spacing: 10) {
                             Text(word.word)
                                 .font(.largeTitle)
                                 .fontWeight(.bold)
+                                .multilineTextAlignment(.center)
 
-                            if !word.partOfSpeech.isEmpty {
-                                Text(word.partOfSpeech)
-                                    .font(.caption)
-                                    .padding(.horizontal, 8)
-                                    .padding(.vertical, 2)
-                                    .background(.blue.opacity(0.15), in: Capsule())
+                            HStack(spacing: 8) {
+                                if !word.ipa.isEmpty {
+                                    Text(word.ipa)
+                                        .font(.headline)
+                                        .foregroundStyle(.secondary)
+                                }
+
+                                if !word.partOfSpeech.isEmpty {
+                                    Text(word.partOfSpeech)
+                                        .font(.caption)
+                                        .padding(.horizontal, 8)
+                                        .padding(.vertical, 2)
+                                        .background(.blue.opacity(0.15), in: Capsule())
+                                }
                             }
 
                             Text(word.shortDefinition)
@@ -98,7 +107,7 @@ struct FlashcardView: View {
 
                             HStack(spacing: 16) {
                                 Button {
-                                    SpeechService.shared.speak(word.word)
+                                    SpeechService.shared.speak(word.speechText)
                                 } label: {
                                     Label("Listen", systemImage: "speaker.wave.2.fill")
                                 }
@@ -125,14 +134,22 @@ struct FlashcardView: View {
                             }
                         }
                     } else {
-                        // Front: word only
-                        VStack(spacing: 12) {
+                        // Front: word + pronunciation
+                        VStack(spacing: 8) {
                             Text(word.word)
-                                .font(.system(size: 44, weight: .bold, design: .rounded))
+                                .font(.system(size: 40, weight: .bold, design: .rounded))
+                                .multilineTextAlignment(.center)
+
+                            if !word.ipa.isEmpty {
+                                Text(word.ipa)
+                                    .font(.title3)
+                                    .foregroundStyle(.secondary)
+                            }
 
                             Text("Tap to reveal definition")
                                 .font(.callout)
                                 .foregroundStyle(.tertiary)
+                                .padding(.top, 4)
                         }
                     }
                 }
@@ -194,7 +211,7 @@ struct FlashcardView: View {
             .tint(currentWord.map { viewModel.isLearned($0) ? .green : .accentColor } ?? .accentColor)
 
             Button {
-                SpeechService.shared.speak(currentWord?.word ?? "")
+                SpeechService.shared.speak(currentWord?.speechText ?? "")
             } label: {
                 Image(systemName: "speaker.wave.2.fill")
                     .font(.title2)
