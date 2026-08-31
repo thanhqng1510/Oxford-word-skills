@@ -2,6 +2,7 @@ import SwiftUI
 
 struct VocabularyListView: View {
     @Bindable var viewModel: ContentViewModel
+    @State private var selectedWordForDetail: Word?
 
     var body: some View {
         Table(viewModel.filteredWords) {
@@ -31,12 +32,41 @@ struct VocabularyListView: View {
             .width(min: 110, ideal: 140)
 
             TableColumn("Definition") { word in
-                Text(word.shortDefinition)
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                    .lineLimit(2)
+                HStack(spacing: 6) {
+                    Text(word.shortDefinition)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+
+                    if word.definitions.count > 1 {
+                        Button {
+                            selectedWordForDetail = word
+                        } label: {
+                            Text("+\(word.definitions.count - 1)")
+                                .font(.caption2)
+                                .fontWeight(.semibold)
+                                .padding(.horizontal, 5)
+                                .padding(.vertical, 2)
+                                .background(.blue.opacity(0.15), in: Capsule())
+                        }
+                        .buttonStyle(.plain)
+                        .help("View all \(word.definitions.count) meanings")
+                    }
+
+                    Spacer(minLength: 0)
+
+                    Button {
+                        selectedWordForDetail = word
+                    } label: {
+                        Image(systemName: "info.circle")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                    .buttonStyle(.plain)
+                    .help("View full dictionary details")
+                }
             }
-            .width(min: 150, ideal: 250)
+            .width(min: 160, ideal: 280)
 
             TableColumn("Units") { word in
                 Text(word.unitNumbers.map(String.init).joined(separator: ", "))
@@ -55,6 +85,9 @@ struct VocabularyListView: View {
                 .buttonStyle(.plain)
             }
             .width(60)
+        }
+        .sheet(item: $selectedWordForDetail) { word in
+            WordDetailSheet(word: word, viewModel: viewModel)
         }
         .overlay {
             if viewModel.filteredWords.isEmpty {
@@ -141,5 +174,159 @@ struct UnitHeaderView: View {
             }
         }
         .padding()
+    }
+}
+
+struct WordDetailSheet: View {
+    let word: Word
+    @Bindable var viewModel: ContentViewModel
+    @Environment(\.dismiss) private var dismiss
+
+    var body: some View {
+        VStack(spacing: 0) {
+            // Header
+            HStack {
+                VStack(alignment: .leading, spacing: 4) {
+                    HStack(spacing: 8) {
+                        Text(word.word)
+                            .font(.title)
+                            .fontWeight(.bold)
+                        Button {
+                            SpeechService.shared.speak(word.speechText)
+                        } label: {
+                            Image(systemName: "speaker.wave.2.fill")
+                                .font(.title3)
+                        }
+                        .buttonStyle(.plain)
+                        .help("Listen to British pronunciation")
+                    }
+
+                    if !word.ipa.isEmpty {
+                        Text(word.ipa)
+                            .font(.title3)
+                            .foregroundStyle(.secondary)
+                    }
+                }
+
+                Spacer()
+
+                Button {
+                    viewModel.toggleLearned(word)
+                } label: {
+                    Label(
+                        viewModel.isLearned(word) ? "Learned" : "Mark Learned",
+                        systemImage: viewModel.isLearned(word) ? "checkmark.circle.fill" : "circle"
+                    )
+                }
+                .buttonStyle(.bordered)
+                .tint(viewModel.isLearned(word) ? .green : .accentColor)
+
+                Button("Done") {
+                    dismiss()
+                }
+                .buttonStyle(.borderedProminent)
+                .controlSize(.regular)
+            }
+            .padding()
+
+            Divider()
+
+            // Content
+            ScrollView {
+                VStack(alignment: .leading, spacing: 20) {
+                    // Units
+                    if !word.unitNumbers.isEmpty {
+                        HStack(spacing: 6) {
+                            Text("Units:")
+                                .font(.headline)
+                                .foregroundStyle(.secondary)
+                            ForEach(word.unitNumbers, id: \.self) { u in
+                                Text("Unit \(u)")
+                                    .font(.caption)
+                                    .padding(.horizontal, 8)
+                                    .padding(.vertical, 3)
+                                    .background(.secondary.opacity(0.12), in: Capsule())
+                            }
+                        }
+                    }
+
+                    // Meanings & Definitions
+                    VStack(alignment: .leading, spacing: 12) {
+                        Text("Definitions (\(word.definitions.count))")
+                            .font(.headline)
+
+                        ForEach(Array(word.definitions.enumerated()), id: \.offset) { idx, def in
+                            VStack(alignment: .leading, spacing: 6) {
+                                HStack(alignment: .top, spacing: 8) {
+                                    Text("\(idx + 1).")
+                                        .font(.subheadline)
+                                        .fontWeight(.bold)
+                                        .foregroundStyle(.secondary)
+
+                                    if !def.partOfSpeech.isEmpty {
+                                        Text(def.partOfSpeech)
+                                            .font(.caption)
+                                            .fontWeight(.semibold)
+                                            .padding(.horizontal, 8)
+                                            .padding(.vertical, 2)
+                                            .background(.blue.opacity(0.15), in: Capsule())
+                                    }
+
+                                    Text(def.definition)
+                                        .font(.body)
+                                }
+
+                                if !def.example.isEmpty {
+                                    Text("“\(def.example)”")
+                                        .font(.callout)
+                                        .foregroundStyle(.secondary)
+                                        .italic()
+                                        .padding(.leading, 24)
+                                }
+                            }
+                            .padding(10)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .background(Color(nsColor: .controlBackgroundColor), in: RoundedRectangle(cornerRadius: 10))
+                        }
+                    }
+
+                    // Synonyms
+                    if !word.synonyms.isEmpty {
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("Synonyms")
+                                .font(.headline)
+                            FlowLayout(spacing: 6) {
+                                ForEach(word.synonyms, id: \.self) { syn in
+                                    Text(syn)
+                                        .font(.caption)
+                                        .padding(.horizontal, 10)
+                                        .padding(.vertical, 4)
+                                        .background(.green.opacity(0.12), in: Capsule())
+                                }
+                            }
+                        }
+                    }
+
+                    // Antonyms
+                    if !word.antonyms.isEmpty {
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("Antonyms")
+                                .font(.headline)
+                            FlowLayout(spacing: 6) {
+                                ForEach(word.antonyms, id: \.self) { ant in
+                                    Text(ant)
+                                        .font(.caption)
+                                        .padding(.horizontal, 10)
+                                        .padding(.vertical, 4)
+                                        .background(.red.opacity(0.12), in: Capsule())
+                                }
+                            }
+                        }
+                    }
+                }
+                .padding()
+            }
+        }
+        .frame(minWidth: 540, minHeight: 440)
     }
 }

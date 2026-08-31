@@ -92,17 +92,54 @@ struct FlashcardView: View {
                                 }
                             }
 
-                            Text(word.shortDefinition)
-                                .font(.body)
-                                .multilineTextAlignment(.center)
-                                .frame(maxWidth: 380)
+                            if word.definitions.count <= 1 {
+                                Text(word.shortDefinition)
+                                    .font(.body)
+                                    .multilineTextAlignment(.center)
+                                    .frame(maxWidth: 380)
 
-                            if showExample, let example = word.examples.first {
-                                Text("\"\(example)\"")
-                                    .font(.callout)
-                                    .foregroundStyle(.secondary)
-                                    .italic()
-                                    .padding(.top, 4)
+                                if showExample, let example = word.examples.first {
+                                    Text("\"\(example)\"")
+                                        .font(.callout)
+                                        .foregroundStyle(.secondary)
+                                        .italic()
+                                        .padding(.top, 4)
+                                }
+                            } else {
+                                ScrollView(.vertical, showsIndicators: word.definitions.count > 2) {
+                                    VStack(alignment: .leading, spacing: 6) {
+                                        ForEach(Array(word.definitions.enumerated()), id: \.offset) { idx, def in
+                                            VStack(alignment: .leading, spacing: 2) {
+                                                HStack(alignment: .top, spacing: 6) {
+                                                    Text("\(idx + 1).")
+                                                        .font(.caption)
+                                                        .fontWeight(.bold)
+                                                        .foregroundStyle(.secondary)
+
+                                                    if !def.partOfSpeech.isEmpty {
+                                                        Text(def.partOfSpeech)
+                                                            .font(.caption2)
+                                                            .padding(.horizontal, 5)
+                                                            .padding(.vertical, 1)
+                                                            .background(.blue.opacity(0.12), in: Capsule())
+                                                    }
+
+                                                    Text(def.definition)
+                                                        .font(.callout)
+                                                }
+                                                if showExample && !def.example.isEmpty {
+                                                    Text("“\(def.example)”")
+                                                        .font(.caption)
+                                                        .foregroundStyle(.secondary)
+                                                        .italic()
+                                                        .padding(.leading, 18)
+                                                }
+                                            }
+                                        }
+                                    }
+                                    .padding(.horizontal, 4)
+                                }
+                                .frame(maxWidth: 420, maxHeight: 120)
                             }
 
                             HStack(spacing: 16) {
