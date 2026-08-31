@@ -9,6 +9,7 @@ struct SidebarView: View {
             List {
                 Section {
                     Button {
+                        viewModel.selectedUnitNumber = nil
                         viewModel.selectedNavigation = .allWords
                     } label: {
                         Label("All Words (\(viewModel.totalWordCount))", systemImage: "text.book.closed")
@@ -16,6 +17,7 @@ struct SidebarView: View {
                     .buttonStyle(.plain)
 
                     Button {
+                        viewModel.selectedUnitNumber = nil
                         viewModel.selectedNavigation = .progress
                     } label: {
                         Label("Progress", systemImage: "chart.pie")
