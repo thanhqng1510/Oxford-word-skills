@@ -2,6 +2,7 @@
 *.xcuserstate
 DerivedData/
 build/
+xcuserdata/
 .agents/
 __pycache__/
 *.pyc

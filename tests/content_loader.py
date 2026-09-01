@@ -141,7 +141,10 @@ class RuntimeWord:
     definitions: List[WordDefinitionData] = field(default_factory=list)
     synonyms: List[str] = field(default_factory=list)
     antonyms: List[str] = field(default_factory=list)
-    examples: List[str] = field(default_factory=list)
+
+    @property
+    def examples(self) -> List[str]:
+        return [d.example for d in self.definitions if d.example]
 
     @property
     def short_definition(self) -> str:
@@ -327,7 +330,6 @@ def build_runtime_modules() -> Tuple[List[ModuleData], List[RuntimeWord], Dict[i
             defs: List[WordDefinitionData] = []
             all_syns: List[str] = []
             all_ants: List[str] = []
-            all_exs: List[str] = []
 
             for meaning in detail.get("meanings", []):
                 pos = meaning.get("partOfSpeech", "")
@@ -335,15 +337,12 @@ def build_runtime_modules() -> Tuple[List[ModuleData], List[RuntimeWord], Dict[i
                     def_text = d.get("definition", "")
                     ex_text = d.get("example", "")
                     defs.append(WordDefinitionData(part_of_speech=pos, definition=def_text, example=ex_text))
-                    if ex_text:
-                        all_exs.append(ex_text)
                 all_syns.extend(meaning.get("synonyms", []))
                 all_ants.extend(meaning.get("antonyms", []))
 
             rw.definitions = defs
             rw.synonyms = unique_preserve_order(all_syns)[:10]
             rw.antonyms = unique_preserve_order(all_ants)[:10]
-            rw.examples = unique_preserve_order(all_exs)[:5]
 
         runtime_words.append(rw)
 
