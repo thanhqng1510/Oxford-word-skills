@@ -43,6 +43,9 @@ final class SpeechService {
     private let synthesizer = AVSpeechSynthesizer()
     private var voiceCache: [String: AVSpeechSynthesisVoice] = [:]
 
+    /// Active voice selected by the user state.
+    var activeVoice: VoiceOption = .default
+
     private init() {
         populateInitialVoices()
     }
@@ -77,13 +80,15 @@ final class SpeechService {
         return AVSpeechSynthesisVoice(language: "en-GB") ?? AVSpeechSynthesisVoice(language: "en-US")
     }
 
-    func speak(_ text: String, voice option: VoiceOption = .default) {
+    /// Pronounces text using the active voice from state, or an optional override voice if specified.
+    func speak(_ text: String, voice overrideVoice: VoiceOption? = nil) {
         let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { return }
 
         stop()
         let utterance = AVSpeechUtterance(string: trimmed)
-        if let resolvedVoice = voice(for: option) {
+        let targetVoice = overrideVoice ?? activeVoice
+        if let resolvedVoice = voice(for: targetVoice) {
             utterance.voice = resolvedVoice
         }
         utterance.rate = 0.45

@@ -13,6 +13,7 @@ class ContentViewModel {
     var selectedVoice: VoiceOption = .default {
         didSet {
             UserDefaults.standard.set(selectedVoice.id, forKey: voicePrefKey)
+            SpeechService.shared.activeVoice = selectedVoice
         }
     }
 
@@ -160,6 +161,7 @@ class ContentViewModel {
            let match = VoiceOption.supportedVoices.first(where: { $0.id == savedId }) {
             self.selectedVoice = match
         }
+        SpeechService.shared.activeVoice = self.selectedVoice
     }
 
     private func updateModuleProgress() {
