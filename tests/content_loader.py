@@ -147,6 +147,10 @@ class RuntimeWord:
         return [d.example for d in self.definitions if d.example]
 
     @property
+    def all_parts_of_speech(self) -> List[str]:
+        return unique_preserve_order([d.part_of_speech for d in self.definitions if d.part_of_speech])
+
+    @property
     def short_definition(self) -> str:
         if self.definitions:
             return self.definitions[0].definition

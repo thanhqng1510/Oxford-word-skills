@@ -14,6 +14,7 @@ enum QuizMode {
 
 struct SimulatedQuizQuestion {
     let word: Word
+    let targetDefinition: WordDefinition
     let options: [String]
     let correctAnswer: String
     let correctDefinition: String
@@ -40,64 +41,69 @@ final class QuizSimulator {
             sourceWords = allWords
         }
 
-        let validSourceWords = sourceWords.filter {
-            !$0.definitions.isEmpty &&
-            $0.shortDefinition != "No definition available" &&
-            !$0.shortDefinition.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        let validSourceWords = sourceWords.filter { word in
+            word.definitions.contains { !$0.definition.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
         }
 
         guard !validSourceWords.isEmpty else {
             return []
         }
 
-        let fallbackWords = allWords.filter {
-            !$0.definitions.isEmpty &&
-            $0.shortDefinition != "No definition available" &&
-            !$0.shortDefinition.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        let fallbackWords = allWords.filter { word in
+            word.definitions.contains { !$0.definition.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
         }
 
         let shuffled = validSourceWords.shuffled()
         let questionWords = Array(shuffled.prefix(min(15, shuffled.count)))
 
-        return questionWords.compactMap { word in
+        return questionWords.compactMap { word -> SimulatedQuizQuestion? in
+            let validDefs = word.definitions.filter { !$0.definition.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
+            guard let targetDef = validDefs.first else { return nil }
+
             switch quizMode {
             case .wordToDefinition:
-                let correctDef = word.shortDefinition.trimmingCharacters(in: .whitespacesAndNewlines)
+                let correctDef = targetDef.definition.trimmingCharacters(in: .whitespacesAndNewlines)
                 var chosenDefs: [String] = []
                 var seenDefs = Set<String>([correctDef.lowercased()])
 
                 // 1. First-pass distractors: sample from current unit
                 let unitCandidates = validSourceWords.filter { $0.id != word.id }.shuffled()
                 for candidate in unitCandidates {
-                    let def = candidate.shortDefinition.trimmingCharacters(in: .whitespacesAndNewlines)
-                    let defKey = def.lowercased()
-                    if !def.isEmpty && !seenDefs.contains(defKey) {
-                        seenDefs.insert(defKey)
-                        chosenDefs.append(def)
-                        if chosenDefs.count == 3 { break }
+                    for cDef in candidate.definitions {
+                        let defText = cDef.definition.trimmingCharacters(in: .whitespacesAndNewlines)
+                        let defKey = defText.lowercased()
+                        if !defText.isEmpty && !seenDefs.contains(defKey) {
+                            seenDefs.insert(defKey)
+                            chosenDefs.append(defText)
+                            break
+                        }
                     }
+                    if chosenDefs.count == 3 { break }
                 }
 
                 // 2. Second-pass distractors: sample from global pool if unit has < 3 distinct distractors
                 if chosenDefs.count < 3 {
                     let globalCandidates = fallbackWords.filter { $0.id != word.id }.shuffled()
                     for candidate in globalCandidates {
-                        let def = candidate.shortDefinition.trimmingCharacters(in: .whitespacesAndNewlines)
-                        let defKey = def.lowercased()
-                        if !def.isEmpty && !seenDefs.contains(defKey) {
-                            seenDefs.insert(defKey)
-                            chosenDefs.append(def)
-                            if chosenDefs.count == 3 { break }
+                        for cDef in candidate.definitions {
+                            let defText = cDef.definition.trimmingCharacters(in: .whitespacesAndNewlines)
+                            let defKey = defText.lowercased()
+                            if !defText.isEmpty && !seenDefs.contains(defKey) {
+                                seenDefs.insert(defKey)
+                                chosenDefs.append(defText)
+                                break
+                            }
                         }
+                        if chosenDefs.count == 3 { break }
                     }
                 }
 
                 let options = ([correctDef] + chosenDefs).shuffled()
-                return SimulatedQuizQuestion(word: word, options: options, correctAnswer: correctDef, correctDefinition: correctDef)
+                return SimulatedQuizQuestion(word: word, targetDefinition: targetDef, options: options, correctAnswer: correctDef, correctDefinition: correctDef)
 
             case .definitionToWord:
                 let correctWord = word.word.trimmingCharacters(in: .whitespacesAndNewlines)
-                let correctDef = word.shortDefinition.trimmingCharacters(in: .whitespacesAndNewlines)
+                let correctDef = targetDef.definition.trimmingCharacters(in: .whitespacesAndNewlines)
                 var chosenWords: [String] = []
                 var seenWords = Set<String>([correctWord.lowercased()])
 
@@ -128,7 +134,7 @@ final class QuizSimulator {
                 }
 
                 let options = ([correctWord] + chosenWords).shuffled()
-                return SimulatedQuizQuestion(word: word, options: options, correctAnswer: correctWord, correctDefinition: correctDef)
+                return SimulatedQuizQuestion(word: word, targetDefinition: targetDef, options: options, correctAnswer: correctWord, correctDefinition: correctDef)
             }
         }
     }

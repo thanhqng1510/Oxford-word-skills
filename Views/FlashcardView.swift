@@ -83,8 +83,14 @@ struct FlashcardView: View {
                                         .foregroundStyle(.secondary)
                                 }
 
-                                if !word.partOfSpeech.isEmpty {
-                                    Text(word.partOfSpeech)
+                                if word.definitions.count <= 1, let firstDef = word.definitions.first, !firstDef.partOfSpeech.isEmpty {
+                                    Text(firstDef.partOfSpeech)
+                                        .font(.caption)
+                                        .padding(.horizontal, 8)
+                                        .padding(.vertical, 2)
+                                        .background(.blue.opacity(0.15), in: Capsule())
+                                } else if word.definitions.count > 1 && !word.allPartsOfSpeech.isEmpty {
+                                    Text(word.allPartsOfSpeech.joined(separator: " • "))
                                         .font(.caption)
                                         .padding(.horizontal, 8)
                                         .padding(.vertical, 2)
@@ -93,17 +99,25 @@ struct FlashcardView: View {
                             }
 
                             if word.definitions.count <= 1 {
-                                Text(word.shortDefinition)
-                                    .font(.body)
-                                    .multilineTextAlignment(.center)
-                                    .frame(maxWidth: 380)
+                                if let firstDef = word.definitions.first {
+                                    Text(firstDef.definition)
+                                        .font(.body)
+                                        .multilineTextAlignment(.center)
+                                        .frame(maxWidth: 380)
 
-                                if showExample, let example = word.examples.first {
-                                    Text("\"\(example)\"")
-                                        .font(.callout)
+                                    if showExample && !firstDef.example.isEmpty {
+                                        Text("\"\(firstDef.example)\"")
+                                            .font(.callout)
+                                            .foregroundStyle(.secondary)
+                                            .italic()
+                                            .padding(.top, 4)
+                                    }
+                                } else {
+                                    Text("No definition available")
+                                        .font(.body)
                                         .foregroundStyle(.secondary)
-                                        .italic()
-                                        .padding(.top, 4)
+                                        .multilineTextAlignment(.center)
+                                        .frame(maxWidth: 380)
                                 }
                             } else {
                                 ScrollView(.vertical, showsIndicators: word.definitions.count > 2) {
