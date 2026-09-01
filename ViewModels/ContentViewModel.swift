@@ -11,12 +11,6 @@ class ContentViewModel {
     var searchText: String = ""
     var learnedWordIDs: Set<String> = []
 
-    /// Reactive binding to the SpeechService selected voice.
-    var selectedVoice: VoiceOption {
-        get { SpeechService.shared.selectedVoice }
-        set { SpeechService.shared.selectedVoice = newValue }
-    }
-
     private let learnedKey = "learnedWords"
 
     init() {
