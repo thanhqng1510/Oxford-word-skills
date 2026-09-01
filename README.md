@@ -34,13 +34,9 @@ Oxford Word Skills is a desktop study tool that helps English language learners 
 |---|---|
 | ![Listening & Spelling](screenshots/06_listening_spelling.png) | ![Synonym Match](screenshots/07_synonym_match.png) |
 
-| Word Categorization |
-|---|
-| ![Categorization](screenshots/08_categorization.png) |
-
 ## Features
 
-### Six Exercise Modes
+### Five Exercise Modes
 
 | Exercise | Description |
 |---|---|
@@ -49,7 +45,6 @@ Oxford Word Skills is a desktop study tool that helps English language learners 
 | **Definition → Word Quiz** | See the definition, choose the correct word from 4 options |
 | **Listening & Spelling** | Hear English pronunciation, type the word you hear |
 | **Synonym Match** | Match words with their synonyms in a two-column layout |
-| **Categorization** | Sort words into their correct unit categories |
 
 ### Vocabulary Browser
 
@@ -108,7 +103,6 @@ OxfordWordSkills/
 │   ├── QuizView.swift              # Multiple-choice quiz
 │   ├── FillInBlankView.swift       # Listening & spelling exercise
 │   ├── MatchingView.swift          # Synonym matching exercise
-│   ├── CategorizationView.swift    # Word categorization exercise
 │   ├── ExerciseContainerView.swift # Exercise type router
 │   ├── ProgressDashboardView.swift # Statistics overview
 │   └── UpdateAvailableView.swift   # In-app update sheet

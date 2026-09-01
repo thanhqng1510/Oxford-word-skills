@@ -161,13 +161,13 @@ class TestTier1Feature2_EngineAndExercises(unittest.TestCase):
             base = re.sub(r"\s*\(.*?\)", "", raw).strip()
             self.assertEqual(base, expected_base, f"Spelling normalization failed for '{raw}'")
 
-    def test_f2_04_categorization_view_multi_unit_prerequisites(self):
-        """Verify CategorizationView requirement: multiple units with sufficient words (>=3 words)."""
-        valid_units = [u for u, words in self.words_by_unit.items() if len(words) >= 3]
-        self.assertGreaterEqual(
-            len(valid_units),
-            2,
-            f"CategorizationView requires at least 2 valid units with >=3 words, found {len(valid_units)}",
+    def test_f2_04_exercise_types_coverage(self):
+        """Verify that all units have sufficient words (>=4 words) to support the 5 active exercise modes."""
+        units_with_min_words = [u for u, words in self.words_by_unit.items() if len(words) >= 4]
+        self.assertEqual(
+            len(units_with_min_words),
+            len(self.words_by_unit),
+            f"All {len(self.words_by_unit)} units must have >= 4 words for exercise modes, found {len(units_with_min_words)}",
         )
 
     def test_f2_05_flashcard_view_learned_state_toggle(self):
@@ -781,7 +781,6 @@ class TestTier1Feature9_ProjectCompilationAndEngineIntegrity(unittest.TestCase):
             "QuizView.swift",
             "FillInBlankView.swift",
             "MatchingView.swift",
-            "CategorizationView.swift",
         ]
         for filename in exercise_views:
             path = os.path.join(views_dir, filename)

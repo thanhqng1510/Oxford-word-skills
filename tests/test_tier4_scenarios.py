@@ -7,7 +7,7 @@ Covers:
 - Full Listening & Spelling (Fill in the Blank) simulation with hint & skip flows
 - Full Flashcard deck study flow with flip, example reveal, and learned progress updates
 - Full Curriculum navigation and search query traversal
-- Full Categorization multi-unit exercise simulation
+- Full 5 active exercise modes session simulation
 - Progress persistence lifecycle (mark learned, reset unit, reset all)
 """
 
@@ -230,26 +230,24 @@ class TestTier4RealWorldScenarios(unittest.TestCase):
                     ]
                     self.assertGreater(len(filtered), 0)
 
-    def test_t4_07_categorization_exercise_simulation(self):
-        """Scenario: Simulate CategorizationView grouping words into unit buckets and checking results."""
-        # Pick 2 units with >= 3 words
-        candidate_units = [u for u, words in self.words_by_unit.items() if len(words) >= 3][:2]
-        if len(candidate_units) < 2:
-            self.skipTest("Need at least 2 units with >=3 words")
-
-        cat1_words = self.words_by_unit[candidate_units[0]][:3]
-        cat2_words = self.words_by_unit[candidate_units[1]][:3]
-
-        pool = cat1_words + cat2_words
-        random.shuffle(pool)
-
-        # Place words into respective categories
-        placed_cat1 = [w for w in pool if candidate_units[0] in w.unit_numbers]
-        placed_cat2 = [w for w in pool if candidate_units[1] in w.unit_numbers]
-
-        # Verify correct assignment
-        self.assertEqual(len(placed_cat1), len(cat1_words))
-        self.assertEqual(len(placed_cat2), len(cat2_words))
+    def test_t4_07_five_exercise_modes_session_simulation(self):
+        """Scenario: Simulate launching all 5 active exercise modes across randomly sampled units."""
+        sample_units = random.sample(range(1, 81), 10)
+        for unit_num in sample_units:
+            words = self.words_by_unit[unit_num]
+            # 1. Flashcards: words available
+            self.assertGreaterEqual(len(words), 4)
+            # 2. Definition Quiz: at least 4 distinct definitions
+            defs = [w.short_definition for w in words if w.short_definition]
+            self.assertGreaterEqual(len(set(defs)), 4)
+            # 3. Reverse Quiz: at least 4 distinct headwords
+            self.assertGreaterEqual(len(set(w.word for w in words)), 4)
+            # 4. Listening & Spelling: valid normalized headwords
+            for w in words[:4]:
+                clean = re.sub(r"\s*\(.*?\)", "", w.word).strip()
+                self.assertGreater(len(clean), 0)
+            # 5. Synonym Match: valid words
+            self.assertTrue(all(len(w.word) > 0 for w in words))
 
     def test_t4_08_progress_persistence_lifecycle(self):
         """Scenario: Simulate complete persistence lifecycle: mark all in unit, reset unit, reset all."""

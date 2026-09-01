@@ -23,7 +23,6 @@
 		A100000100100014 /* ProgressDashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100000100000014 /* ProgressDashboardView.swift */; };
 		A100000100100015 /* settings.xml in Resources */ = {isa = PBXBuildFile; fileRef = A100000100000015 /* settings.xml */; };
 		A100000100100016 /* extrawordlist.xml in Resources */ = {isa = PBXBuildFile; fileRef = A100000100000016 /* extrawordlist.xml */; };
-		A100000100100017 /* CategorizationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100000100000017 /* CategorizationView.swift */; };
 		A100000100100018 /* definitions.json in Resources */ = {isa = PBXBuildFile; fileRef = A100000100000018 /* definitions.json */; };
 		A100000100100019 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A100000100000019 /* Assets.xcassets */; };
 		A100000100100020 /* UpdateService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100000100000021 /* UpdateService.swift */; };
@@ -47,7 +46,6 @@
 		A100000100000014 /* ProgressDashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProgressDashboardView.swift; sourceTree = "<group>"; };
 		A100000100000015 /* settings.xml */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = settings.xml; sourceTree = "<group>"; };
 		A100000100000016 /* extrawordlist.xml */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = extrawordlist.xml; sourceTree = "<group>"; };
-		A100000100000017 /* CategorizationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategorizationView.swift; sourceTree = "<group>"; };
 		A100000100000018 /* definitions.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = definitions.json; sourceTree = "<group>"; };
 		A100000100000019 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		A100000100000020 /* OxfordWordSkills.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = OxfordWordSkills.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -123,7 +121,6 @@
 				A100000100000010 /* QuizView.swift */,
 				A100000100000011 /* FillInBlankView.swift */,
 				A100000100000012 /* MatchingView.swift */,
-				A100000100000017 /* CategorizationView.swift */,
 				A100000100000013 /* ExerciseContainerView.swift */,
 				A100000100000014 /* ProgressDashboardView.swift */,
 				A100000100000022 /* UpdateAvailableView.swift */,
@@ -223,7 +220,6 @@
 				A100000100100012 /* MatchingView.swift in Sources */,
 				A100000100100013 /* ExerciseContainerView.swift in Sources */,
 				A100000100100014 /* ProgressDashboardView.swift in Sources */,
-				A100000100100017 /* CategorizationView.swift in Sources */,
 				A100000100100020 /* UpdateService.swift in Sources */,
 				A100000100100021 /* UpdateAvailableView.swift in Sources */,
 			);

@@ -13,7 +13,7 @@
 ```
 Models/DataModels.swift          # Word, Unit, Module, ExerciseType, NavigationTarget
 ViewModels/ContentViewModel.swift # Single @Observable state owner
-Views/                           # 10 SwiftUI views (see README for full list)
+Views/                           # 9 SwiftUI views (see README for full list)
 Utilities/ContentParser.swift    # XML/JSON parsing, data pipeline
 Utilities/SpeechService.swift    # Multi-accent TTS service (@Observable)
 Resources/settings.xml           # Module/unit structure
@@ -88,7 +88,7 @@ RoundedRectangle(cornerRadius: 20)
     .glassEffect()
 ```
 
-Affected files: `FlashcardView`, `QuizView`, `FillInBlankView`, `ProgressDashboardView`, `CategorizationView`.
+Affected files: `FlashcardView`, `QuizView`, `FillInBlankView`, `ProgressDashboardView`.
 
 ### GlassEffectContainer
 
@@ -190,10 +190,10 @@ swift Models/DataModels.swift Utilities/ContentParser.swift tests/test_engine_pi
 ```
 
 ### Swift Stress & Simulation Suites
-Simulates 10,000+ quiz questions and 85,000+ categorization runs to verify 0 intra-unit distractor collisions and robust game state transitions:
+Simulates 10,000+ quiz questions, distractor availability, and headword normalization across all 80 units:
 ```bash
 swift Models/DataModels.swift Utilities/ContentParser.swift tests/stress_test_quiz_matching.swift
-swift Models/DataModels.swift Utilities/ContentParser.swift tests/stress_test_headwords_and_categorization.swift
+swift Models/DataModels.swift Utilities/ContentParser.swift tests/stress_test_headwords.swift
 ```
 
 ## Delivery Workflow
