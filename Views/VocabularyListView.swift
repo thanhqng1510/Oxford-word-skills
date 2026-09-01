@@ -11,7 +11,7 @@ struct VocabularyListView: View {
                     Text(word.word)
                         .fontWeight(.medium)
                     Button {
-                        SpeechService.shared.speak(word.speechText)
+                        SpeechService.shared.speak(word.speechText, voice: viewModel.selectedVoice)
                     } label: {
                         Image(systemName: "speaker.wave.2")
                             .font(.caption)
@@ -206,13 +206,13 @@ struct WordDetailSheet: View {
                             .font(.title)
                             .fontWeight(.bold)
                         Button {
-                            SpeechService.shared.speak(word.speechText)
+                            SpeechService.shared.speak(word.speechText, voice: viewModel.selectedVoice)
                         } label: {
                             Image(systemName: "speaker.wave.2.fill")
                                 .font(.title3)
                         }
                         .buttonStyle(.plain)
-                        .help("Listen to British pronunciation")
+                        .help("Listen to pronunciation")
                     }
 
                     if !word.ipa.isEmpty {

@@ -158,7 +158,7 @@ struct FlashcardView: View {
 
                             HStack(spacing: 16) {
                                 Button {
-                                    SpeechService.shared.speak(word.speechText)
+                                    SpeechService.shared.speak(word.speechText, voice: viewModel.selectedVoice)
                                 } label: {
                                     Label("Listen", systemImage: "speaker.wave.2.fill")
                                 }
@@ -262,7 +262,9 @@ struct FlashcardView: View {
             .tint(currentWord.map { viewModel.isLearned($0) ? .green : .accentColor } ?? .accentColor)
 
             Button {
-                SpeechService.shared.speak(currentWord?.speechText ?? "")
+                if let text = currentWord?.speechText {
+                    SpeechService.shared.speak(text, voice: viewModel.selectedVoice)
+                }
             } label: {
                 Image(systemName: "speaker.wave.2.fill")
                     .font(.title2)

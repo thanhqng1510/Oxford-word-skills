@@ -13,6 +13,17 @@ struct ContentView: View {
         }
         .navigationTitle("Oxford Word Skills")
         .frame(minWidth: 900, minHeight: 600)
+        .toolbar {
+            ToolbarItem(placement: .primaryAction) {
+                Picker("Voice Accent", selection: $viewModel.selectedVoice) {
+                    ForEach(VoiceOption.supportedVoices) { option in
+                        Text(option.shortLabel).tag(option)
+                    }
+                }
+                .pickerStyle(.segmented)
+                .help("Select Pronunciation Accent")
+            }
+        }
         // ── Auto-update ──────────────────────────────────────────────────────
         // Check for a newer release 2 s after launch (avoids blocking startup)
         .task {

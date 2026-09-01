@@ -40,7 +40,7 @@ else
 fi
 
 # 3. Run UpdateService Unit Tests
-echo -e "${BOLD}>>> Step 3/4: Executing UpdateService Unit Tests...${RESET}\n"
+echo -e "${BOLD}>>> Step 3/5: Executing UpdateService Unit Tests...${RESET}\n"
 if swift tests/test_update_service.swift; then
     echo -e "\n${GREEN}✓ Step 3 Passed: UpdateService version comparison & JSON parsing tests passed.${RESET}\n"
 else
@@ -48,23 +48,32 @@ else
     FAILURES=$((FAILURES + 1))
 fi
 
-# 4. Run Xcode Project Compilation Check
-echo -e "${BOLD}>>> Step 4/4: Executing Xcode Build Verification...${RESET}\n"
-if xcodebuild build -scheme OxfordWordSkills -destination 'platform=macOS' -derivedDataPath /tmp/DerivedData -quiet; then
-    echo -e "${GREEN}✓ Step 4 Passed: Xcode project compiled cleanly.${RESET}\n"
+# 4. Run SpeechService & VoiceOption Unit Tests
+echo -e "${BOLD}>>> Step 4/5: Executing SpeechService Unit Tests...${RESET}\n"
+if swift Utilities/SpeechService.swift tests/test_speech_service.swift; then
+    echo -e "\n${GREEN}✓ Step 4 Passed: SpeechService & VoiceOption unit tests passed.${RESET}\n"
 else
-    echo -e "${RED}✗ Step 4 Failed: Xcode compilation failed.${RESET}\n"
+    echo -e "\n${RED}✗ Step 4 Failed: SpeechService unit tests failed.${RESET}\n"
+    FAILURES=$((FAILURES + 1))
+fi
+
+# 5. Run Xcode Project Compilation Check
+echo -e "${BOLD}>>> Step 5/5: Executing Xcode Build Verification...${RESET}\n"
+if xcodebuild build -scheme OxfordWordSkills -destination 'platform=macOS' -derivedDataPath /tmp/DerivedData -quiet; then
+    echo -e "${GREEN}✓ Step 5 Passed: Xcode project compiled cleanly.${RESET}\n"
+else
+    echo -e "${RED}✗ Step 5 Failed: Xcode compilation failed.${RESET}\n"
     FAILURES=$((FAILURES + 1))
 fi
 
 # Summary
 echo -e "${BOLD}=======================================================${RESET}"
 if [ $FAILURES -eq 0 ]; then
-    echo -e "${BOLD}${GREEN}  >>> ALL 4 VALIDATION PHASES PASSED (Exit Code: 0) <<<${RESET}"
+    echo -e "${BOLD}${GREEN}  >>> ALL 5 VALIDATION PHASES PASSED (Exit Code: 0) <<<${RESET}"
     echo -e "${BOLD}=======================================================\n"
     exit 0
 else
-    echo -e "${BOLD}${RED}  >>> $FAILURES / 4 VALIDATION PHASES FAILED (Exit Code: 1) <<<${RESET}"
+    echo -e "${BOLD}${RED}  >>> $FAILURES / 5 VALIDATION PHASES FAILED (Exit Code: 1) <<<${RESET}"
     echo -e "${BOLD}=======================================================\n"
     exit 1
 fi
