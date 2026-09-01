@@ -196,6 +196,12 @@ swift Models/DataModels.swift Utilities/ContentParser.swift tests/stress_test_qu
 swift Models/DataModels.swift Utilities/ContentParser.swift tests/stress_test_headwords_and_categorization.swift
 ```
 
+## Delivery Workflow
+
+1. **Test**: Run `./run_e2e_tests.sh` + Swift stress tests.
+2. **Install**: Build Release and install to `/Applications/OxfordWordSkills.app`.
+3. **PR**: Push branch and open PR via `gh pr create` — **never auto-merge**.
+
 ## What to Avoid
 
 - No SPM dependencies — the project is dependency-free
