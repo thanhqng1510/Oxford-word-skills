@@ -10,6 +10,34 @@ A macOS vocabulary learning companion for the *Oxford Word Skills* textbook seri
 
 Oxford Word Skills is a desktop study tool that helps English language learners practice and track their progress through a large vocabulary organized into **12 modules** and **80 thematic units**. It includes over **11,800 words** with IPA pronunciation, definitions, synonyms, antonyms, and example sentences — all bundled in the app.
 
+![Oxford Word Skills — Vocabulary Browser](screenshots/01_vocabulary_browser.png)
+
+## Screenshots
+
+### Vocabulary Browser & Dictionary Detail
+
+| Main Vocabulary Table | Unit Detail & Quick Actions |
+|---|---|
+| ![Vocabulary Table](screenshots/01_vocabulary_browser.png) | ![Unit Vocabulary](screenshots/02_unit_vocabulary.png) |
+
+| Rich Word Detail Modal | Progress Dashboard |
+|---|---|
+| ![Word Detail Sheet](screenshots/03_word_detail_modal.png) | ![Progress Dashboard](screenshots/09_progress_dashboard.png) |
+
+### Interactive Exercise Modes
+
+| Flashcards (Flipped Definition & Example) | Multiple Choice Quiz |
+|---|---|
+| ![Flashcards](screenshots/04_flashcards.png) | ![Quiz](screenshots/05_quiz.png) |
+
+| Listening & Spelling | Synonym Match |
+|---|---|
+| ![Listening & Spelling](screenshots/06_listening_spelling.png) | ![Synonym Match](screenshots/07_synonym_match.png) |
+
+| Word Categorization |
+|---|
+| ![Categorization](screenshots/08_categorization.png) |
+
 ## Features
 
 ### Six Exercise Modes
@@ -82,14 +110,17 @@ OxfordWordSkills/
 │   ├── MatchingView.swift          # Synonym matching exercise
 │   ├── CategorizationView.swift    # Word categorization exercise
 │   ├── ExerciseContainerView.swift # Exercise type router
-│   └── ProgressDashboardView.swift # Statistics overview
+│   ├── ProgressDashboardView.swift # Statistics overview
+│   └── UpdateAvailableView.swift   # In-app update sheet
 ├── Utilities/
 │   ├── ContentParser.swift         # XML/JSON data pipeline
-│   └── SpeechService.swift         # Multi-accent Text-to-Speech (GB & US)
+│   ├── SpeechService.swift         # Multi-accent Text-to-Speech (GB & US)
+│   └── UpdateService.swift         # GitHub release check & update service
 ├── Resources/
 │   ├── settings.xml                # Module/unit/section structure
 │   ├── extrawordlist.xml           # Vocabulary with IPA pronunciation
 │   └── definitions.json            # Definitions, synonyms, antonyms
+├── screenshots/                    # App preview screenshots
 └── OxfordWordSkills.xcodeproj/
 ```
 
