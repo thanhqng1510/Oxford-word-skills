@@ -173,7 +173,6 @@ class ContentParser {
                 var defs: [WordDefinition] = []
                 var allSynonyms: [String] = []
                 var allAntonyms: [String] = []
-                var allExamples: [String] = []
 
                 for meaning in detail.meanings {
                     for def in meaning.definitions {
@@ -182,9 +181,6 @@ class ContentParser {
                             definition: def.definition,
                             example: def.example
                         ))
-                        if !def.example.isEmpty {
-                            allExamples.append(def.example)
-                        }
                     }
                     allSynonyms.append(contentsOf: meaning.synonyms)
                     allAntonyms.append(contentsOf: meaning.antonyms)
@@ -215,8 +211,7 @@ class ContentParser {
                     hasAudio: allWords[i].hasAudio,
                     definitions: defs,
                     synonyms: Array(cleanSynonyms.uniqued().prefix(10)),
-                    antonyms: Array(cleanAntonyms.uniqued().prefix(10)),
-                    examples: Array(allExamples.uniqued().prefix(5))
+                    antonyms: Array(cleanAntonyms.uniqued().prefix(10))
                 )
             }
         }

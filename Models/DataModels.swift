@@ -1,29 +1,15 @@
 import Foundation
 
+// MARK: - App Domain Models
+
+/// A single definition entry with its part of speech and contextual example sentence.
 struct WordDefinition: Codable, Hashable {
     let partOfSpeech: String
     let definition: String
     let example: String
 }
 
-struct WordDetail: Codable {
-    let word: String
-    let phonetic: String?
-    let meanings: [MeaningDetail]
-}
-
-struct MeaningDetail: Codable {
-    let partOfSpeech: String
-    let definitions: [DefEntry]
-    let synonyms: [String]
-    let antonyms: [String]
-}
-
-struct DefEntry: Codable {
-    let definition: String
-    let example: String
-}
-
+/// The primary vocabulary item used throughout the UI and study engines.
 struct Word: Identifiable, Hashable {
     let id = UUID()
     let word: String
@@ -33,7 +19,11 @@ struct Word: Identifiable, Hashable {
     var definitions: [WordDefinition] = []
     var synonyms: [String] = []
     var antonyms: [String] = []
-    var examples: [String] = []
+
+    /// Flattened list of non-empty example sentences across all definitions.
+    var examples: [String] {
+        definitions.compactMap { $0.example.isEmpty ? nil : $0.example }
+    }
 
     var shortDefinition: String {
         definitions.first?.definition ?? "No definition available"
@@ -50,6 +40,31 @@ struct Word: Identifiable, Hashable {
     static func == (lhs: Word, rhs: Word) -> Bool {
         lhs.id == rhs.id
     }
+}
+
+// MARK: - Data Transfer Objects (definitions.json DTOs)
+// These intermediate structures match the nested JSON schema of Resources/definitions.json
+// and are used by ContentParser to decode definitions prior to domain transformation.
+
+/// Root entry in definitions.json representing a word and its grouped meanings.
+struct WordDetail: Codable {
+    let word: String
+    let phonetic: String?
+    let meanings: [MeaningDetail]
+}
+
+/// A group of definitions sharing a part of speech, along with synonyms and antonyms.
+struct MeaningDetail: Codable {
+    let partOfSpeech: String
+    let definitions: [DefEntry]
+    let synonyms: [String]
+    let antonyms: [String]
+}
+
+/// An individual definition and example pair within a JSON meaning group.
+struct DefEntry: Codable {
+    let definition: String
+    let example: String
 }
 
 struct UnitSection: Identifiable {

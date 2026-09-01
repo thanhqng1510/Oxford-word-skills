@@ -128,47 +128,11 @@ class ContentViewModel {
             definitionsURL: definitionsURL
         )
 
-        allWords = ContentParser.parseWordList(from: wordListURL)
-
-        // Merge definitions into allWords too
-        if let defURL = definitionsURL {
-            let defs = ContentParser.parseDefinitions(from: defURL)
-            for i in allWords.indices {
-                let key = allWords[i].word
-                if let detail = defs[key] {
-                    var wordDefs: [WordDefinition] = []
-                    var allSyns: [String] = []
-                    var allAnts: [String] = []
-                    var allExs: [String] = []
-
-                    for meaning in detail.meanings {
-                        for def in meaning.definitions {
-                            wordDefs.append(WordDefinition(
-                                partOfSpeech: meaning.partOfSpeech,
-                                definition: def.definition,
-                                example: def.example
-                            ))
-                            if !def.example.isEmpty { allExs.append(def.example) }
-                        }
-                        allSyns.append(contentsOf: meaning.synonyms)
-                        allAnts.append(contentsOf: meaning.antonyms)
-                    }
-
-                    allWords[i] = Word(
-                        word: allWords[i].word,
-                        ipa: allWords[i].ipa,
-                        unitNumbers: allWords[i].unitNumbers,
-                        hasAudio: allWords[i].hasAudio,
-                        definitions: wordDefs,
-                        synonyms: Array(allSyns.uniqued().prefix(10)),
-                        antonyms: Array(allAnts.uniqued().prefix(10)),
-                        examples: Array(allExs.uniqued().prefix(5))
-                    )
-                }
-            }
-        }
-
-        allWords.sort { $0.word.lowercased() < $1.word.lowercased() }
+        var seenWords = Set<String>()
+        allWords = modules
+            .flatMap { $0.units.flatMap { $0.words } }
+            .filter { seenWords.insert($0.word).inserted }
+            .sorted { $0.word.lowercased() < $1.word.lowercased() }
     }
 
     private func loadProgress() {
