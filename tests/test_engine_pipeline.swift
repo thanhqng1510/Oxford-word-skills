@@ -129,21 +129,23 @@ struct PipelineTestRunner {
         let totalWordsInUnits = builtUnits.reduce(0) { $0 + $1.words.count }
         assertTest(totalWordsInUnits == 3031, "Total word-unit assignments placed into units == 3,031", "Total words: \(totalWordsInUnits)")
 
-        // 6. Test shortDefinition validity across all populated words
+        // 6. Test definition validity across all populated words
         var definedWordsCount = 0
-        var emptyShortDefCount = 0
+        var emptyDefCount = 0
         for unit in builtUnits {
             for word in unit.words {
                 if !word.definitions.isEmpty {
                     definedWordsCount += 1
-                    if word.shortDefinition.isEmpty || word.shortDefinition == "No definition available" {
-                        emptyShortDefCount += 1
+                    for def in word.definitions {
+                        if def.definition.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                            emptyDefCount += 1
+                        }
                     }
                 }
             }
         }
         assertTest(definedWordsCount >= 1600, "Curriculum contains >= 1600 word-unit assignments with rich definitions", "Found \(definedWordsCount)")
-        assertTest(emptyShortDefCount == 0, "100% of defined words have non-empty shortDefinition", "Found \(emptyShortDefCount) empty definitions")
+        assertTest(emptyDefCount == 0, "100% of defined words have non-empty definitions", "Found \(emptyDefCount) empty definitions")
 
         // 7. Test Persistence Key schema
         var duplicateKeys = Set<String>()

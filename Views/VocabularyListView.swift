@@ -33,10 +33,24 @@ struct VocabularyListView: View {
 
             TableColumn("Definition") { word in
                 HStack(spacing: 6) {
-                    Text(word.shortDefinition)
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                        .lineLimit(2)
+                    if let firstDef = word.definitions.first {
+                        if !firstDef.partOfSpeech.isEmpty {
+                            Text(firstDef.partOfSpeech)
+                                .font(.caption2)
+                                .fontWeight(.semibold)
+                                .padding(.horizontal, 5)
+                                .padding(.vertical, 1)
+                                .background(.blue.opacity(0.12), in: Capsule())
+                        }
+                        Text(firstDef.definition)
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                            .lineLimit(2)
+                    } else {
+                        Text("No definition available")
+                            .font(.caption)
+                            .foregroundStyle(.tertiary)
+                    }
 
                     if word.definitions.count > 1 {
                         Button {

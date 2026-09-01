@@ -3,23 +3,27 @@ import SwiftUI
 struct FillInBlankView: View {
     @Bindable var viewModel: ContentViewModel
     let unitNumber: Int?
-    @State private var words: [Word] = []
+    @State private var items: [SpellingExerciseItem] = []
     @State private var currentIndex = 0
     @State private var userAnswer = ""
     @State private var showResult = false
     @State private var correctCount = 0
     @State private var isFinished = false
     @State private var revealed = false
-    @State private var hintIndex = 0
+    @State private var hintLevel = 0
+
+    private var currentItem: SpellingExerciseItem? {
+        guard currentIndex < items.count else { return nil }
+        return items[currentIndex]
+    }
 
     private var currentWord: Word? {
-        guard currentIndex < words.count else { return nil }
-        return words[currentIndex]
+        currentItem?.word
     }
 
     private var progress: Double {
-        guard !words.isEmpty else { return 0 }
-        return Double(currentIndex + 1) / Double(words.count)
+        guard !items.isEmpty else { return 0 }
+        return Double(currentIndex + 1) / Double(items.count)
     }
 
     private var headerTitle: String {
@@ -34,7 +38,7 @@ struct FillInBlankView: View {
         VStack(spacing: 20) {
             header
 
-            if words.isEmpty {
+            if items.isEmpty {
                 ContentUnavailableView("No Words", systemImage: "waveform", description: Text("No vocabulary words available"))
             } else if isFinished {
                 resultScreen
@@ -70,7 +74,7 @@ struct FillInBlankView: View {
                 .font(.title2)
                 .fontWeight(.bold)
             Spacer()
-            Text("\(currentIndex + 1) / \(words.count)")
+            Text("\(currentIndex + 1) / \(items.count)")
                 .font(.callout)
                 .foregroundStyle(.secondary)
             ProgressView(value: progress)
@@ -80,14 +84,14 @@ struct FillInBlankView: View {
 
     private var questionCard: some View {
         Group {
-            if let word = currentWord {
+            if let item = currentItem {
                 VStack(spacing: 16) {
                     Text("Listen and type the word:")
                         .font(.headline)
                         .foregroundStyle(.secondary)
 
                     Button {
-                        SpeechService.shared.speak(word.speechText)
+                        SpeechService.shared.speak(item.word.speechText)
                     } label: {
                         Label("Play Again", systemImage: "speaker.wave.2.fill")
                             .font(.title2)
@@ -95,11 +99,29 @@ struct FillInBlankView: View {
                     .buttonStyle(.borderedProminent)
                     .controlSize(.large)
 
-                    if !word.shortDefinition.isEmpty && revealed {
+                    if let def = item.targetDefinition, (revealed || hintLevel > 0) {
                         VStack(spacing: 6) {
-                            Text(word.shortDefinition)
-                                .font(.body)
-                                .multilineTextAlignment(.center)
+                            HStack(spacing: 6) {
+                                if !def.partOfSpeech.isEmpty {
+                                    Text(def.partOfSpeech)
+                                        .font(.caption)
+                                        .fontWeight(.semibold)
+                                        .padding(.horizontal, 6)
+                                        .padding(.vertical, 2)
+                                        .background(.blue.opacity(0.15), in: Capsule())
+                                }
+                                Text(def.definition)
+                                    .font(.body)
+                            }
+                            .multilineTextAlignment(.center)
+
+                            if hintLevel >= 2 && !def.example.isEmpty && !showResult {
+                                Text("Example: “\(maskedExample(def.example, word: item.word))”")
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                                    .italic()
+                                    .padding(.top, 2)
+                            }
                         }
                         .padding()
                         .background(.green.opacity(0.1), in: RoundedRectangle(cornerRadius: 12))
@@ -112,22 +134,22 @@ struct FillInBlankView: View {
                                     .foregroundStyle(isCorrect ? .green : .red)
                                     .font(.title2)
                                 if !isCorrect {
-                                    if let gloss = word.parentheticalGloss {
-                                        Text("Answer: **\(word.cleanWord)** \(gloss)")
+                                    if let gloss = item.word.parentheticalGloss {
+                                        Text("Answer: **\(item.word.cleanWord)** \(gloss)")
                                             .font(.headline)
                                     } else {
-                                        Text("Answer: **\(word.word)**")
+                                        Text("Answer: **\(item.word.word)**")
                                             .font(.headline)
                                     }
                                 } else {
-                                    Text("Correct! **\(word.word)**")
+                                    Text("Correct! **\(item.word.word)**")
                                         .font(.headline)
                                         .foregroundStyle(.green)
                                 }
                             }
 
-                            if !word.ipa.isEmpty {
-                                Text(word.ipa)
+                            if !item.word.ipa.isEmpty {
+                                Text(item.word.ipa)
                                     .font(.subheadline)
                                     .foregroundStyle(.secondary)
                             }
@@ -179,7 +201,7 @@ struct FillInBlankView: View {
                 Button {
                     nextWord()
                 } label: {
-                    Label(currentIndex < words.count - 1 ? "Next Word" : "See Results", systemImage: "arrow.right")
+                    Label(currentIndex < items.count - 1 ? "Next Word" : "See Results", systemImage: "arrow.right")
                         .font(.headline)
                 }
                 .buttonStyle(.borderedProminent)
@@ -202,18 +224,18 @@ struct FillInBlankView: View {
 
     private var resultScreen: some View {
         VStack(spacing: 24) {
-            Image(systemName: correctCount == words.count ? "star.fill" : "checkmark.circle.fill")
+            Image(systemName: correctCount == items.count ? "star.fill" : "checkmark.circle.fill")
                 .font(.system(size: 60))
-                .foregroundStyle(correctCount == words.count ? .yellow : .green)
+                .foregroundStyle(correctCount == items.count ? .yellow : .green)
 
             Text("Complete!")
                 .font(.largeTitle)
                 .fontWeight(.bold)
 
-            Text("\(correctCount) / \(words.count) correct")
+            Text("\(correctCount) / \(items.count) correct")
                 .font(.title2)
 
-            ProgressView(value: Double(correctCount), total: Double(words.count))
+            ProgressView(value: Double(correctCount), total: Double(items.count))
                 .frame(width: 200)
 
             HStack {
@@ -229,10 +251,16 @@ struct FillInBlankView: View {
 
     private func giveHint() {
         guard let word = currentWord else { return }
+        hintLevel += 1
         let target = word.cleanWord
-        hintIndex = min(hintIndex + 1, target.count)
-        let hint = String(target.prefix(hintIndex))
-        userAnswer = hint
+        let prefixLen = min(hintLevel, target.count)
+        userAnswer = String(target.prefix(prefixLen))
+    }
+
+    private func maskedExample(_ example: String, word: Word) -> String {
+        let pattern = word.cleanWord
+        guard !pattern.isEmpty else { return example }
+        return example.replacingOccurrences(of: pattern, with: "______", options: .caseInsensitive)
     }
 
     private func checkAnswer() {
@@ -244,43 +272,56 @@ struct FillInBlankView: View {
     }
 
     private func loadWords() {
+        let rawWords: [Word]
         if let unitNum = unitNumber {
-            words = viewModel.wordsForUnit(unitNum).shuffled()
+            rawWords = viewModel.wordsForUnit(unitNum).shuffled()
         } else {
-            words = viewModel.allWords.shuffled()
+            rawWords = viewModel.allWords.shuffled()
         }
+
+        items = rawWords.map { word in
+            let targetDef = word.definitions.first(where: { !$0.definition.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty })
+            return SpellingExerciseItem(word: word, targetDefinition: targetDef)
+        }
+
         currentIndex = 0
         userAnswer = ""
         showResult = false
         correctCount = 0
         isFinished = false
         revealed = false
-        hintIndex = 0
+        hintLevel = 0
 
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-            if let word = words.first {
-                SpeechService.shared.speak(word.speechText)
+            if let firstItem = items.first {
+                SpeechService.shared.speak(firstItem.word.speechText)
             }
         }
     }
 
     private func nextWord() {
-        if currentIndex < words.count - 1 {
+        if currentIndex < items.count - 1 {
             currentIndex += 1
             userAnswer = ""
             showResult = false
             revealed = false
-            hintIndex = 0
+            hintLevel = 0
             // Auto-play next word
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                if let word = words[safe: currentIndex] {
-                    SpeechService.shared.speak(word.speechText)
+                if let item = items[safe: currentIndex] {
+                    SpeechService.shared.speak(item.word.speechText)
                 }
             }
         } else {
             isFinished = true
         }
     }
+}
+
+struct SpellingExerciseItem: Identifiable {
+    let id = UUID()
+    let word: Word
+    let targetDefinition: WordDefinition?
 }
 
 extension Collection {

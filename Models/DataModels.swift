@@ -25,12 +25,14 @@ struct Word: Identifiable, Hashable {
         definitions.compactMap { $0.example.isEmpty ? nil : $0.example }
     }
 
-    var shortDefinition: String {
-        definitions.first?.definition ?? "No definition available"
-    }
-
-    var partOfSpeech: String {
-        definitions.first?.partOfSpeech ?? ""
+    /// All unique parts of speech for this word.
+    var allPartsOfSpeech: [String] {
+        var seen = Set<String>()
+        return definitions.compactMap { def in
+            let pos = def.partOfSpeech.trimmingCharacters(in: .whitespacesAndNewlines)
+            guard !pos.isEmpty, seen.insert(pos).inserted else { return nil }
+            return pos
+        }
     }
 
     func hash(into hasher: inout Hasher) {
