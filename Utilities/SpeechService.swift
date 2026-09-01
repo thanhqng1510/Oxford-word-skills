@@ -38,13 +38,29 @@ struct VoiceOption: Identifiable, Hashable, Codable {
     static let `default` = british
 }
 
+import SwiftUI
+
+@Observable
 final class SpeechService {
     static let shared = SpeechService()
     private let synthesizer = AVSpeechSynthesizer()
     private var voiceCache: [String: AVSpeechSynthesisVoice] = [:]
 
+    private let voicePrefKey = "selectedVoiceId"
+
+    /// Observable selected voice, persisted automatically to UserDefaults.
+    var selectedVoice: VoiceOption = .default {
+        didSet {
+            UserDefaults.standard.set(selectedVoice.id, forKey: voicePrefKey)
+        }
+    }
+
     private init() {
         populateInitialVoices()
+        if let savedId = UserDefaults.standard.string(forKey: voicePrefKey),
+           let match = VoiceOption.supportedVoices.first(where: { $0.id == savedId }) {
+            self.selectedVoice = match
+        }
     }
 
     private func populateInitialVoices() {
@@ -77,13 +93,15 @@ final class SpeechService {
         return AVSpeechSynthesisVoice(language: "en-GB") ?? AVSpeechSynthesisVoice(language: "en-US")
     }
 
-    func speak(_ text: String, voice option: VoiceOption = .default) {
+    /// Pronounces text using the active voice from state, or an optional override voice if specified.
+    func speak(_ text: String, voice overrideVoice: VoiceOption? = nil) {
         let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { return }
 
         stop()
         let utterance = AVSpeechUtterance(string: trimmed)
-        if let resolvedVoice = voice(for: option) {
+        let targetVoice = overrideVoice ?? selectedVoice
+        if let resolvedVoice = voice(for: targetVoice) {
             utterance.voice = resolvedVoice
         }
         utterance.rate = 0.45

@@ -2,6 +2,7 @@ import SwiftUI
 
 struct ContentView: View {
     @State private var viewModel = ContentViewModel()
+    @State private var speechService = SpeechService.shared
     @State private var columnVisibility = NavigationSplitViewVisibility.automatic
     var updateService: UpdateService
 
@@ -15,7 +16,7 @@ struct ContentView: View {
         .frame(minWidth: 900, minHeight: 600)
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
-                Picker("Voice Accent", selection: $viewModel.selectedVoice) {
+                Picker("Voice Accent", selection: $speechService.selectedVoice) {
                     ForEach(VoiceOption.supportedVoices) { option in
                         Text(option.shortLabel).tag(option)
                     }

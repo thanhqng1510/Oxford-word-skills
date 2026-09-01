@@ -84,13 +84,21 @@ let customOption = VoiceOption(
 let auVoice = service.voice(for: customOption)
 assertTest(auVoice != nil, "Resolved non-nil fallback voice for custom VoiceOption (en-AU)")
 
-// 4. Test Safe Speak Execution
+// 4. Test selectedVoice default and override behavior
+print("\nSpeechService selectedVoice default & override:")
+assertTest(service.selectedVoice == VoiceOption.british, "Initial selectedVoice defaults to British")
+service.selectedVoice = .american
+assertTest(service.selectedVoice == VoiceOption.american, "selectedVoice can be updated to American")
+service.selectedVoice = .british
+
+// 5. Test Safe Speak Execution
 print("\nSpeechService speak execution:")
-service.speak("", voice: .british) // Empty string should be safely ignored
-service.speak("   \n\t", voice: .american) // Whitespace string should be safely ignored
-service.speak("Vocabulary", voice: .british)
+service.speak("") // Empty string should be safely ignored
+service.speak("   \n\t") // Whitespace string should be safely ignored
+service.speak("Vocabulary") // Uses selectedVoice
+service.speak("Pronunciation", voice: .american) // Uses override voice
 service.stop()
-assertTest(true, "SpeechService handles empty strings and synthesis calls safely")
+assertTest(true, "SpeechService handles empty strings, selectedVoice, and override calls safely")
 
 print("\n═══════════════════════════════════════════")
 print("Results: \(passCount)/\(passCount + failCount) tests passed")

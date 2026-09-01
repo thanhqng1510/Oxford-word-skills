@@ -117,7 +117,7 @@ struct QuizView: View {
                             }
                         }
                         Button {
-                            SpeechService.shared.speak(q.word.speechText, voice: viewModel.selectedVoice)
+                            SpeechService.shared.speak(q.word.speechText)
                         } label: {
                             Label("Listen", systemImage: "speaker.wave.2.fill")
                         }
@@ -151,7 +151,7 @@ struct QuizView: View {
                                 Text(q.word.ipa)
                                     .foregroundStyle(.secondary)
                                 Button {
-                                    SpeechService.shared.speak(q.word.speechText, voice: viewModel.selectedVoice)
+                                    SpeechService.shared.speak(q.word.speechText)
                                 } label: {
                                     Image(systemName: "speaker.wave.2.fill")
                                         .font(.caption)

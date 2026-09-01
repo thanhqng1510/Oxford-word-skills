@@ -19,7 +19,7 @@ Oxford Word Skills is a desktop study tool that helps English language learners 
 | **Flashcards** | Swipe through shuffled word cards with definitions, examples, and pronunciation |
 | **Word → Definition Quiz** | See the word, choose the correct definition from 4 options |
 | **Definition → Word Quiz** | See the definition, choose the correct word from 4 options |
-| **Listening & Spelling** | Hear British English pronunciation, type the word you hear |
+| **Listening & Spelling** | Hear English pronunciation, type the word you hear |
 | **Synonym Match** | Match words with their synonyms in a two-column layout |
 | **Categorization** | Sort words into their correct unit categories |
 
@@ -39,7 +39,7 @@ Oxford Word Skills is a desktop study tool that helps English language learners 
 
 ### Additional
 
-- British English text-to-speech for pronunciation
+- Selectable British (GB) & American (US) text-to-speech for pronunciation
 - IPA phonetic transcription for every word
 - Zero third-party dependencies — Apple frameworks only
 
@@ -85,7 +85,7 @@ OxfordWordSkills/
 │   └── ProgressDashboardView.swift # Statistics overview
 ├── Utilities/
 │   ├── ContentParser.swift         # XML/JSON data pipeline
-│   └── SpeechService.swift         # Text-to-speech (British English)
+│   └── SpeechService.swift         # Multi-accent Text-to-Speech (GB & US)
 ├── Resources/
 │   ├── settings.xml                # Module/unit/section structure
 │   ├── extrawordlist.xml           # Vocabulary with IPA pronunciation

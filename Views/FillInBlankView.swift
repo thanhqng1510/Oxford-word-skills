@@ -91,7 +91,7 @@ struct FillInBlankView: View {
                         .foregroundStyle(.secondary)
 
                     Button {
-                        SpeechService.shared.speak(item.word.speechText, voice: viewModel.selectedVoice)
+                        SpeechService.shared.speak(item.word.speechText)
                     } label: {
                         Label("Play Again", systemImage: "speaker.wave.2.fill")
                             .font(.title2)
@@ -294,7 +294,7 @@ struct FillInBlankView: View {
 
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
             if let firstItem = items.first {
-                SpeechService.shared.speak(firstItem.word.speechText, voice: viewModel.selectedVoice)
+                SpeechService.shared.speak(firstItem.word.speechText)
             }
         }
     }
@@ -309,7 +309,7 @@ struct FillInBlankView: View {
             // Auto-play next word
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
                 if let item = items[safe: currentIndex] {
-                    SpeechService.shared.speak(item.word.speechText, voice: viewModel.selectedVoice)
+                    SpeechService.shared.speak(item.word.speechText)
                 }
             }
         } else {

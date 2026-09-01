@@ -15,7 +15,7 @@ Models/DataModels.swift          # Word, Unit, Module, ExerciseType, NavigationT
 ViewModels/ContentViewModel.swift # Single @Observable state owner
 Views/                           # 10 SwiftUI views (see README for full list)
 Utilities/ContentParser.swift    # XML/JSON parsing, data pipeline
-Utilities/SpeechService.swift    # British English TTS singleton
+Utilities/SpeechService.swift    # Multi-accent TTS service (@Observable)
 Resources/settings.xml           # Module/unit structure
 Resources/extrawordlist.xml      # Vocabulary with IPA
 Resources/definitions.json       # Rich definitions
@@ -200,10 +200,11 @@ swift Models/DataModels.swift Utilities/ContentParser.swift tests/stress_test_he
 
 1. **Test**: Run `./run_e2e_tests.sh` + Swift stress tests.
 2. **Install**: Build Release and install to `/Applications/OxfordWordSkills.app`.
-3. **PR**: Push branch and open PR via `gh pr create` — **never auto-merge**.
+3. **PR**: Push branch and open PR via `gh pr create` — **never push directly to main, never auto-merge**.
 
 ## What to Avoid
 
+- Never push directly to `main` — all changes (including docs, rules, and code) must go through a feature branch and PR
 - No SPM dependencies — the project is dependency-free
 - No `@Published` / `ObservableObject` — use `@Observable`
 - No iOS-only APIs — this is macOS-only
