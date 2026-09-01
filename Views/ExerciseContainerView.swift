@@ -17,8 +17,6 @@ struct ExerciseContainerView: View {
             FillInBlankView(viewModel: viewModel, unitNumber: unitNumber)
         case .matching:
             MatchingView(viewModel: viewModel, unitNumber: unitNumber)
-        case .categorize:
-            CategorizationView(viewModel: viewModel, unitNumber: unitNumber)
         }
     }
 }

@@ -180,28 +180,6 @@ struct PipelineTestRunner {
         assertTest(testWord4.cleanWord == "regular", "cleanWord on regular headword remains identical", "Got: '\(testWord4.cleanWord)'")
         assertTest(testWord4.parentheticalGloss == nil, "parentheticalGloss is nil when no parentheses", "Got: '\(testWord4.parentheticalGloss ?? "nil")'")
 
-        // 9. Verify Sibling Unit Categorization Availability Across All 80 Units
-        print("\n--- Categorization Sibling Availability Across All 80 Units ---")
-        var failedUnits: [Int] = []
-        for unitNum in 1...80 {
-            var moduleUnits: [Unit] = []
-            for module in builtModules {
-                if module.units.contains(where: { $0.number == unitNum }) {
-                    moduleUnits = module.units
-                    break
-                }
-            }
-            let validSiblings = moduleUnits.filter { $0.number != unitNum && $0.words.count >= 3 }
-            if validSiblings.isEmpty {
-                // Check fallback across all modules
-                let allOtherUnits = builtModules.flatMap { $0.units }.filter { $0.number != unitNum && $0.words.count >= 3 }
-                if allOtherUnits.count < 1 {
-                    failedUnits.append(unitNum)
-                }
-            }
-        }
-        assertTest(failedUnits.isEmpty, "All 80 units have >= 1 valid sibling or fallback units with >= 3 words", "Failed on units: \(failedUnits)")
-
         // Summary
         print("\n=======================================================")
         print("\(bold)Swift Engine Pipeline Results: \(passCount) passed, \(failureCount) failed\(reset)")

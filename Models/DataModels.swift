@@ -107,7 +107,6 @@ enum ExerciseType: String, CaseIterable {
     case reverseQuiz = "Definition → Word"
     case spelling = "Listening & Spelling"
     case matching = "Synonym Match"
-    case categorize = "Categorize"
 
     var icon: String {
         switch self {
@@ -116,7 +115,6 @@ enum ExerciseType: String, CaseIterable {
         case .reverseQuiz: return "questionmark.circle"
         case .spelling: return "waveform"
         case .matching: return "arrow.triangle.branch"
-        case .categorize: return "square.grid.2x2"
         }
     }
 }
