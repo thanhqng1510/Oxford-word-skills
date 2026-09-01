@@ -38,16 +38,29 @@ struct VoiceOption: Identifiable, Hashable, Codable {
     static let `default` = british
 }
 
+import SwiftUI
+
+@Observable
 final class SpeechService {
     static let shared = SpeechService()
     private let synthesizer = AVSpeechSynthesizer()
     private var voiceCache: [String: AVSpeechSynthesisVoice] = [:]
 
-    /// Active voice selected by the user state.
-    var activeVoice: VoiceOption = .default
+    private let voicePrefKey = "selectedVoiceId"
+
+    /// Observable selected voice, persisted automatically to UserDefaults.
+    var selectedVoice: VoiceOption = .default {
+        didSet {
+            UserDefaults.standard.set(selectedVoice.id, forKey: voicePrefKey)
+        }
+    }
 
     private init() {
         populateInitialVoices()
+        if let savedId = UserDefaults.standard.string(forKey: voicePrefKey),
+           let match = VoiceOption.supportedVoices.first(where: { $0.id == savedId }) {
+            self.selectedVoice = match
+        }
     }
 
     private func populateInitialVoices() {
@@ -87,7 +100,7 @@ final class SpeechService {
 
         stop()
         let utterance = AVSpeechUtterance(string: trimmed)
-        let targetVoice = overrideVoice ?? activeVoice
+        let targetVoice = overrideVoice ?? selectedVoice
         if let resolvedVoice = voice(for: targetVoice) {
             utterance.voice = resolvedVoice
         }

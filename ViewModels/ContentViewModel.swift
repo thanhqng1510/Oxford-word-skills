@@ -10,20 +10,18 @@ class ContentViewModel {
     var selectedNavigation: NavigationTarget = .allWords
     var searchText: String = ""
     var learnedWordIDs: Set<String> = []
-    var selectedVoice: VoiceOption = .default {
-        didSet {
-            UserDefaults.standard.set(selectedVoice.id, forKey: voicePrefKey)
-            SpeechService.shared.activeVoice = selectedVoice
-        }
+
+    /// Reactive binding to the SpeechService selected voice.
+    var selectedVoice: VoiceOption {
+        get { SpeechService.shared.selectedVoice }
+        set { SpeechService.shared.selectedVoice = newValue }
     }
 
     private let learnedKey = "learnedWords"
-    private let voicePrefKey = "selectedVoiceId"
 
     init() {
         loadData()
         loadProgress()
-        loadVoicePreference()
     }
 
     var filteredWords: [Word] {
@@ -154,14 +152,6 @@ class ContentViewModel {
 
     private func saveProgress() {
         UserDefaults.standard.set(Array(learnedWordIDs), forKey: learnedKey)
-    }
-
-    private func loadVoicePreference() {
-        if let savedId = UserDefaults.standard.string(forKey: voicePrefKey),
-           let match = VoiceOption.supportedVoices.first(where: { $0.id == savedId }) {
-            self.selectedVoice = match
-        }
-        SpeechService.shared.activeVoice = self.selectedVoice
     }
 
     private func updateModuleProgress() {
