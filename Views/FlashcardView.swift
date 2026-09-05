@@ -205,6 +205,7 @@ struct FlashcardView: View {
                         }
                     }
                 }
+                .textSelection(.enabled)
                 .padding(36)
                 .frame(maxWidth: 480, minHeight: 280, maxHeight: 360)
                 .background(Color(nsColor: .controlBackgroundColor), in: RoundedRectangle(cornerRadius: 20))

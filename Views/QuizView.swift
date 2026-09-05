@@ -168,6 +168,7 @@ struct QuizView: View {
                             .foregroundStyle(.secondary)
                     }
                 }
+                .textSelection(.enabled)
                 .padding(24)
                 .frame(maxWidth: 600)
                 .background(Color(nsColor: .controlBackgroundColor), in: RoundedRectangle(cornerRadius: 16))
@@ -245,6 +246,7 @@ struct QuizView: View {
                 .buttonStyle(.borderedProminent)
             }
         }
+        .textSelection(.enabled)
     }
 
     private func optionTintColor(_ option: String) -> Color {
