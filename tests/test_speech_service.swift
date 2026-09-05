@@ -164,22 +164,23 @@ struct SpeechServiceTestRunner {
             service.selectVoice(validVoice)
         }
 
-        // 9. Test SSML IPA Generation & Utterance Synthesis
-        print("\n9. SSML IPA Generation & Utterance Synthesis:")
-        let ssml1 = SpeechService.buildSSML(text: "abbreviation", ipa: "/əˌbriːviˈeɪʃən/")
-        assertTest(ssml1.contains("ph=\"əˌbriːviˈeɪʃən\""), "buildSSML strips enclosing slashes from IPA")
-        assertTest(ssml1.contains("<prosody rate=\"-10%\">"), "buildSSML includes prosody rate control (-10%)")
-        assertTest(ssml1.contains("abbreviation"), "buildSSML embeds headword correctly")
-
-        // XML Escaping
-        let ssmlEscaped = SpeechService.buildSSML(text: "rock & roll <live> \"loud\"", ipa: "rɒk")
-        assertTest(ssmlEscaped.contains("rock &amp; roll &lt;live&gt; &quot;loud&quot;"), "buildSSML escapes XML special characters (&, <, >, \")")
+        // 9. Test Native IPA Notation & Utterance Synthesis
+        print("\n9. Native IPA Notation & Utterance Synthesis:")
+        assertTest(SpeechService.cleanIPAString("/əˌbriːviˈeɪʃən/") == "əˌbriːviˈeɪʃən", "cleanIPAString strips enclosing slashes")
+        assertTest(SpeechService.cleanIPAString("   /ˈkɜːnəl/  \n") == "ˈkɜːnəl", "cleanIPAString trims whitespace and newlines")
+        assertTest(SpeechService.cleanIPAString("///") == "", "cleanIPAString collapses slash-only strings to empty")
 
         // Utterance Creation with / without IPA
         if let sampleVoice = service.allAvailableVoices.first,
            let resolvedVoice = AVSpeechSynthesisVoice(identifier: sampleVoice.id) {
             let uIPA = service.makeUtterance(text: "colonel", ipa: "/ˈkɜːnəl/", voice: resolvedVoice)
             assertTest(uIPA.voice?.identifier == resolvedVoice.identifier, "makeUtterance assigns voice correctly for IPA utterance")
+            assertTest(abs(uIPA.rate - 0.45) < 0.01, "makeUtterance sets standard rate 0.45 for IPA utterance")
+
+            let attrStr = uIPA.attributedSpeechString
+            let ipaKey = NSAttributedString.Key(rawValue: AVSpeechSynthesisIPANotationAttribute)
+            let attrValue = attrStr.attribute(ipaKey, at: 0, effectiveRange: nil) as? String
+            assertTest(attrValue == "ˈkɜːnəl", "makeUtterance attaches AVSpeechSynthesisIPANotationAttribute with clean IPA: \(attrValue ?? "nil")")
 
             let uPlain = service.makeUtterance(text: "Welcome", ipa: nil, voice: resolvedVoice)
             assertTest(uPlain.speechString == "Welcome", "makeUtterance creates plain string utterance when IPA is nil")

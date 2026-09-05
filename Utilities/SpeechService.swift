@@ -167,39 +167,29 @@ final class SpeechService {
         }
     }
 
-    /// Builds a valid W3C SSML string wrapping text with an IPA phoneme tag and prosody rate control.
-    static func buildSSML(text: String, ipa: String) -> String {
-        let cleanIPA = ipa.trimmingCharacters(in: CharacterSet(charactersIn: "/ \n\r\t"))
-        let escapedText = text
-            .replacingOccurrences(of: "&", with: "&amp;")
-            .replacingOccurrences(of: "<", with: "&lt;")
-            .replacingOccurrences(of: ">", with: "&gt;")
-            .replacingOccurrences(of: "\"", with: "&quot;")
-        return "<speak><prosody rate=\"-10%\"><phoneme alphabet=\"ipa\" ph=\"\(cleanIPA)\">\(escapedText)</phoneme></prosody></speak>"
+    /// Cleans an IPA pronunciation string by stripping enclosing slashes and trimming whitespace.
+    static func cleanIPAString(_ rawIPA: String) -> String {
+        rawIPA.trimmingCharacters(in: CharacterSet(charactersIn: "/ \n\r\t"))
     }
 
-    /// Creates an AVSpeechUtterance, prioritizing SSML with IPA if available, or falling back to plain text.
+    /// Creates an AVSpeechUtterance, prioritizing native IPA attributed string notation if available, or falling back to plain text.
     func makeUtterance(text: String, ipa: String?, voice: AVSpeechSynthesisVoice) -> AVSpeechUtterance {
         let trimmedText = text.trimmingCharacters(in: .whitespacesAndNewlines)
-        let trimmedIPA = ipa?.trimmingCharacters(in: CharacterSet(charactersIn: "/ \n\r\t")) ?? ""
+        let cleanIPA = ipa.map(Self.cleanIPAString) ?? ""
 
         let utterance: AVSpeechUtterance
-        if !trimmedIPA.isEmpty {
-            let ssml = Self.buildSSML(text: trimmedText, ipa: trimmedIPA)
-            if let ssmlUtterance = AVSpeechUtterance(ssmlRepresentation: ssml) {
-                utterance = ssmlUtterance
-            } else {
-                utterance = AVSpeechUtterance(string: trimmedText)
-                utterance.rate = 0.45
-                utterance.pitchMultiplier = 1.0
-            }
+        if !cleanIPA.isEmpty {
+            let attrStr = NSMutableAttributedString(string: trimmedText)
+            let ipaKey = NSAttributedString.Key(rawValue: AVSpeechSynthesisIPANotationAttribute)
+            attrStr.addAttribute(ipaKey, value: cleanIPA, range: NSRange(location: 0, length: trimmedText.utf16.count))
+            utterance = AVSpeechUtterance(attributedString: attrStr)
         } else {
             utterance = AVSpeechUtterance(string: trimmedText)
-            utterance.rate = 0.45
-            utterance.pitchMultiplier = 1.0
         }
 
         utterance.voice = voice
+        utterance.rate = 0.45
+        utterance.pitchMultiplier = 1.0
         return utterance
     }
 
@@ -208,7 +198,7 @@ final class SpeechService {
         selectedVoice = voice
     }
 
-    /// Pronounces text using the selected voice. If an IPA string is provided, synthesizes using native SSML phonemes.
+    /// Pronounces text using the selected voice. If an IPA string is provided, synthesizes using native IPA notation.
     func speak(_ text: String, ipa: String? = nil) {
         guard canSpeak, let voice = selectedVoice else { return }
         let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
