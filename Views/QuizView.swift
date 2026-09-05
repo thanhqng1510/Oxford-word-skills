@@ -117,7 +117,7 @@ struct QuizView: View {
                             }
                         }
                         Button {
-                            viewModel.speak(q.word.speechText)
+                            viewModel.speak(q.word)
                         } label: {
                             Label("Listen", systemImage: "speaker.wave.2.fill")
                         }
@@ -152,7 +152,7 @@ struct QuizView: View {
                                 Text(q.word.ipa)
                                     .foregroundStyle(.secondary)
                                 Button {
-                                    viewModel.speak(q.word.speechText)
+                                    viewModel.speak(q.word)
                                 } label: {
                                     Image(systemName: "speaker.wave.2.fill")
                                         .font(.caption)

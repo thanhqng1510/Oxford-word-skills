@@ -158,7 +158,7 @@ struct FlashcardView: View {
 
                             HStack(spacing: 16) {
                                 Button {
-                                    viewModel.speak(word.speechText)
+                                    viewModel.speak(word)
                                 } label: {
                                     Label("Listen", systemImage: "speaker.wave.2.fill")
                                 }
@@ -264,8 +264,8 @@ struct FlashcardView: View {
             .tint(currentWord.map { viewModel.isLearned($0) ? .green : .accentColor } ?? .accentColor)
 
             Button {
-                if let text = currentWord?.speechText {
-                    viewModel.speak(text)
+                if let word = currentWord {
+                    viewModel.speak(word)
                 }
             } label: {
                 Image(systemName: "speaker.wave.2.fill")

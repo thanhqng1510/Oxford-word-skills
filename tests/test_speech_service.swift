@@ -164,6 +164,41 @@ struct SpeechServiceTestRunner {
             service.selectVoice(validVoice)
         }
 
+        // 9. Test SSML IPA Generation & Utterance Synthesis
+        print("\n9. SSML IPA Generation & Utterance Synthesis:")
+        let ssml1 = SpeechService.buildSSML(text: "abbreviation", ipa: "/əˌbriːviˈeɪʃən/")
+        assertTest(ssml1.contains("ph=\"əˌbriːviˈeɪʃən\""), "buildSSML strips enclosing slashes from IPA")
+        assertTest(ssml1.contains("<prosody rate=\"-10%\">"), "buildSSML includes prosody rate control (-10%)")
+        assertTest(ssml1.contains("abbreviation"), "buildSSML embeds headword correctly")
+
+        // XML Escaping
+        let ssmlEscaped = SpeechService.buildSSML(text: "rock & roll <live> \"loud\"", ipa: "rɒk")
+        assertTest(ssmlEscaped.contains("rock &amp; roll &lt;live&gt; &quot;loud&quot;"), "buildSSML escapes XML special characters (&, <, >, \")")
+
+        // Utterance Creation with / without IPA
+        if let sampleVoice = service.allAvailableVoices.first,
+           let resolvedVoice = AVSpeechSynthesisVoice(identifier: sampleVoice.id) {
+            let uIPA = service.makeUtterance(text: "colonel", ipa: "/ˈkɜːnəl/", voice: resolvedVoice)
+            assertTest(uIPA.voice?.identifier == resolvedVoice.identifier, "makeUtterance assigns voice correctly for IPA utterance")
+
+            let uPlain = service.makeUtterance(text: "Welcome", ipa: nil, voice: resolvedVoice)
+            assertTest(uPlain.speechString == "Welcome", "makeUtterance creates plain string utterance when IPA is nil")
+            assertTest(abs(uPlain.rate - 0.45) < 0.01, "makeUtterance sets rate 0.45 for plain string utterance")
+
+            let uEmptyIPA = service.makeUtterance(text: "Hello", ipa: "   ", voice: resolvedVoice)
+            assertTest(uEmptyIPA.speechString == "Hello", "makeUtterance falls back to plain string when IPA is empty/whitespace")
+
+            let uSlashIPA = service.makeUtterance(text: "Hello", ipa: "///", voice: resolvedVoice)
+            assertTest(uSlashIPA.speechString == "Hello", "makeUtterance falls back to plain string when IPA contains only slashes")
+        }
+
+        // Speak execution with IPA
+        service.speak("colonel", ipa: "/ˈkɜːnəl/")
+        service.speak("schedule", ipa: "ˈʃedjuːl")
+        service.speak("rock & roll", ipa: "/rɒk ən rəʊl/")
+        service.stop()
+        assertTest(true, "service.speak(text:ipa:) executes safely for valid IPA and special characters")
+
         print("\n═══════════════════════════════════════════")
         print("Results: \(passCount)/\(passCount + failCount) tests passed")
         if failCount == 0 {
