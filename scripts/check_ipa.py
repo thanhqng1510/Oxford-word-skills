@@ -20,22 +20,10 @@ import xml.etree.ElementTree as ET
 from dataclasses import dataclass, field
 from typing import List, Optional
 
-SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-PROJECT_ROOT = os.path.dirname(SCRIPT_DIR)
-RESOURCES_DIR = os.path.join(PROJECT_ROOT, "Resources")
-DEFINITIONS_JSON = os.path.join(RESOURCES_DIR, "definitions.json")
-EXTRAWORDLIST_XML = os.path.join(RESOURCES_DIR, "extrawordlist.xml")
+from ipa_storage import DEFINITIONS_JSON, EXTRAWORDLIST_XML, ensure_wiktionary_ipa
 
-try:
-    from wiktionary_ipa.dialects import FORBIDDEN_SAMPA_REGEX as SAMPA_TOKENS, VALID_IPA_REGEX as VALID_IPA_CHARS
-except ImportError:
-    local_pkg = os.path.abspath(os.path.join(PROJECT_ROOT, "..", "wiktionary-ipa", "src"))
-    if os.path.isdir(local_pkg) and local_pkg not in sys.path:
-        sys.path.insert(0, local_pkg)
-    try:
-        from wiktionary_ipa.dialects import FORBIDDEN_SAMPA_REGEX as SAMPA_TOKENS, VALID_IPA_REGEX as VALID_IPA_CHARS
-    except ImportError:
-        sys.exit("Error: 'wiktionary-ipa' package is required. Install it via 'pip install wiktionary-ipa'.")
+wipa = ensure_wiktionary_ipa()
+from wiktionary_ipa.dialects import FORBIDDEN_SAMPA_REGEX as SAMPA_TOKENS, VALID_IPA_REGEX as VALID_IPA_CHARS
 
 # American-English-specific phonemes that should not appear in RP
 # (ɚ = rhotic schwa, ɝ = rhotic mid-central, ɾ = tap/flap)
@@ -107,6 +95,8 @@ def audit_extrawordlist_xml(report: Report):
             report.issues.append(Issue(word, "xml", "sampa", ipa))
         elif NON_RP_TOKENS.search(ipa):
             report.issues.append(Issue(word, "xml", "non_rp", ipa))
+        elif not VALID_IPA_CHARS.match(ipa):
+            report.issues.append(Issue(word, "xml", "bad_format", ipa))
 
 
 # ── Output Helpers ────────────────────────────────────────────────────────────
@@ -158,16 +148,6 @@ def print_report(report: Report, verbose: bool):
             print()
 
 
-def list_all_words(report: Report):
-    """Print a TSV of all words and their current IPA from definitions.json."""
-    with open(DEFINITIONS_JSON, encoding="utf-8") as f:
-        defs = json.load(f)
-    for word, entry in sorted(defs.items()):
-        ipa = entry.get("phonetic", "")
-        status = "OK" if (ipa.startswith("/") and ipa.endswith("/") and not SAMPA_TOKENS.search(ipa)) else "ISSUE"
-        print(f"{status}\t{word}\t{ipa}")
-
-
 # ── Main ──────────────────────────────────────────────────────────────────────
 
 def main():
@@ -178,13 +158,7 @@ def main():
                         help="Print every problematic entry.")
     parser.add_argument("--json", action="store_true",
                         help="Output machine-readable JSON report.")
-    parser.add_argument("--words", action="store_true",
-                        help="List all words and their current IPA as TSV.")
     args = parser.parse_args()
-
-    if args.words:
-        list_all_words(Report())
-        return
 
     report = Report()
     audit_definitions_json(report)

@@ -18,22 +18,14 @@ import sys
 import xml.etree.ElementTree as ET
 from typing import Dict, List, Optional
 
-SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-PROJECT_ROOT = os.path.dirname(SCRIPT_DIR)
-try:
-    import wiktionary_ipa as wipa
-except ImportError:
-    local_pkg = os.path.abspath(os.path.join(PROJECT_ROOT, "..", "wiktionary-ipa", "src"))
-    if os.path.isdir(local_pkg) and local_pkg not in sys.path:
-        sys.path.insert(0, local_pkg)
-    try:
-        import wiktionary_ipa as wipa
-    except ImportError:
-        sys.exit("Error: 'wiktionary-ipa' package is required. Install it via 'pip install wiktionary-ipa'.")
+from ipa_storage import (
+    DEFINITIONS_JSON,
+    EXTRAWORDLIST_XML,
+    ensure_wiktionary_ipa,
+    save_vocabulary_fixes,
+)
 
-RESOURCES_DIR = os.path.join(PROJECT_ROOT, "Resources")
-DEFINITIONS_JSON = os.path.join(RESOURCES_DIR, "definitions.json")
-EXTRAWORDLIST_XML = os.path.join(RESOURCES_DIR, "extrawordlist.xml")
+wipa = ensure_wiktionary_ipa()
 
 
 def find_missing_words() -> List[str]:
@@ -60,42 +52,6 @@ def find_missing_words() -> List[str]:
     return sorted(list(missing))
 
 
-def update_vocabulary(word: str, ipa: str, dry_run: bool = False):
-    """Updates definitions.json and extrawordlist.xml with the given word's IPA."""
-    if dry_run:
-        print(f"  [DRY-RUN] Would set '{word}' -> {ipa}")
-        return
-
-    # Update definitions.json
-    if os.path.isfile(DEFINITIONS_JSON):
-        with open(DEFINITIONS_JSON, "r", encoding="utf-8") as f:
-            defs = json.load(f)
-        if word in defs:
-            defs[word]["phonetic"] = ipa
-            with open(DEFINITIONS_JSON, "w", encoding="utf-8") as f:
-                json.dump(defs, f, ensure_ascii=False, indent=2)
-                f.write("\n")
-
-    # Update extrawordlist.xml
-    if os.path.isfile(EXTRAWORDLIST_XML):
-        tree = ET.parse(EXTRAWORDLIST_XML)
-        root = tree.getroot()
-        matched = 0
-        for elem in root.findall(".//word"):
-            if elem.attrib.get("str", "").strip() == word:
-                ipa_elem = elem.find("ipa")
-                if ipa_elem is not None:
-                    ipa_elem.text = ipa
-                    matched += 1
-        if matched > 0:
-            xml_bytes = ET.tostring(root, encoding="unicode", xml_declaration=False)
-            with open(EXTRAWORDLIST_XML, "w", encoding="utf-8") as f:
-                f.write('<?xml version="1.0" encoding="UTF-8"?>\n')
-                f.write("<!-- Use this encoding for xml files with ipa -->\n")
-                f.write(xml_bytes)
-                f.write("\n")
-
-
 def main():
     parser = argparse.ArgumentParser(description="Fetch and apply British RP IPA updates from Wiktionary.")
     parser.add_argument("--word", help="Single word to look up and apply")
@@ -108,16 +64,24 @@ def main():
         print("✓ All vocabulary entries already have valid IPA pronunciations.")
         sys.exit(0)
 
-    print(f"Fetching IPA for {len(words_to_update)} words live from Wiktionary...")
+    print(f"Fetching IPA for {len(words_to_update)} words live from Wiktionary (batched)...")
+    results = wipa.batch_lookup(words_to_update)
+
+    fixes_to_apply: Dict[str, str] = {}
     for w in words_to_update:
-        ipa = wipa.lookup(w)
+        ipa = results.get(w)
         if ipa:
             print(f"  {w:30s} -> {ipa}")
-            update_vocabulary(w, ipa, dry_run=args.dry_run)
+            fixes_to_apply[w] = ipa
         else:
             print(f"  {w:30s} -> [NOT FOUND on Wiktionary]")
 
-    if not args.dry_run:
+    if args.dry_run:
+        print(f"\n[DRY-RUN] Would update {len(fixes_to_apply)} words.")
+    elif fixes_to_apply:
+        defs_count, xml_count = save_vocabulary_fixes(fixes_to_apply)
+        print(f"\n✓ Updated {defs_count} in definitions.json, {xml_count} in extrawordlist.xml")
+
         print("\nValidating changes with check_ipa...")
         from check_ipa import Report, audit_definitions_json, audit_extrawordlist_xml, print_report
         report = Report()

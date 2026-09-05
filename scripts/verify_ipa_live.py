@@ -19,37 +19,22 @@ import argparse
 import json
 import os
 import sys
-import xml.etree.ElementTree as ET
 from typing import Dict, List, Optional
 
-SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-PROJECT_ROOT = os.path.dirname(SCRIPT_DIR)
-try:
-    from wiktionary_ipa import (
-        WiktionaryClient,
-        clean_lookup_title,
-        parse_wiktionary_rp_candidates,
-        phonetically_equivalent,
-        select_best_ipa,
-    )
-except ImportError:
-    local_pkg = os.path.abspath(os.path.join(PROJECT_ROOT, "..", "wiktionary-ipa", "src"))
-    if os.path.isdir(local_pkg) and local_pkg not in sys.path:
-        sys.path.insert(0, local_pkg)
-    try:
-        from wiktionary_ipa import (
-            WiktionaryClient,
-            clean_lookup_title,
-            parse_wiktionary_rp_candidates,
-            phonetically_equivalent,
-            select_best_ipa,
-        )
-    except ImportError:
-        sys.exit("Error: 'wiktionary-ipa' package is required. Install it via 'pip install wiktionary-ipa'.")
+from ipa_storage import (
+    DEFINITIONS_JSON,
+    ensure_wiktionary_ipa,
+    save_vocabulary_fixes,
+)
 
-RESOURCES_DIR = os.path.join(PROJECT_ROOT, "Resources")
-DEFINITIONS_JSON = os.path.join(RESOURCES_DIR, "definitions.json")
-EXTRAWORDLIST_XML = os.path.join(RESOURCES_DIR, "extrawordlist.xml")
+wipa = ensure_wiktionary_ipa()
+from wiktionary_ipa import (
+    WiktionaryClient,
+    clean_lookup_title,
+    parse_wiktionary_rp_candidates,
+    phonetically_equivalent,
+    select_best_ipa,
+)
 
 
 def run_live_verification(
@@ -59,8 +44,10 @@ def run_live_verification(
     quiet: bool = False,
 ) -> Dict[str, any]:
     """Executes live verification against en.wiktionary.org using the wiktionary_ipa library."""
-    with open(DEFINITIONS_JSON, "r", encoding="utf-8") as f:
-        defs_dict = json.load(f)
+    defs_dict = {}
+    if os.path.isfile(DEFINITIONS_JSON):
+        with open(DEFINITIONS_JSON, "r", encoding="utf-8") as f:
+            defs_dict = json.load(f)
 
     target_words = words if words else sorted(list(defs_dict.keys()))
     if not quiet:
@@ -77,7 +64,7 @@ def run_live_verification(
     fixes_to_apply: Dict[str, str] = {}
 
     for word in target_words:
-        current_ipa = defs_dict[word].get("phonetic", "")
+        current_ipa = defs_dict.get(word, {}).get("phonetic", "")
         title = clean_lookup_title(word)
         wikitext = pages_map.get(title)
 
@@ -94,18 +81,18 @@ def run_live_verification(
         valid_candidates = [c for c in candidates if c.score >= 10]
         web_rp_ipas = [c.ipa for c in valid_candidates]
 
-        if current_ipa == best_web_ipa or current_ipa in web_rp_ipas:
+        if current_ipa and (current_ipa == best_web_ipa or current_ipa in web_rp_ipas):
             exact_matches.append((word, current_ipa))
-        elif any(phonetically_equivalent(current_ipa, c) for c in web_rp_ipas):
+        elif current_ipa and any(phonetically_equivalent(current_ipa, c) for c in web_rp_ipas):
             equivalent_matches.append((word, current_ipa, best_web_ipa))
         else:
             discrepancies.append({
                 "word": word,
                 "current_ipa": current_ipa,
                 "web_ipa": best_web_ipa,
-                "all_web_ipas": web_rp_ipas[:3]
+                "all_web_ipas": web_rp_ipas[:3],
             })
-            if fix:
+            if fix and best_web_ipa:
                 fixes_to_apply[word] = best_web_ipa
 
     if not quiet:
@@ -127,31 +114,9 @@ def run_live_verification(
     if fix and fixes_to_apply:
         if not quiet:
             print(f"\nApplying {len(fixes_to_apply)} live fixes to definitions.json and extrawordlist.xml...")
-        for w, ipa in fixes_to_apply.items():
-            if w in defs_dict:
-                defs_dict[w]["phonetic"] = ipa
-        with open(DEFINITIONS_JSON, "w", encoding="utf-8") as f:
-            json.dump(defs_dict, f, ensure_ascii=False, indent=2)
-            f.write("\n")
-
-        tree = ET.parse(EXTRAWORDLIST_XML)
-        root = tree.getroot()
-        xml_fixes = 0
-        for elem in root.findall(".//word"):
-            w_str = elem.attrib.get("str", "").strip()
-            if w_str in fixes_to_apply:
-                ipa_elem = elem.find("ipa")
-                if ipa_elem is not None:
-                    ipa_elem.text = fixes_to_apply[w_str]
-                    xml_fixes += 1
-        xml_bytes = ET.tostring(root, encoding="unicode", xml_declaration=False)
-        with open(EXTRAWORDLIST_XML, "w", encoding="utf-8") as f:
-            f.write('<?xml version="1.0" encoding="UTF-8"?>\n')
-            f.write("<!-- Use this encoding for xml files with ipa -->\n")
-            f.write(xml_bytes)
-            f.write("\n")
+        defs_count, xml_count = save_vocabulary_fixes(fixes_to_apply)
         if not quiet:
-            print(f"✓ Updated {len(fixes_to_apply)} in definitions.json, {xml_fixes} in extrawordlist.xml")
+            print(f"✓ Updated {defs_count} in definitions.json, {xml_count} in extrawordlist.xml (CDATA preserved)")
 
     return {
         "total": len(target_words),
@@ -177,6 +142,12 @@ def main():
         print(json.dumps(results, ensure_ascii=False, indent=2))
 
     if results["discrepancies"] and not args.fix:
+        # If single word check and not currently in definitions, don't fail if we found it on web
+        if args.word and results["discrepancies"]:
+            entry = results["discrepancies"][0]
+            if not entry["current_ipa"] and entry["web_ipa"]:
+                print(f"Word '{args.word}' web IPA: {entry['web_ipa']}")
+                sys.exit(0)
         sys.exit(1)
     sys.exit(0)
 
