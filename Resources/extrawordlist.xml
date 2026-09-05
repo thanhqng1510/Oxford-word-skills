@@ -742,7 +742,7 @@
 	</word>
 	
 	<word str="backward(s)" unit="20">
-		<ipa><![CDATA[/ˈbækwɜːdz/]]></ipa>
+		<ipa><![CDATA[/ˈbækwəd(z)/]]></ipa>
 		<audio>backwards.mp3</audio>
 	</word>
 	
@@ -851,7 +851,7 @@
 	</word>
 	
 	<word str="be stuck" unit="22">
-		<ipa><![CDATA[/ˌbiː stʊk/]]></ipa>
+		<ipa><![CDATA[/ˌbiː ˈstʌk/]]></ipa>
 		<audio>bestuck.mp3</audio>
 	</word>
 	
@@ -1134,7 +1134,7 @@
 	</word>
 	
 	<word str="break out" unit="39">
-		<ipa><![CDATA[/ˌbriːk ˈawt/]]></ipa>
+		<ipa><![CDATA[/ˌbreɪk ˈaʊt/]]></ipa>
 		<audio>breakout.mp3</audio>
 	</word>
 	
@@ -1223,7 +1223,7 @@
 	</word>
 	
 	<word str="bucket" unit="27">
-		<ipa><![CDATA[/ˈbʊkɪt/]]></ipa>
+		<ipa><![CDATA[/ˈbʌkɪt/]]></ipa>
 	</word>
 	
 	<word str="build" unit="3">
@@ -1452,11 +1452,11 @@
 	</word>
 	
 	<word str="careful" unit="67, 73">
-		<ipa><![CDATA[/ˈkeːfl/]]></ipa>
+		<ipa><![CDATA[/ˈkeəfl/]]></ipa>
 	</word>
 	
 	<word str="carefully" unit="49">
-		<ipa><![CDATA[/ˈkeːf(ə)li/]]></ipa>
+		<ipa><![CDATA[/ˈkeəf(ə)li/]]></ipa>
 	</word>
 	
 	<word str="careless" unit="73">
@@ -1486,7 +1486,7 @@
 	</word>
 	
 	<word str="carry out" unit="11">
-		<ipa><![CDATA[/ˌkæri ˈawt/]]></ipa>
+		<ipa><![CDATA[/ˌkæri ˈaʊt/]]></ipa>
 		<audio>carryout.mp3</audio>
 	</word>
 	
@@ -2849,7 +2849,7 @@
 	</word>
 	
 	<word str="duck" unit="16">
-		<ipa><![CDATA[/dʊk/]]></ipa>
+		<ipa><![CDATA[/dʌk/]]></ipa>
 	</word>
 	
 	<word str="due" unit="22">
@@ -2870,7 +2870,7 @@
 	</word>
 	
 	<word str="dust" unit="27">
-		<ipa><![CDATA[/dʊst/]]></ipa>
+		<ipa><![CDATA[/dʌst/]]></ipa>
 	</word>
 	
 	<word str="dustbin" unit="80">
@@ -3040,7 +3040,7 @@
 	</word>
 	
 	<word str="encourage" unit="2,74">
-		<ipa><![CDATA[/ɪnˈkʊrɪdʒ/]]></ipa>
+		<ipa><![CDATA[/ɪnˈkʌrɪdʒ/]]></ipa>
 	</word>
 	
 	<word str="encouragement" unit="2">
@@ -3770,7 +3770,7 @@
 	</word>
 	
 	<word str="forward(s)" unit="20">
-		<ipa><![CDATA[/ˈfɔːwədz/]]></ipa>
+		<ipa><![CDATA[/ˈfɔːwəd(z)/]]></ipa>
 		<audio>forwards.mp3</audio>
 	</word>
 	
@@ -4039,7 +4039,7 @@
 	</word>
 	
 	<word str="get stuck" unit="22">
-		<ipa><![CDATA[/get stʊk/]]></ipa>
+		<ipa><![CDATA[/ˌget ˈstʌk/]]></ipa>
 		<audio>getstuck.mp3</audio>
 	</word>
 	
@@ -4069,7 +4069,7 @@
 	</word>
 	
 	<word str="get together" unit="8,61">
-		<ipa><![CDATA[/get tʊˈgeðə/]]></ipa>
+		<ipa><![CDATA[/ˌget təˈgeðə/]]></ipa>
 		<audio>gettogether.mp3</audio>
 	</word>
 	
@@ -4415,11 +4415,11 @@
 	</word>
 	
 	<word str="gun" unit="39">
-		<ipa><![CDATA[/gʊn/]]></ipa>
+		<ipa><![CDATA[/gʌn/]]></ipa>
 	</word>
 	
 	<word str="gun battle" unit="39">
-		<ipa><![CDATA[/gʊn ˌbætl/]]></ipa>
+		<ipa><![CDATA[/ˌgʌn ˈbætl/]]></ipa>
 		<audio>gunbattle.mp3</audio>
 	</word>
 	
@@ -4596,7 +4596,7 @@
 	</word>
 	
 	<word str="have fun" unit="48">
-		<ipa><![CDATA[/ˌhæv fʊn/]]></ipa>
+		<ipa><![CDATA[/ˌhæv ˈfʌn/]]></ipa>
 		<audio>havefun.mp3</audio>
 	</word>
 	
@@ -4839,7 +4839,7 @@
 	</word>
 
 	<word str="hour" unit="22">
-		<ipa><![CDATA[/aː(r)/]]></ipa>
+		<ipa><![CDATA[/ˈaʊə(r)/]]></ipa>
 	</word>
 	
 	<word str="how about ...?" unit="61">
@@ -4887,7 +4887,7 @@
 	</word>
 	
 	<word str="hunt" unit="15">
-		<ipa><![CDATA[/hʊnt/]]></ipa>
+		<ipa><![CDATA[/hʌnt/]]></ipa>
 	</word>
 	
 	<word str="hurricane" unit="14">
@@ -4909,7 +4909,7 @@
 	</word>
 	
 	<word str="husband" unit="10">
-		<ipa><![CDATA[/ˈhʊzbənd/]]></ipa>
+		<ipa><![CDATA[/ˈhʌzbənd/]]></ipa>
 	</word>
 	
 	<word str="hyphen" unit="4">
@@ -5317,7 +5317,7 @@
 	</word>
 	
 	<word str="in time" unit="50">
-		<ipa><![CDATA[/ɪn tʌɪm/]]></ipa>
+		<ipa><![CDATA[/ˌɪn ˈtaɪm/]]></ipa>
 		<audio>intime.mp3</audio>
 	</word>
 	
@@ -5835,7 +5835,7 @@
 	</word>
 	
 <word str="lab" unit="79">
-		<ipa><![CDATA[/læːb/]]></ipa>
+		<ipa><![CDATA[/læb/]]></ipa>
 	</word>
 	
 <word str="laboratory" unit="79">
@@ -5950,7 +5950,7 @@
 	</word>
 	
 <word str="leave out" unit="4,75">
-		<ipa><![CDATA[/ˌliːv ˈawt/]]></ipa>
+		<ipa><![CDATA[/ˌliːv ˈaʊt/]]></ipa>
 		<audio>leaveout.mp3</audio>
 	</word>
 	
@@ -6182,7 +6182,7 @@
 	</word>
 	
 <word str="look out" unit="67">
-		<ipa><![CDATA[/ˌlʊk ˈawt/]]></ipa>
+		<ipa><![CDATA[/ˌlʊk ˈaʊt/]]></ipa>
 		<audio>lookout.mp3</audio>
 	</word>
 	
@@ -6273,11 +6273,11 @@
 	</word>
 	
 <word str="mad" unit="6">
-		<ipa><![CDATA[/ˈmæːd/]]></ipa>
+		<ipa><![CDATA[/mæd/]]></ipa>
 	</word>
 	
 <word str="mad about (= liking very much)" unit="62">
-		<ipa><![CDATA[/ˈmæːd əˌbaʊt/]]></ipa>
+		<ipa><![CDATA[/ˈmæd əˌbaʊt/]]></ipa>
 		<audio>madabout.mp3</audio>
 	</word>
 	
@@ -6407,7 +6407,7 @@
 	</word>
 	
 <word str="male" unit="5,15">
-		<ipa><![CDATA[/meːl/]]></ipa>
+		<ipa><![CDATA[/meɪl/]]></ipa>
 	</word>
 	
 <word str="mall" unit="80">
@@ -6792,7 +6792,7 @@
 	</word>
 	
 <word str="mud" unit="27">
-		<ipa><![CDATA[/mʊd/]]></ipa>
+		<ipa><![CDATA[/mʌd/]]></ipa>
 	</word>
 	
 <word str="muddy" unit="27">
@@ -7158,7 +7158,7 @@
 	</word>
 	
 <word str="on time" unit="50">
-		<ipa><![CDATA[/ɒn tʌɪm/]]></ipa>
+		<ipa><![CDATA[/ˌɒn ˈtaɪm/]]></ipa>
 		<audio>ontime.mp3</audio>
 	</word>
 	
@@ -7279,7 +7279,7 @@
 	</word>
 	
 <word str="out loud" unit="34">
-		<ipa><![CDATA[/ˌawt ˈlaʊd/]]></ipa>
+		<ipa><![CDATA[/ˌaʊt ˈlaʊd/]]></ipa>
 		<audio>outloud.mp3</audio>
 	</word>
 	
@@ -7504,7 +7504,7 @@
 	</word>
 	
 <word str="pass out" unit="20">
-		<ipa><![CDATA[/ˌpɑːs ˈawt/]]></ipa>
+		<ipa><![CDATA[/ˌpɑːs ˈaʊt/]]></ipa>
 		<audio>passout.mp3</audio>
 	</word>
 	
@@ -7729,7 +7729,7 @@
 	</word>
 	
 <word str="plum" unit="16">
-		<ipa><![CDATA[/plʊm/]]></ipa>
+		<ipa><![CDATA[/plʌm/]]></ipa>
 	</word>
 	
 <word str="plumber" unit="52">
@@ -7856,7 +7856,7 @@
 	</word>
 	
 <word str="power" unit="38">
-		<ipa><![CDATA[/ˈpʌʊ(ə)r/]]></ipa>
+		<ipa><![CDATA[/ˈpaʊə(r)/]]></ipa>
 	</word>
 	
 <word str="powerful" unit="73">
@@ -8164,7 +8164,7 @@
 	</word>
 	
 <word str="publish" unit="41,52">
-		<ipa><![CDATA[/ˈpʊblɪʃ/]]></ipa>
+		<ipa><![CDATA[/ˈpʌblɪʃ/]]></ipa>
 	</word>
 	
 <word str="publishing" unit="41,52">
@@ -8226,7 +8226,7 @@
 	</word>
 	
 <word str="put out" unit="75">
-		<ipa><![CDATA[/ˌpʊt ˈawt/]]></ipa>
+		<ipa><![CDATA[/ˌpʊt ˈaʊt/]]></ipa>
 		<audio>putout.mp3</audio>
 	</word>
 	
@@ -8305,7 +8305,7 @@
 	</word>
 	
 <word str="rarely" unit="76">
-		<ipa><![CDATA[/ˈreːli/]]></ipa>
+		<ipa><![CDATA[/ˈreəli/]]></ipa>
 	</word>
 	
 <word str="raspberry" unit="16">
@@ -8348,7 +8348,7 @@
 	</word>
 	
 <word str="read widely" unit="50">
-		<ipa><![CDATA[/reːd ˈwaɪdli/]]></ipa>
+		<ipa><![CDATA[/riːd ˈwaɪdli/]]></ipa>
 		<audio>readwidely.mp3</audio>
 	</word>
 	
@@ -8660,7 +8660,7 @@
 	</word>
 	
 <word str="republic" unit="40">
-		<ipa><![CDATA[/rɪˈpʊblɪk/]]></ipa>
+		<ipa><![CDATA[/rɪˈpʌblɪk/]]></ipa>
 	</word>
 	
 <word str="reputation" unit="56">
@@ -8938,7 +8938,7 @@
 	</word>
 	
 <word str="run out" unit="75">
-		<ipa><![CDATA[/ˌrʌn ˈawt/]]></ipa>
+		<ipa><![CDATA[/ˌrʌn ˈaʊt/]]></ipa>
 		<audio>runout.mp3</audio>
 	</word>
 	
@@ -8952,16 +8952,16 @@
 	</word>
 	
 <word str="rush" unit="29">
-		<ipa><![CDATA[/rʊʃ/]]></ipa>
+		<ipa><![CDATA[/rʌʃ/]]></ipa>
 	</word>
 	
 <word str="rush (in a rush)" unit="71">
-		<ipa><![CDATA[/rʊʃ/]]></ipa>
+		<ipa><![CDATA[/rʌʃ/]]></ipa>
 		<audio>rush.mp3</audio>
 	</word>
 	
 <word str="rush hour" unit="22">
-		<ipa><![CDATA[/rʊʃ aʊə/]]></ipa>
+		<ipa><![CDATA[/ˈrʌʃ ˌaʊə/]]></ipa>
 		<audio>rushhour.mp3</audio>
 	</word>
 	<word str="sack" unit="53">
@@ -9120,7 +9120,7 @@
 	</word>
 	
 <word str="sea bass" unit="16">
-		<ipa><![CDATA[/siː beɪs/]]></ipa>
+		<ipa><![CDATA[/ˈsiː bæs/]]></ipa>
 		<audio>seabass.mp3</audio>
 	</word>
 	
@@ -9731,7 +9731,7 @@
 	</word>
 	
 <word str="sort out" unit="65">
-		<ipa><![CDATA[/ˌsɔːt ˈawt/]]></ipa>
+		<ipa><![CDATA[/ˌsɔːt ˈaʊt/]]></ipa>
 		<audio>sortout.mp3</audio>
 	</word>
 	
@@ -10100,7 +10100,7 @@
 	</word>
 	
 <word str="stuck" unit="22">
-		<ipa><![CDATA[/stʊk/]]></ipa>
+		<ipa><![CDATA[/stʌk/]]></ipa>
 	</word>
 	
 <word str="studio" unit="43">
@@ -10195,7 +10195,7 @@
 	</word>
 	
 <word str="sun" unit="11">
-		<ipa><![CDATA[/sʊn/]]></ipa>
+		<ipa><![CDATA[/sʌn/]]></ipa>
 	</word>
 	
 <word str="supplier" unit="56">
@@ -10412,7 +10412,7 @@
 	</word>
 	
 <word str="take out" unit="50,55">
-		<ipa><![CDATA[/ˌteɪk ˈawt/]]></ipa>
+		<ipa><![CDATA[/ˌteɪk ˈaʊt/]]></ipa>
 		<audio>takeout.mp3</audio>
 	</word>
 	
@@ -10724,22 +10724,22 @@
 	</word>
 	
 <word str="time (from time to time)" unit="70">
-		<ipa><![CDATA[/tʌɪm/]]></ipa>
+		<ipa><![CDATA[/taɪm/]]></ipa>
 		<audio>time.mp3</audio>
 	</word>
 	
 <word str="time (in time)" unit="50">
-		<ipa><![CDATA[/tʌɪm/]]></ipa>
+		<ipa><![CDATA[/taɪm/]]></ipa>
 		<audio>time.mp3</audio>
 	</word>
 	
 <word str="time (on time)" unit="50">
-		<ipa><![CDATA[/tʌɪm/]]></ipa>
+		<ipa><![CDATA[/taɪm/]]></ipa>
 		<audio>time.mp3</audio>
 	</word>
 	
 <word str="time off" unit="54">
-		<ipa><![CDATA[/ˌtʌɪm ˈɒf/]]></ipa>
+		<ipa><![CDATA[/ˌtaɪm ˈɒf/]]></ipa>
 		<audio>timeoff.mp3</audio>
 	</word>
 	
@@ -10964,7 +10964,7 @@
 	</word>
 	
 <word str="trust" unit="8">
-		<ipa><![CDATA[/trʊst/]]></ipa>
+		<ipa><![CDATA[/trʌst/]]></ipa>
 	</word>
 	
 <word str="try" unit="36">
@@ -11111,7 +11111,7 @@
 	</word>
 	
 <word str="unless" unit="68">
-		<ipa><![CDATA[/ʊnˈles/]]></ipa>
+		<ipa><![CDATA[/ənˈles/]]></ipa>
 	</word>
 	
 <word str="unlikely" unit="59">
@@ -11394,7 +11394,7 @@
 	</word>
 	
 <word str="watch out" unit="21,67">
-		<ipa><![CDATA[/ˌwɒtʃ ˈawt/]]></ipa>
+		<ipa><![CDATA[/ˌwɒtʃ ˈaʊt/]]></ipa>
 		<audio>watchout.mp3</audio>
 	</word>
 	
@@ -11718,7 +11718,7 @@
 	</word>
 	
 <word str="work out" unit="75">
-		<ipa><![CDATA[/ˌwɜːk ˈawt/]]></ipa>
+		<ipa><![CDATA[/ˌwɜːk ˈaʊt/]]></ipa>
 		<audio>workout.mp3</audio>
 	</word>
 	

@@ -203,7 +203,8 @@ def normalize_ipa(raw: str) -> str:
     inner = re.sub(r"[\u0300-\u036f]", "", inner)
     # Strip American rhoticism
     inner = inner.replace("ɚ", "ə").replace("ɝ", "ɜː")
-    # NOTE: Do NOT map 'ɾ' to 't'. Candidates containing 'ɾ' are disqualified in filtering.
+    # Map American alveolar tap 'ɾ' to standard plosive 't'
+    inner = inner.replace("ɾ", "t")
     # Standardize open-mid front vowel to Gimson / Oxford standard 'e'
     inner = inner.replace("ɛ", "e")
     # Map script g (U+0261) to standard ASCII g (U+0067)

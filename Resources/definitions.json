@@ -5823,7 +5823,7 @@
   },
   "backward(s)": {
     "word": "backward(s)",
-    "phonetic": "/ˈbækwɜːdz/",
+    "phonetic": "/ˈbækwəd(z)/",
     "meanings": [
       {
         "partOfSpeech": "adverb",
@@ -6652,7 +6652,7 @@
   },
   "be stuck": {
     "word": "be stuck",
-    "phonetic": "/ˌbiː stʊk/",
+    "phonetic": "/ˌbiː ˈstʌk/",
     "meanings": [
       {
         "partOfSpeech": "phrase",
@@ -9270,7 +9270,7 @@
   },
   "break out": {
     "word": "break out",
-    "phonetic": "/ˌbriːk ˈawt/",
+    "phonetic": "/ˌbreɪk ˈaʊt/",
     "meanings": [
       {
         "partOfSpeech": "phrase",
@@ -9794,7 +9794,7 @@
   },
   "bucket": {
     "word": "bucket",
-    "phonetic": "/ˈbʊkɪt/",
+    "phonetic": "/ˈbʌkɪt/",
     "meanings": [
       {
         "partOfSpeech": "noun",
@@ -11521,7 +11521,7 @@
   },
   "careful": {
     "word": "careful",
-    "phonetic": "/ˈkeːfl/",
+    "phonetic": "/ˈkeəfl/",
     "meanings": [
       {
         "partOfSpeech": "adjective",
@@ -11552,7 +11552,7 @@
   },
   "carefully": {
     "word": "carefully",
-    "phonetic": "/ˈkeːf(ə)li/",
+    "phonetic": "/ˈkeəf(ə)li/",
     "meanings": [
       {
         "partOfSpeech": "adverb",
@@ -11831,7 +11831,7 @@
   },
   "carry out": {
     "word": "carry out",
-    "phonetic": "/ˌkæri ˈawt/",
+    "phonetic": "/ˌkæri ˈaʊt/",
     "meanings": [
       {
         "partOfSpeech": "verb",
@@ -23392,7 +23392,7 @@
   },
   "duck": {
     "word": "duck",
-    "phonetic": "/dʊk/",
+    "phonetic": "/dʌk/",
     "meanings": [
       {
         "partOfSpeech": "verb",
@@ -23483,7 +23483,7 @@
   },
   "dust": {
     "word": "dust",
-    "phonetic": "/dʊst/",
+    "phonetic": "/dʌst/",
     "meanings": [
       {
         "partOfSpeech": "noun",
@@ -24679,7 +24679,7 @@
   },
   "encourage": {
     "word": "encourage",
-    "phonetic": "/ɪnˈkʊrɪdʒ/",
+    "phonetic": "/ɪnˈkʌrɪdʒ/",
     "meanings": [
       {
         "partOfSpeech": "verb",
@@ -31300,7 +31300,7 @@
   },
   "forward(s)": {
     "word": "forward(s)",
-    "phonetic": "/ˈfɔːwədz/",
+    "phonetic": "/ˈfɔːwəd(z)/",
     "meanings": [
       {
         "partOfSpeech": "adverb",
@@ -33302,7 +33302,7 @@
   },
   "get stuck": {
     "word": "get stuck",
-    "phonetic": "/get stʊk/",
+    "phonetic": "/ˌget ˈstʌk/",
     "meanings": [
       {
         "partOfSpeech": "phrase",
@@ -33389,7 +33389,7 @@
   },
   "get together": {
     "word": "get together",
-    "phonetic": "/get tʊˈgeðə/",
+    "phonetic": "/ˌget təˈgeðə/",
     "meanings": [
       {
         "partOfSpeech": "verb",
@@ -35812,7 +35812,7 @@
   },
   "gun": {
     "word": "gun",
-    "phonetic": "/gʊn/",
+    "phonetic": "/gʌn/",
     "meanings": [
       {
         "partOfSpeech": "noun",
@@ -35856,7 +35856,7 @@
   },
   "gun battle": {
     "word": "gun battle",
-    "phonetic": "/gʊn ˌbætl/",
+    "phonetic": "/ˌgʌn ˈbætl/",
     "meanings": [
       {
         "partOfSpeech": "phrase",
@@ -36890,7 +36890,7 @@
   },
   "have fun": {
     "word": "have fun",
-    "phonetic": "/ˌhæv fʊn/",
+    "phonetic": "/ˌhæv ˈfʌn/",
     "meanings": [
       {
         "partOfSpeech": "phrase",
@@ -38148,7 +38148,7 @@
   },
   "hour": {
     "word": "hour",
-    "phonetic": "/aː(r)/",
+    "phonetic": "/ˈaʊə(r)/",
     "meanings": [
       {
         "partOfSpeech": "noun",
@@ -38594,7 +38594,7 @@
   },
   "hunt": {
     "word": "hunt",
-    "phonetic": "/hʊnt/",
+    "phonetic": "/hʌnt/",
     "meanings": [
       {
         "partOfSpeech": "noun",
@@ -38980,7 +38980,7 @@
   },
   "husband": {
     "word": "husband",
-    "phonetic": "/ˈhʊzbənd/",
+    "phonetic": "/ˈhʌzbənd/",
     "meanings": [
       {
         "partOfSpeech": "noun",
@@ -41224,7 +41224,7 @@
   },
   "in time": {
     "word": "in time",
-    "phonetic": "/ɪn tʌɪm/",
+    "phonetic": "/ˌɪn ˈtaɪm/",
     "meanings": [
       {
         "partOfSpeech": "phrase",
@@ -44774,7 +44774,7 @@
   },
   "lab": {
     "word": "lab",
-    "phonetic": "/læːb/",
+    "phonetic": "/læb/",
     "meanings": [
       {
         "partOfSpeech": "noun",
@@ -45916,7 +45916,7 @@
   },
   "leave out": {
     "word": "leave out",
-    "phonetic": "/ˌliːv ˈawt/",
+    "phonetic": "/ˌliːv ˈaʊt/",
     "meanings": [
       {
         "partOfSpeech": "verb",
@@ -47517,7 +47517,7 @@
   },
   "look out": {
     "word": "look out",
-    "phonetic": "/ˌlʊk ˈawt/",
+    "phonetic": "/ˌlʊk ˈaʊt/",
     "meanings": [
       {
         "partOfSpeech": "phrase",
@@ -48031,7 +48031,7 @@
   },
   "mad about (= liking very much)": {
     "word": "mad about (= liking very much)",
-    "phonetic": "/ˈmæːd əˌbaʊt/",
+    "phonetic": "/ˈmæd əˌbaʊt/",
     "meanings": [
       {
         "partOfSpeech": "adjective",
@@ -48143,7 +48143,7 @@
   },
   "mad": {
     "word": "mad",
-    "phonetic": "/ˈmæːd/",
+    "phonetic": "/mæd/",
     "meanings": [
       {
         "partOfSpeech": "adjective",
@@ -48727,7 +48727,7 @@
   },
   "male": {
     "word": "male",
-    "phonetic": "/meːl/",
+    "phonetic": "/meɪl/",
     "meanings": [
       {
         "partOfSpeech": "noun",
@@ -52033,7 +52033,7 @@
   },
   "mud": {
     "word": "mud",
-    "phonetic": "/mʊd/",
+    "phonetic": "/mʌd/",
     "meanings": [
       {
         "partOfSpeech": "noun",
@@ -54534,7 +54534,7 @@
   },
   "on time": {
     "word": "on time",
-    "phonetic": "/ɒn tʌɪm/",
+    "phonetic": "/ˌɒn ˈtaɪm/",
     "meanings": [
       {
         "partOfSpeech": "adjective",
@@ -55131,7 +55131,7 @@
   },
   "out loud": {
     "word": "out loud",
-    "phonetic": "/ˌawt ˈlaʊd/",
+    "phonetic": "/ˌaʊt ˈlaʊd/",
     "meanings": [
       {
         "partOfSpeech": "adverb",
@@ -57263,7 +57263,7 @@
   },
   "pass out": {
     "word": "pass out",
-    "phonetic": "/ˌpɑːs ˈawt/",
+    "phonetic": "/ˌpɑːs ˈaʊt/",
     "meanings": [
       {
         "partOfSpeech": "verb",
@@ -59216,7 +59216,7 @@
   },
   "plum": {
     "word": "plum",
-    "phonetic": "/plʊm/",
+    "phonetic": "/plʌm/",
     "meanings": [
       {
         "partOfSpeech": "noun",
@@ -60014,7 +60014,7 @@
   },
   "power": {
     "word": "power",
-    "phonetic": "/ˈpʌʊ(ə)r/",
+    "phonetic": "/ˈpaʊə(r)/",
     "meanings": [
       {
         "partOfSpeech": "noun",
@@ -62606,7 +62606,7 @@
   },
   "publish": {
     "word": "publish",
-    "phonetic": "/ˈpʊblɪʃ/",
+    "phonetic": "/ˈpʌblɪʃ/",
     "meanings": [
       {
         "partOfSpeech": "verb",
@@ -63219,7 +63219,7 @@
   },
   "put out": {
     "word": "put out",
-    "phonetic": "/ˌpʊt ˈawt/",
+    "phonetic": "/ˌpʊt ˈaʊt/",
     "meanings": [
       {
         "partOfSpeech": "phrase",
@@ -63855,7 +63855,7 @@
   },
   "rarely": {
     "word": "rarely",
-    "phonetic": "/ˈreːli/",
+    "phonetic": "/ˈreəli/",
     "meanings": [
       {
         "partOfSpeech": "adverb",
@@ -64241,7 +64241,7 @@
   },
   "read widely": {
     "word": "read widely",
-    "phonetic": "/reːd ˈwaɪdli/",
+    "phonetic": "/riːd ˈwaɪdli/",
     "meanings": [
       {
         "partOfSpeech": "phrase",
@@ -66242,7 +66242,7 @@
   },
   "republic": {
     "word": "republic",
-    "phonetic": "/rɪˈpʊblɪk/",
+    "phonetic": "/rɪˈpʌblɪk/",
     "meanings": [
       {
         "partOfSpeech": "noun",
@@ -68887,7 +68887,7 @@
   },
   "run out": {
     "word": "run out",
-    "phonetic": "/ˌrʌn ˈawt/",
+    "phonetic": "/ˌrʌn ˈaʊt/",
     "meanings": [
       {
         "partOfSpeech": "verb",
@@ -68935,7 +68935,7 @@
   },
   "rush": {
     "word": "rush",
-    "phonetic": "/rʊʃ/",
+    "phonetic": "/rʌʃ/",
     "meanings": [
       {
         "partOfSpeech": "verb",
@@ -69008,7 +69008,7 @@
   },
   "rush (in a rush)": {
     "word": "rush (in a rush)",
-    "phonetic": "/rʊʃ/",
+    "phonetic": "/rʌʃ/",
     "meanings": [
       {
         "partOfSpeech": "adverb",
@@ -69031,7 +69031,7 @@
   },
   "rush hour": {
     "word": "rush hour",
-    "phonetic": "/rʊʃ aʊə/",
+    "phonetic": "/ˈrʌʃ ˌaʊə/",
     "meanings": [
       {
         "partOfSpeech": "phrase",
@@ -70420,7 +70420,7 @@
   },
   "sea bass": {
     "word": "sea bass",
-    "phonetic": "/siː beɪs/",
+    "phonetic": "/ˈsiː bæs/",
     "meanings": [
       {
         "partOfSpeech": "phrase",
@@ -75391,7 +75391,7 @@
   },
   "sort out": {
     "word": "sort out",
-    "phonetic": "/ˌsɔːt ˈawt/",
+    "phonetic": "/ˌsɔːt ˈaʊt/",
     "meanings": [
       {
         "partOfSpeech": "verb",
@@ -77874,7 +77874,7 @@
   },
   "stuck": {
     "word": "stuck",
-    "phonetic": "/stʊk/",
+    "phonetic": "/stʌk/",
     "meanings": [
       {
         "partOfSpeech": "verb",
@@ -78997,7 +78997,7 @@
   },
   "sun": {
     "word": "sun",
-    "phonetic": "/sʊn/",
+    "phonetic": "/sʌn/",
     "meanings": [
       {
         "partOfSpeech": "noun",
@@ -80582,7 +80582,7 @@
   },
   "take out": {
     "word": "take out",
-    "phonetic": "/ˌteɪk ˈawt/",
+    "phonetic": "/ˌteɪk ˈaʊt/",
     "meanings": [
       {
         "partOfSpeech": "phrase",
@@ -82558,7 +82558,7 @@
   },
   "time (in time)": {
     "word": "time (in time)",
-    "phonetic": "/tʌɪm/",
+    "phonetic": "/taɪm/",
     "meanings": [
       {
         "partOfSpeech": "adverb",
@@ -82608,7 +82608,7 @@
   },
   "time off": {
     "word": "time off",
-    "phonetic": "/ˌtʌɪm ˈɒf/",
+    "phonetic": "/ˌtaɪm ˈɒf/",
     "meanings": [
       {
         "partOfSpeech": "phrase",
@@ -82632,7 +82632,7 @@
   },
   "time (from time to time)": {
     "word": "time (from time to time)",
-    "phonetic": "/tʌɪm/",
+    "phonetic": "/taɪm/",
     "meanings": [
       {
         "partOfSpeech": "adverb",
@@ -82682,7 +82682,7 @@
   },
   "time (on time)": {
     "word": "time (on time)",
-    "phonetic": "/tʌɪm/",
+    "phonetic": "/taɪm/",
     "meanings": [
       {
         "partOfSpeech": "adverb",
@@ -84680,7 +84680,7 @@
   },
   "trust": {
     "word": "trust",
-    "phonetic": "/trʊst/",
+    "phonetic": "/trʌst/",
     "meanings": [
       {
         "partOfSpeech": "noun",
@@ -85677,7 +85677,7 @@
   },
   "unless": {
     "word": "unless",
-    "phonetic": "/ʊnˈles/",
+    "phonetic": "/ənˈles/",
     "meanings": [
       {
         "partOfSpeech": "conjunction",
@@ -88003,7 +88003,7 @@
   },
   "watch out": {
     "word": "watch out",
-    "phonetic": "/ˌwɒtʃ ˈawt/",
+    "phonetic": "/ˌwɒtʃ ˈaʊt/",
     "meanings": [
       {
         "partOfSpeech": "phrase",
@@ -90297,7 +90297,7 @@
   },
   "work out": {
     "word": "work out",
-    "phonetic": "/ˌwɜːk ˈawt/",
+    "phonetic": "/ˌwɜːk ˈaʊt/",
     "meanings": [
       {
         "partOfSpeech": "verb",

@@ -9,9 +9,41 @@ pronunciations accurate, complete, and up to date.
 
 | Script | What it does | When to run |
 |---|---|---|
-| `check_ipa.py` | Fast local audit of all IPA entries | **Always** — pre-commit, CI, any time |
+| `verify_ipa_live.py` | Automated live web audit against Wiktionary (no cache) | **Verification / Automation** — checks all words live on the web in ~45s |
+| `check_ipa.py` | Fast local audit of all IPA entries (< 1s, no network) | **Pre-commit / CI** — instant syntax & invariant check |
 | `update_ipa.py` | Fetches IPA from Wiktionary for new/missing words | When vocabulary is added |
 | `audit_wiktionary_ipa.py` | Full re-audit of all ~2,800 words against Wiktionary | Periodic (quarterly) re-verification |
+
+---
+
+## `verify_ipa_live.py` — Automated Live Web Auditor (no cache, ~45 seconds)
+
+Directly queries `en.wiktionary.org` live via MediaWiki batch API (50 titles/request) and compares every curriculum entry against live British English (RP) pronunciations on the web. Zero LLM tokens required.
+
+```bash
+# Full live web audit across all 2,777 vocabulary entries
+python3 scripts/verify_ipa_live.py
+
+# Check a single word live against Wiktionary
+python3 scripts/verify_ipa_live.py --word "abbreviation"
+python3 scripts/verify_ipa_live.py --word "backward(s)"
+
+# Verbose output showing exact comparisons
+python3 scripts/verify_ipa_live.py --verbose
+
+# Machine-readable JSON output for CI automation
+python3 scripts/verify_ipa_live.py --json
+
+# Automatically fix discrepancies using live Wiktionary data
+python3 scripts/verify_ipa_live.py --fix
+```
+
+**What it verifies live against the web:**
+- Fetches wikitext directly over HTTPS with rate limiting and gzip compression
+- Dialect scoring filters out non-RP varieties (General American, Canadian, Australian, Scots, Northern English, Irish)
+- Detects phonemic drift, homograph stress mismatches, and diphthong corruptions
+- Evaluates phonetic equivalence (optional yod `(j)`, linking `(r)`, syllabic consonants `ʃn` vs `ʃən`, optional `(s)/(z)`)
+
 
 ---
 

@@ -19,6 +19,7 @@ Utilities/SpeechService.swift    # Multi-accent TTS service (@Observable)
 Resources/settings.xml           # Module/unit structure
 Resources/extrawordlist.xml      # Vocabulary with IPA (Unicode IPA, slash-enclosed)
 Resources/definitions.json       # Rich definitions + phonetic IPA field
+scripts/verify_ipa_live.py       # Automated live web audit against Wiktionary (~45s, zero tokens)
 scripts/check_ipa.py             # Fast local IPA audit (< 1s, no network)
 scripts/update_ipa.py            # Delta updater — fetches IPA for new words from Wiktionary
 scripts/audit_wiktionary_ipa.py  # Full Wiktionary re-audit (periodic)
@@ -205,6 +206,15 @@ swift Models/DataModels.swift Utilities/ContentParser.swift tests/stress_test_he
 
 All vocabulary in the app uses verified British English (Received Pronunciation) IPA
 sourced from Wiktionary. Use these scripts for all IPA-related tasks.
+
+### Automated live web audit — compares directly against Wiktionary (~45s, zero tokens)
+```bash
+python3 scripts/verify_ipa_live.py              # full live audit against en.wiktionary.org
+python3 scripts/verify_ipa_live.py --word "X"   # instant live check for single word
+python3 scripts/verify_ipa_live.py --verbose    # detailed phonetic comparison
+python3 scripts/verify_ipa_live.py --json       # machine-readable JSON for CI
+python3 scripts/verify_ipa_live.py --fix        # auto-fix discrepancies from live web
+```
 
 ### Fast local audit — no network, < 1 second
 ```bash
