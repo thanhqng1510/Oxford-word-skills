@@ -33,6 +33,7 @@ from wiktionary_ipa import (
     clean_lookup_title,
     parse_wiktionary_rp_candidates,
     phonetically_equivalent,
+    select_best_ipa,
 )
 
 RESOURCES_DIR = os.path.join(PROJECT_ROOT, "Resources")
@@ -74,21 +75,13 @@ def run_live_verification(
             continue
 
         candidates = parse_wiktionary_rp_candidates(wikitext, headword=word)
-        valid_candidates = [c for c in candidates if c[1] >= 10]
-
-        if not valid_candidates:
+        best_web_ipa = select_best_ipa(candidates, word=word)
+        if not best_web_ipa:
             not_on_wiktionary.append((word, current_ipa))
             continue
 
-        valid_candidates.sort(key=lambda c: c[1], reverse=True)
-        web_rp_ipas = [c[0] for c in valid_candidates]
-        best_web_ipa = web_rp_ipas[0]
-
-        # Handle homographs
-        if word.endswith(" N") and any(c.startswith("/ˈ") for c in web_rp_ipas):
-            best_web_ipa = next(c for c in web_rp_ipas if c.startswith("/ˈ"))
-        elif word.endswith(" V") and any(not c.startswith("/ˈ") and "ˈ" in c for c in web_rp_ipas):
-            best_web_ipa = next(c for c in web_rp_ipas if not c.startswith("/ˈ") and "ˈ" in c)
+        valid_candidates = [c for c in candidates if c.score >= 10]
+        web_rp_ipas = [c.ipa for c in valid_candidates]
 
         if current_ipa == best_web_ipa or current_ipa in web_rp_ipas:
             exact_matches.append((word, current_ipa))

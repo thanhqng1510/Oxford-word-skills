@@ -263,7 +263,7 @@ python3 -m wiktionary_ipa "abbreviation"
 | `test_t2_17` | No `ɚ`/`ɝ`/`ɾ` (American English) |
 | `test_t4_09` | Full 80-unit IPA audit |
 
-
+## Delivery Workflow
 
 1. **Test**: Run `./run_e2e_tests.sh` + Swift stress tests.
 2. **Install**: Build Release and install to `/Applications/OxfordWordSkills.app`.

@@ -36,6 +36,7 @@ def normalize_ipa(raw: str) -> str:
     inner = inner.replace("ɚ", "ə").replace("ɝ", "ɜː")
     inner = inner.replace("ɾ", "t")
     inner = inner.replace("ɛ", "e")
+    # Normalize script g (U+0261) to standard g (U+0067) per Oxford Word Skills schema & test_t2_13 whitelist
     inner = inner.replace("ɡ", "g")
     inner = inner.replace(":", "ː")
     inner = re.sub(r"\s+", " ", inner).strip()

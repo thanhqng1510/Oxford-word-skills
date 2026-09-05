@@ -3,8 +3,15 @@ prosody.py — English prosodic stress synthesis for compounds, phrases, and idi
 """
 
 import re
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, NamedTuple, Optional, Tuple
 from .normalizer import is_valid_ipa, normalize_ipa
+
+
+class PhraseToken(NamedTuple):
+    """Constituent token in a multi-word phrase."""
+    word: str
+    ipa: str
+    is_weak: bool
 
 WEAK_FORMS: Dict[str, str] = {
     "a": "/ə/",
@@ -46,15 +53,15 @@ def synthesize_compound_ipa(
     if len(words) < 2:
         return fallback_ipa or ""
 
-    tokens: List[Tuple[str, str, bool]] = []
+    tokens: List[PhraseToken] = []
     for i, w in enumerate(words):
         w_clean = re.sub(r"[^\w\-]", "", w).lower()
         if not w_clean:
             continue
         if w_clean in WEAK_FORMS and i < len(words) - 1:
-            tokens.append((w_clean, WEAK_FORMS[w_clean].strip("/"), True))
+            tokens.append(PhraseToken(w_clean, WEAK_FORMS[w_clean].strip("/"), True))
         elif w_clean in word_ipa_map:
-            tokens.append((w_clean, word_ipa_map[w_clean].strip("/"), False))
+            tokens.append(PhraseToken(w_clean, word_ipa_map[w_clean].strip("/"), False))
         else:
             return fallback_ipa or ""
 
@@ -62,22 +69,28 @@ def synthesize_compound_ipa(
     syllables: List[str] = []
 
     if is_phrasal_verb:
-        verb_ipa = tokens[0][1].replace("ˈ", "ˌ")
-        if not verb_ipa.startswith("ˌ"):
+        verb_ipa = tokens[0].ipa.replace("ˈ", "ˌ")
+        if "ˌ" not in verb_ipa:
             verb_ipa = "ˌ" + verb_ipa
-        particle_ipa = tokens[1][1]
-        if not particle_ipa.startswith("ˈ"):
+        particle_ipa = tokens[1].ipa
+        if "ˈ" not in particle_ipa:
             particle_ipa = "ˈ" + particle_ipa
         syllables = [verb_ipa, particle_ipa]
     else:
         # Nuclear stress on first element for compounds
-        for i, (w_clean, base_ipa, is_weak) in enumerate(tokens):
-            if is_weak:
-                syllables.append(base_ipa)
+        for i, tok in enumerate(tokens):
+            if tok.is_weak:
+                syllables.append(tok.ipa)
             elif i == 0:
+                base_ipa = tok.ipa
+                if "ˈ" not in base_ipa:
+                    base_ipa = "ˈ" + base_ipa
                 syllables.append(base_ipa)
             else:
-                syllables.append(base_ipa.replace("ˈ", "ˌ"))
+                sub_ipa = tok.ipa.replace("ˈ", "ˌ")
+                if "ˌ" not in sub_ipa:
+                    sub_ipa = "ˌ" + sub_ipa
+                syllables.append(sub_ipa)
 
     synthesized = normalize_ipa(f"/{' '.join(syllables)}/")
     if is_valid_ipa(synthesized):

@@ -26,16 +26,9 @@ RESOURCES_DIR = os.path.join(PROJECT_ROOT, "Resources")
 DEFINITIONS_JSON = os.path.join(RESOURCES_DIR, "definitions.json")
 EXTRAWORDLIST_XML = os.path.join(RESOURCES_DIR, "extrawordlist.xml")
 
-# ── Validation Rules ──────────────────────────────────────────────────────────
-
-# IPA characters valid in British English (RP)
-VALID_IPA_CHARS = re.compile(
-    r"^/[a-zæɑɒɔəɛɜɪʊʌbcdefɡhijklmnŋpqrstuvwzðθʃʒɹˈˌːɐɵʍ"
-    r"\s\-\,\.\(\)\u2026\u2019\']+/$"
-)
-
-# Forbidden raw SAMPA tokens that should never appear in output IPA
-SAMPA_TOKENS = re.compile(r'[%&"QVUITAODSZ23@ÍÙ]')
+# Add packages/wiktionary_ipa to sys.path
+sys.path.insert(0, os.path.join(PROJECT_ROOT, "packages", "wiktionary_ipa"))
+from wiktionary_ipa.dialects import FORBIDDEN_SAMPA_REGEX as SAMPA_TOKENS, VALID_IPA_REGEX as VALID_IPA_CHARS
 
 # American-English-specific phonemes that should not appear in RP
 # (ɚ = rhotic schwa, ɝ = rhotic mid-central, ɾ = tap/flap)

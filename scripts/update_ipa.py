@@ -113,8 +113,14 @@ def main():
             print(f"  {w:30s} -> [NOT FOUND on Wiktionary]")
 
     if not args.dry_run:
-        print("\nValidating changes with check_ipa.py...")
-        os.system("python3 scripts/check_ipa.py")
+        print("\nValidating changes with check_ipa...")
+        from check_ipa import Report, audit_definitions_json, audit_extrawordlist_xml, print_report
+        report = Report()
+        audit_definitions_json(report)
+        audit_extrawordlist_xml(report)
+        print_report(report, verbose=False)
+        if not report.ok:
+            sys.exit(1)
 
 
 if __name__ == "__main__":

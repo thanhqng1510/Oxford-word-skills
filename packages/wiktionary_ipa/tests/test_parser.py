@@ -9,9 +9,11 @@ import unittest
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from wiktionary_ipa.parser import (
+    IPACandidate,
     clean_lookup_title,
     extract_english_section,
     parse_wiktionary_rp_candidates,
+    select_best_ipa,
 )
 
 
@@ -48,9 +50,19 @@ class TestParser(unittest.TestCase):
 """
         cands = parse_wiktionary_rp_candidates(wikitext, "car")
         self.assertGreater(len(cands), 0)
-        cands.sort(key=lambda x: x[1], reverse=True)
+        cands.sort(key=lambda x: x.score, reverse=True)
+        self.assertEqual(cands[0].ipa, "/ˈkɑː/")
         self.assertEqual(cands[0][0], "/ˈkɑː/")
-        self.assertGreater(cands[0][1], 0)
+        self.assertGreater(cands[0].score, 0)
+
+    def test_select_best_ipa_homographs(self):
+        candidates = [
+            IPACandidate("/ˈrekɔːd/", 100),
+            IPACandidate("/rɪˈkɔːd/", 95),
+        ]
+        self.assertEqual(select_best_ipa(candidates, "record N"), "/ˈrekɔːd/")
+        self.assertEqual(select_best_ipa(candidates, "record V"), "/rɪˈkɔːd/")
+        self.assertEqual(select_best_ipa(candidates, "record"), "/ˈrekɔːd/")
 
 
 if __name__ == "__main__":

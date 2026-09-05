@@ -49,6 +49,7 @@ struct FillInBlankView: View {
             }
         }
         .padding()
+        .textSelection(.enabled)
         .onAppear { loadWords() }
     }
 

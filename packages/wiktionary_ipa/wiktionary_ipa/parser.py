@@ -3,7 +3,7 @@ parser.py — Wikitext section extraction, IPA template parsing, and dialect pri
 """
 
 import re
-from typing import Dict, List, Tuple
+from typing import Dict, List, NamedTuple, Optional, Tuple
 from .dialects import (
     DISQUALIFY_KEYWORDS,
     FORBIDDEN_SAMPA_REGEX,
@@ -12,6 +12,12 @@ from .dialects import (
     VALID_IPA_REGEX,
 )
 from .normalizer import normalize_ipa
+
+
+class IPACandidate(NamedTuple):
+    """Represents a scored IPA pronunciation candidate."""
+    ipa: str
+    score: int
 
 UNIT_MEASUREMENTS: Dict[str, str] = {
     "cl (centilitre(s))": "centilitre",
@@ -60,7 +66,7 @@ def extract_english_section(wikitext: str) -> str:
     return m.group(1) if m else ""
 
 
-def parse_wiktionary_rp_candidates(wikitext: str, headword: str = "") -> List[Tuple[str, int]]:
+def parse_wiktionary_rp_candidates(wikitext: str, headword: str = "") -> List[IPACandidate]:
     """
     Parses candidate pronunciations from English wikitext, scored by British RP preference:
       +100: Explicit Received Pronunciation (RP / SSB)
@@ -72,7 +78,7 @@ def parse_wiktionary_rp_candidates(wikitext: str, headword: str = "") -> List[Tu
     if not eng_text:
         return []
 
-    candidates: List[Tuple[str, int]] = []
+    candidates: List[IPACandidate] = []
     lines = eng_text.splitlines()
     bullet_stack: Dict[int, str] = {}
 
@@ -134,6 +140,23 @@ def parse_wiktionary_rp_candidates(wikitext: str, headword: str = "") -> List[Tu
                 norm = normalize_ipa(trans)
                 if not norm or not VALID_IPA_REGEX.match(norm) or FORBIDDEN_SAMPA_REGEX.search(norm):
                     continue
-                candidates.append((norm, score))
+                candidates.append(IPACandidate(ipa=norm, score=score))
 
     return candidates
+
+
+def select_best_ipa(candidates: List[IPACandidate], word: str = "") -> Optional[str]:
+    """Selects the top British RP IPA transcription from candidates, handling homographs."""
+    valid = [c for c in candidates if c.score >= 10]
+    if not valid:
+        return None
+    valid.sort(key=lambda c: c.score, reverse=True)
+    best_ipas = [c.ipa for c in valid]
+
+    # Handle homographs: "record N" vs "record V"
+    if word.endswith(" N") and any(p.startswith("/ˈ") for p in best_ipas):
+        return next(p for p in best_ipas if p.startswith("/ˈ"))
+    if word.endswith(" V") and any(not p.startswith("/ˈ") and "ˈ" in p for p in best_ipas):
+        return next(p for p in best_ipas if not p.startswith("/ˈ") and "ˈ" in p)
+
+    return best_ipas[0]

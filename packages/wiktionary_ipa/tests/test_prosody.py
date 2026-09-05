@@ -28,5 +28,16 @@ class TestProsody(unittest.TestCase):
         self.assertEqual(res, "/frəm ˌtaɪm tə ˈtaɪm/")
 
 
+    def test_phrasal_verb_with_internal_stress_particle(self):
+        word_map = {"look": "/lʊk/", "around": "/əˈraʊnd/"}
+        res = synthesize_compound_ipa("look around", word_map)
+        self.assertEqual(res, "/ˌlʊk əˈraʊnd/")
+
+    def test_compound_noun_unstressed_first_element(self):
+        word_map = {"tea": "/tiː/", "bag": "/bæg/"}
+        res = synthesize_compound_ipa("tea bag", word_map)
+        self.assertEqual(res, "/ˈtiː ˌbæg/")
+
+
 if __name__ == "__main__":
     unittest.main()

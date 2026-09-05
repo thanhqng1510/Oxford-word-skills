@@ -6,7 +6,7 @@ import re
 
 # Broad phonemic British RP IPA character whitelist
 VALID_IPA_REGEX = re.compile(
-    r"^/[a-zæɑɒɔəɛɜɪʊʌbcdefɡhijklmnŋpqrstuvwzðθʃʒˈˌːɹ\s\-\,\.\(\)\…\u2019\']+/$"
+    r"^/[a-zæɑɒɔəɛɜɪʊʌbcdefɡhijklmnŋpqrstuvwzðθʃʒˈˌːɹɐɵʍ\s\-\,\.\(\)\…\u2026\u2019\']+/$"
 )
 FORBIDDEN_SAMPA_REGEX = re.compile(r'[%&"”QVUITAODSZ23@ÍÙ]')
 

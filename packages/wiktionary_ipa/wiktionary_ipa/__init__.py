@@ -7,12 +7,13 @@ from typing import Dict, List, Optional
 from .client import WiktionaryClient
 from .dialects import VALID_IPA_REGEX, FORBIDDEN_SAMPA_REGEX
 from .normalizer import is_valid_ipa, normalize_ipa, phonetically_equivalent, simplify_phonetics
-from .parser import clean_lookup_title, parse_wiktionary_rp_candidates
+from .parser import IPACandidate, clean_lookup_title, parse_wiktionary_rp_candidates, select_best_ipa
 from .prosody import synthesize_compound_ipa
 
 __version__ = "1.0.0"
 __all__ = [
     "WiktionaryClient",
+    "IPACandidate",
     "lookup",
     "batch_lookup",
     "verify_word",
@@ -20,6 +21,7 @@ __all__ = [
     "phonetically_equivalent",
     "is_valid_ipa",
     "simplify_phonetics",
+    "select_best_ipa",
     "synthesize_compound_ipa",
     "clean_lookup_title",
 ]
@@ -28,29 +30,26 @@ __all__ = [
 def lookup(word: str, client: Optional[WiktionaryClient] = None) -> Optional[str]:
     """
     Looks up a word live on en.wiktionary.org and returns its top British English (RP) IPA.
+    Falls back to compound synthesis for multi-word phrases if not indexed directly.
     Returns None if not found or no valid RP transcription exists.
     """
     c = client or WiktionaryClient()
     title = clean_lookup_title(word)
     wikitext = c.fetch_page(title)
-    if not wikitext:
-        return None
+    if wikitext:
+        candidates = parse_wiktionary_rp_candidates(wikitext, headword=word)
+        best = select_best_ipa(candidates, word=word)
+        if best:
+            return best
 
-    candidates = parse_wiktionary_rp_candidates(wikitext, headword=word)
-    valid = [cand for cand in candidates if cand[1] >= 10]
-    if not valid:
-        return None
+    # Fallback to constituent compound synthesis if multi-word phrase
+    clean_words = word.strip().split()
+    if len(clean_words) >= 2:
+        sub_ipas = batch_lookup(clean_words, client=c)
+        if all(sub_ipas.get(w) for w in clean_words):
+            return synthesize_compound_ipa(word, {w: sub_ipas[w] for w in clean_words})
 
-    valid.sort(key=lambda x: x[1], reverse=True)
-    best_ipas = [x[0] for x in valid]
-
-    # Handle homographs
-    if word.endswith(" N") and any(p.startswith("/ˈ") for p in best_ipas):
-        return next(p for p in best_ipas if p.startswith("/ˈ"))
-    if word.endswith(" V") and any(not p.startswith("/ˈ") and "ˈ" in p for p in best_ipas):
-        return next(p for p in best_ipas if not p.startswith("/ˈ") and "ˈ" in p)
-
-    return best_ipas[0]
+    return None
 
 
 def batch_lookup(words: List[str], client: Optional[WiktionaryClient] = None) -> Dict[str, Optional[str]]:
@@ -71,20 +70,22 @@ def batch_lookup(words: List[str], client: Optional[WiktionaryClient] = None) ->
             continue
 
         candidates = parse_wiktionary_rp_candidates(wikitext, headword=word)
-        valid = [cand for cand in candidates if cand[1] >= 10]
-        if not valid:
-            results[word] = None
-            continue
+        results[word] = select_best_ipa(candidates, word=word)
 
-        valid.sort(key=lambda x: x[1], reverse=True)
-        best_ipas = [x[0] for x in valid]
+    # Fallback synthesis for unresolved multi-word phrases
+    unresolved = [w for w in words if results[w] is None and len(w.strip().split()) >= 2]
+    if unresolved:
+        needed_subwords = list({sw for w in unresolved for sw in w.strip().split() if not results.get(sw)})
+        if needed_subwords:
+            sub_results = batch_lookup(needed_subwords, client=c)
+            for sw, ipa in sub_results.items():
+                if ipa:
+                    results[sw] = ipa
 
-        if word.endswith(" N") and any(p.startswith("/ˈ") for p in best_ipas):
-            results[word] = next(p for p in best_ipas if p.startswith("/ˈ"))
-        elif word.endswith(" V") and any(not p.startswith("/ˈ") and "ˈ" in p for p in best_ipas):
-            results[word] = next(p for p in best_ipas if not p.startswith("/ˈ") and "ˈ" in p)
-        else:
-            results[word] = best_ipas[0]
+        for w in unresolved:
+            sw_list = w.strip().split()
+            if all(results.get(sw) for sw in sw_list):
+                results[w] = synthesize_compound_ipa(w, {sw: results[sw] for sw in sw_list})
 
     return results
 
@@ -97,22 +98,24 @@ def verify_word(word: str, expected_ipa: str, client: Optional[WiktionaryClient]
     c = client or WiktionaryClient()
     title = clean_lookup_title(word)
     wikitext = c.fetch_page(title)
-    if not wikitext:
+
+    candidates: List[IPACandidate] = []
+    if wikitext:
+        candidates = parse_wiktionary_rp_candidates(wikitext, headword=word)
+
+    best_web = select_best_ipa(candidates, word=word)
+    if not best_web:
+        # Fallback compound synthesis
+        clean_words = word.strip().split()
+        if len(clean_words) >= 2:
+            sub_ipas = batch_lookup(clean_words, client=c)
+            if all(sub_ipas.get(w) for w in clean_words):
+                best_web = synthesize_compound_ipa(word, {w: sub_ipas[w] for w in clean_words})
+
+    if not best_web:
         return {"word": word, "status": "NOT_FOUND", "expected_ipa": expected_ipa, "web_ipa": None}
 
-    candidates = parse_wiktionary_rp_candidates(wikitext, headword=word)
-    valid = [cand for cand in candidates if cand[1] >= 10]
-    if not valid:
-        return {"word": word, "status": "NOT_FOUND", "expected_ipa": expected_ipa, "web_ipa": None}
-
-    valid.sort(key=lambda x: x[1], reverse=True)
-    web_ipas = [x[0] for x in valid]
-    best_web = web_ipas[0]
-
-    if word.endswith(" N") and any(p.startswith("/ˈ") for p in web_ipas):
-        best_web = next(p for p in web_ipas if p.startswith("/ˈ"))
-    elif word.endswith(" V") and any(not p.startswith("/ˈ") and "ˈ" in p for p in web_ipas):
-        best_web = next(p for p in web_ipas if not p.startswith("/ˈ") and "ˈ" in p)
+    web_ipas = [c.ipa for c in candidates if c.score >= 10] or [best_web]
 
     if expected_ipa == best_web or expected_ipa in web_ipas:
         return {"word": word, "status": "MATCH", "expected_ipa": expected_ipa, "web_ipa": best_web}
@@ -124,5 +127,5 @@ def verify_word(word: str, expected_ipa: str, client: Optional[WiktionaryClient]
             "status": "DISCREPANCY",
             "expected_ipa": expected_ipa,
             "web_ipa": best_web,
-            "all_web_ipas": web_ipas[:3]
+            "all_web_ipas": web_ipas[:3],
         }
