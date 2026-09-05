@@ -229,7 +229,7 @@ final class UpdateService {
     }
 
     func currentVersion() -> String {
-        Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "0.0.0"
+        Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "0.0.1"
     }
 
     // MARK: - Private: Download
