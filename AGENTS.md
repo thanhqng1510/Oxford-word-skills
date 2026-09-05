@@ -19,6 +19,10 @@ Utilities/SpeechService.swift    # Multi-accent TTS service (@Observable)
 Resources/settings.xml           # Module/unit structure
 Resources/extrawordlist.xml      # Vocabulary with IPA (Unicode IPA, slash-enclosed)
 Resources/definitions.json       # Rich definitions + phonetic IPA field
+scripts/verify_ipa_live.py       # Automated live web audit against Wiktionary (~45s, zero tokens)
+scripts/check_ipa.py             # Fast local IPA audit (< 1s, no network)
+scripts/update_ipa.py            # Delta updater — fetches IPA for new words from Wiktionary
+# External: wiktionary-ipa       # Standalone library (https://github.com/thanhqng1510/wiktionary-ipa)
 ```
 
 ## Architecture Patterns
@@ -197,17 +201,59 @@ swift Models/DataModels.swift Utilities/ContentParser.swift tests/stress_test_qu
 swift Models/DataModels.swift Utilities/ContentParser.swift tests/stress_test_headwords.swift
 ```
 
-## IPA Pronunciation Standards
+## IPA Maintenance Toolkit
 
 All vocabulary in the app uses verified British English (Received Pronunciation) IPA
-sourced from English Wiktionary and Oxford Word Skills.
+sourced from Wiktionary. Use these scripts for all IPA-related tasks.
 
-### IPA Data Sources & Format Rules
+### Automated live web audit — compares directly against Wiktionary (~45s, zero tokens)
+```bash
+python3 scripts/verify_ipa_live.py              # full live audit against en.wiktionary.org
+python3 scripts/verify_ipa_live.py --word "X"   # instant live check for single word
+python3 scripts/verify_ipa_live.py --verbose    # detailed phonetic comparison
+python3 scripts/verify_ipa_live.py --json       # machine-readable JSON for CI
+python3 scripts/verify_ipa_live.py --fix        # auto-fix discrepancies from live web
+```
+
+### Fast local audit — no network, < 1 second
+```bash
+python3 scripts/check_ipa.py              # summary (exit 1 if any issues)
+python3 scripts/check_ipa.py --verbose    # list every problem
+python3 scripts/check_ipa.py --json       # machine-readable JSON (CI-friendly)
+```
+Run this **before every commit** that touches `definitions.json` or `extrawordlist.xml`.
+
+### Adding new vocabulary — fetch IPA from Wiktionary
+```bash
+# Fetch and apply IPA for all new/missing entries live from Wiktionary
+python3 scripts/update_ipa.py
+
+# Single word
+python3 scripts/update_ipa.py --word "ameliorate"
+
+# Preview without writing
+python3 scripts/update_ipa.py --dry-run
+```
+
+### Dedicated Library (`wiktionary-ipa`)
+All Wiktionary lookups and validation are powered by the standalone [`wiktionary-ipa`](https://github.com/thanhqng1510/wiktionary-ipa) library:
+```bash
+# Install via pip
+pip install wiktionary-ipa
+# or install from GitHub:
+# pip install git+https://github.com/thanhqng1510/wiktionary-ipa.git
+
+# Direct CLI lookup
+wiktionary-ipa "abbreviation"
+```
+
+### IPA data sources & format rules
 - **Source of truth**: English Wiktionary, UK/RP pronunciation (first choice)
 - **Format**: Always `/unicode-ipa/` (slash-enclosed Unicode, no SAMPA, no `ː` ASCII colon)
 - **`ContentParser.sampaToIPA()`** short-circuits when the input starts with `/`, so storing
   Unicode IPA directly in `extrawordlist.xml` `<ipa>` CDATA elements is the correct pattern
 - **Forbidden**: `ɚ`, `ɝ`, `ɾ` (rhotic/tap — American English only)
+- **Zero Cache**: All lookups query live with batching, gzip, and polite rate-limiting
 
 ### IPA-related tests (in the 99-test suite)
 | Test | Validates |
