@@ -117,11 +117,12 @@ struct QuizView: View {
                             }
                         }
                         Button {
-                            SpeechService.shared.speak(q.word.speechText)
+                            viewModel.speak(q.word.speechText)
                         } label: {
                             Label("Listen", systemImage: "speaker.wave.2.fill")
                         }
                         .buttonStyle(.bordered)
+                        .speechAction(canSpeak: viewModel.canSpeak, actionDescription: "Listen to pronunciation")
                         Text("Choose the correct definition:")
                             .font(.headline)
                             .foregroundStyle(.secondary)
@@ -151,12 +152,13 @@ struct QuizView: View {
                                 Text(q.word.ipa)
                                     .foregroundStyle(.secondary)
                                 Button {
-                                    SpeechService.shared.speak(q.word.speechText)
+                                    viewModel.speak(q.word.speechText)
                                 } label: {
                                     Image(systemName: "speaker.wave.2.fill")
                                         .font(.caption)
                                 }
                                 .buttonStyle(.plain)
+                                .speechAction(canSpeak: viewModel.canSpeak, actionDescription: "Listen to pronunciation")
                             }
                             .font(.callout)
                         }

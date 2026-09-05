@@ -1,8 +1,8 @@
 import SwiftUI
+import AVFoundation
 
 struct ContentView: View {
     @State private var viewModel = ContentViewModel()
-    @State private var speechService = SpeechService.shared
     @State private var columnVisibility = NavigationSplitViewVisibility.automatic
     var updateService: UpdateService
 
@@ -14,17 +14,6 @@ struct ContentView: View {
         }
         .navigationTitle("Oxford Word Skills")
         .frame(minWidth: 900, minHeight: 600)
-        .toolbar {
-            ToolbarItem(placement: .primaryAction) {
-                Picker("Voice Accent", selection: $speechService.selectedVoice) {
-                    ForEach(VoiceOption.supportedVoices) { option in
-                        Text(option.shortLabel).tag(option)
-                    }
-                }
-                .pickerStyle(.segmented)
-                .help("Select Pronunciation Accent")
-            }
-        }
         // ── Auto-update ──────────────────────────────────────────────────────
         // Check for a newer release 2 s after launch (avoids blocking startup)
         .task {
@@ -49,6 +38,7 @@ struct ContentView: View {
 
 struct DetailView: View {
     @Bindable var viewModel: ContentViewModel
+    @State private var showingVoicePicker = false
 
     var body: some View {
         Group {
@@ -64,5 +54,42 @@ struct DetailView: View {
             }
         }
         .searchable(text: $viewModel.searchText, prompt: "Search words or definitions...")
+        .toolbar {
+            ToolbarItemGroup(placement: .primaryAction) {
+                Button {
+                    showingVoicePicker.toggle()
+                } label: {
+                    HStack(spacing: 5) {
+                        if let selected = viewModel.speechService.selectedVoice {
+                            Image(systemName: "speaker.wave.2.fill")
+                                .foregroundStyle(.tint)
+                            Text(selected.displayLabel)
+                                .font(.callout)
+                                .lineLimit(1)
+                            if !selected.qualitySymbol.isEmpty {
+                                Text(selected.qualitySymbol)
+                                    .font(.caption2)
+                            }
+                        } else {
+                            Image(systemName: "speaker.slash.fill")
+                                .foregroundStyle(.secondary)
+                            Text("No Voice Selected")
+                                .font(.callout)
+                                .foregroundStyle(.secondary)
+                                .lineLimit(1)
+                        }
+                    }
+                    .padding(.horizontal, 4)
+                }
+                .glassEffect()
+                .popover(isPresented: $showingVoicePicker, arrowEdge: .bottom) {
+                    VoicePickerView(
+                        speechService: viewModel.speechService,
+                        isPresented: $showingVoicePicker
+                    )
+                }
+            }
+        }
     }
 }
+

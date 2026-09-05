@@ -31,8 +31,8 @@ else
 fi
 
 # 2. Run Native Swift Engine Pipeline Test
-echo -e "${BOLD}>>> Step 2/4: Executing Native Swift Engine Pipeline Test...${RESET}\n"
-if swift Models/DataModels.swift Utilities/ContentParser.swift tests/test_engine_pipeline.swift; then
+echo -e "${BOLD}>>> Step 2/5: Executing Native Swift Engine Pipeline Test...${RESET}\n"
+if swiftc -parse-as-library Models/DataModels.swift Utilities/ContentParser.swift tests/test_engine_pipeline.swift -o /tmp/test_pipeline && /tmp/test_pipeline; then
     echo -e "\n${GREEN}✓ Step 2 Passed: Native Swift pipeline parsing & model decoding succeeded.${RESET}\n"
 else
     echo -e "\n${RED}✗ Step 2 Failed: Swift ContentParser / WordDetail pipeline failed.${RESET}\n"
@@ -48,10 +48,10 @@ else
     FAILURES=$((FAILURES + 1))
 fi
 
-# 4. Run SpeechService & VoiceOption Unit Tests
+# 4. Run SpeechService Unit Tests
 echo -e "${BOLD}>>> Step 4/5: Executing SpeechService Unit Tests...${RESET}\n"
-if swift Utilities/SpeechService.swift tests/test_speech_service.swift; then
-    echo -e "\n${GREEN}✓ Step 4 Passed: SpeechService & VoiceOption unit tests passed.${RESET}\n"
+if swiftc -parse-as-library Utilities/SpeechService.swift tests/test_speech_service.swift -o /tmp/test_speech_service && /tmp/test_speech_service; then
+    echo -e "\n${GREEN}✓ Step 4 Passed: SpeechService unit tests passed.${RESET}\n"
 else
     echo -e "\n${RED}✗ Step 4 Failed: SpeechService unit tests failed.${RESET}\n"
     FAILURES=$((FAILURES + 1))

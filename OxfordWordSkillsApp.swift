@@ -8,6 +8,7 @@ struct OxfordWordSkillsApp: App {
         WindowGroup {
             ContentView(updateService: updateService)
         }
+        .windowToolbarStyle(.unified)
         .defaultSize(width: 1200, height: 800)
         .commands {
             CommandGroup(after: .appInfo) {
