@@ -3,11 +3,8 @@ import AVFoundation
 
 struct ContentView: View {
     @State private var viewModel = ContentViewModel()
-    @State private var speechService = SpeechService.shared
     @State private var columnVisibility = NavigationSplitViewVisibility.automatic
     var updateService: UpdateService
-
-    @State private var showingVoicePicker = false
 
     var body: some View {
         NavigationSplitView(columnVisibility: $columnVisibility) {
@@ -17,44 +14,6 @@ struct ContentView: View {
         }
         .navigationTitle("Oxford Word Skills")
         .frame(minWidth: 900, minHeight: 600)
-        .toolbar {
-            ToolbarItem(placement: .primaryAction) {
-                Button {
-                    showingVoicePicker.toggle()
-                } label: {
-                    HStack(spacing: 6) {
-                        if let selected = speechService.selectedVoice {
-                            Image(systemName: "speaker.wave.2.fill")
-                                .foregroundStyle(.blue)
-                            Text(selected.displayLabel)
-                                .font(.callout)
-                                .lineLimit(1)
-                            Spacer(minLength: 0)
-                            Text(selected.qualityBadge)
-                                .font(.caption2)
-                                .padding(.horizontal, 6)
-                                .padding(.vertical, 2)
-                                .background(.blue.opacity(0.12), in: Capsule())
-                        } else {
-                            Image(systemName: "speaker.slash.fill")
-                                .foregroundStyle(.orange)
-                            Text("No Voice Selected")
-                                .font(.callout)
-                                .foregroundStyle(.secondary)
-                                .lineLimit(1)
-                            Spacer(minLength: 0)
-                        }
-                    }
-                    .frame(width: 175)
-                }
-                .popover(isPresented: $showingVoicePicker, arrowEdge: .bottom) {
-                    VoicePickerPopover(
-                        speechService: speechService,
-                        isPresented: $showingVoicePicker
-                    )
-                }
-            }
-        }
         // ── Auto-update ──────────────────────────────────────────────────────
         // Check for a newer release 2 s after launch (avoids blocking startup)
         .task {
@@ -79,6 +38,8 @@ struct ContentView: View {
 
 struct DetailView: View {
     @Bindable var viewModel: ContentViewModel
+    @State private var speechService = SpeechService.shared
+    @State private var showingVoicePicker = false
 
     var body: some View {
         Group {
@@ -94,6 +55,44 @@ struct DetailView: View {
             }
         }
         .searchable(text: $viewModel.searchText, prompt: "Search words or definitions...")
+        .toolbar {
+            ToolbarItem(placement: .primaryAction) {
+                Button {
+                    showingVoicePicker.toggle()
+                } label: {
+                    HStack(spacing: 6) {
+                        if let selected = speechService.selectedVoice {
+                            Image(systemName: "speaker.wave.2.fill")
+                                .foregroundStyle(.blue)
+                            Text(selected.displayLabel)
+                                .font(.callout)
+                                .lineLimit(1)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                            Text(selected.qualityBadge)
+                                .font(.caption2)
+                                .padding(.horizontal, 6)
+                                .padding(.vertical, 2)
+                                .background(.blue.opacity(0.12), in: Capsule())
+                        } else {
+                            Image(systemName: "speaker.slash.fill")
+                                .foregroundStyle(.orange)
+                            Text("No Voice Selected")
+                                .font(.callout)
+                                .foregroundStyle(.secondary)
+                                .lineLimit(1)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                        }
+                    }
+                    .frame(width: 175)
+                }
+                .popover(isPresented: $showingVoicePicker, arrowEdge: .bottom) {
+                    VoicePickerPopover(
+                        speechService: speechService,
+                        isPresented: $showingVoicePicker
+                    )
+                }
+            }
+        }
     }
 }
 
