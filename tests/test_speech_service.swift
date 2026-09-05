@@ -76,6 +76,17 @@ struct SpeechServiceTestRunner {
         }
         assertTest(noNameHasSuffix, "All discovered voices have (Premium) and (Enhanced) stripped from their name")
 
+        // Test qualitySymbol helper
+        if let premiumVoice = allDiscovered.first(where: { $0.quality == .premium }) {
+            assertTest(premiumVoice.qualitySymbol == "✨", "Premium voice qualitySymbol is ✨")
+        }
+        if let enhancedVoice = allDiscovered.first(where: { $0.quality == .enhanced }) {
+            assertTest(enhancedVoice.qualitySymbol == "⭐️", "Enhanced voice qualitySymbol is ⭐️")
+        }
+        if let standardVoice = allDiscovered.first(where: { $0.quality == .default }) {
+            assertTest(standardVoice.qualitySymbol == "", "Standard voice qualitySymbol is empty string")
+        }
+
         // 4. Test Quality-Based Sorting
         print("\n4. Quality-Based Sorting Invariant (Premium > Enhanced > Standard):")
         func isSortedByQuality(_ voices: [AppVoice]) -> Bool {

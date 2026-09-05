@@ -55,6 +55,14 @@ struct AppVoice: Identifiable, Hashable, Codable {
         }
     }
 
+    var qualitySymbol: String {
+        switch quality {
+        case .premium: return "✨"
+        case .enhanced: return "⭐️"
+        default: return ""
+        }
+    }
+
     var displayLabel: String {
         "\(locale.flagEmoji) \(name)"
     }

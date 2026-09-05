@@ -60,7 +60,7 @@ struct DetailView: View {
                 Button {
                     showingVoicePicker.toggle()
                 } label: {
-                    HStack(spacing: 6) {
+                    HStack(spacing: 5) {
                         if let selected = speechService.selectedVoice {
                             Image(systemName: "speaker.wave.2.fill")
                                 .foregroundStyle(.blue)
@@ -68,11 +68,10 @@ struct DetailView: View {
                                 .font(.callout)
                                 .lineLimit(1)
                                 .frame(maxWidth: .infinity, alignment: .leading)
-                            Text(selected.qualityBadge)
-                                .font(.caption2)
-                                .padding(.horizontal, 6)
-                                .padding(.vertical, 2)
-                                .background(.blue.opacity(0.12), in: Capsule())
+                            if !selected.qualitySymbol.isEmpty {
+                                Text(selected.qualitySymbol)
+                                    .font(.caption2)
+                            }
                         } else {
                             Image(systemName: "speaker.slash.fill")
                                 .foregroundStyle(.orange)
@@ -83,7 +82,7 @@ struct DetailView: View {
                                 .frame(maxWidth: .infinity, alignment: .leading)
                         }
                     }
-                    .frame(width: 175)
+                    .frame(width: 135)
                 }
                 .popover(isPresented: $showingVoicePicker, arrowEdge: .bottom) {
                     VoicePickerPopover(
