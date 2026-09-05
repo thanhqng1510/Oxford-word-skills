@@ -65,8 +65,19 @@ struct SpeechServiceTestRunner {
         let allUSMatch = service.americanVoices.allSatisfy { $0.locale == .american }
         assertTest(allUSMatch, "All americanVoices belong strictly to American English (en-US)")
 
-        // 3. Test Quality-Based Sorting
-        print("\n3. Quality-Based Sorting Invariant (Premium > Enhanced > Standard):")
+        // 3. Test Voice Name Cleanliness (No (Premium) or (Enhanced) in names)
+        print("\n3. Voice Name Cleanliness:")
+        assertTest(SpeechService.cleanVoiceName("Ava (Premium)") == "Ava", "cleanVoiceName strips (Premium)")
+        assertTest(SpeechService.cleanVoiceName("Daniel (Enhanced)") == "Daniel", "cleanVoiceName strips (Enhanced)")
+        assertTest(SpeechService.cleanVoiceName("Samantha") == "Samantha", "cleanVoiceName preserves clean names")
+
+        let noNameHasSuffix = allDiscovered.allSatisfy {
+            !$0.name.contains("(Premium)") && !$0.name.contains("(Enhanced)")
+        }
+        assertTest(noNameHasSuffix, "All discovered voices have (Premium) and (Enhanced) stripped from their name")
+
+        // 4. Test Quality-Based Sorting
+        print("\n4. Quality-Based Sorting Invariant (Premium > Enhanced > Standard):")
         func isSortedByQuality(_ voices: [AppVoice]) -> Bool {
             guard voices.count > 1 else { return true }
             for i in 0..<(voices.count - 1) {

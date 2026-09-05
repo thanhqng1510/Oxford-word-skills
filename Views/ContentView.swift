@@ -28,6 +28,8 @@ struct ContentView: View {
                                 .foregroundStyle(.blue)
                             Text(selected.displayLabel)
                                 .font(.callout)
+                                .lineLimit(1)
+                            Spacer(minLength: 0)
                             Text(selected.qualityBadge)
                                 .font(.caption2)
                                 .padding(.horizontal, 6)
@@ -39,8 +41,11 @@ struct ContentView: View {
                             Text("No Voice Selected")
                                 .font(.callout)
                                 .foregroundStyle(.secondary)
+                                .lineLimit(1)
+                            Spacer(minLength: 0)
                         }
                     }
+                    .frame(width: 175)
                 }
                 .popover(isPresented: $showingVoicePicker, arrowEdge: .bottom) {
                     VoicePickerPopover(
@@ -48,7 +53,6 @@ struct ContentView: View {
                         isPresented: $showingVoicePicker
                     )
                 }
-                .help(speechService.canSpeak ? "Change pronunciation voice" : "Select a voice to enable pronunciation")
             }
         }
         // ── Auto-update ──────────────────────────────────────────────────────
@@ -100,27 +104,20 @@ struct VoicePickerPopover: View {
     var body: some View {
         VStack(spacing: 0) {
             // Header
-            VStack(alignment: .leading, spacing: 6) {
-                HStack {
-                    Text("Pronunciation Voice")
-                        .font(.headline)
-                    Spacer()
-                    Button {
-                        speechService.openSystemVoiceSettings()
-                    } label: {
-                        HStack(spacing: 4) {
-                            Image(systemName: "arrow.down.circle")
-                            Text("Download More Voices…")
-                        }
-                        .font(.caption)
+            HStack {
+                Text("Pronunciation Voice")
+                    .font(.headline)
+                Spacer()
+                Button {
+                    speechService.openSystemVoiceSettings()
+                } label: {
+                    HStack(spacing: 4) {
+                        Image(systemName: "arrow.down.circle")
+                        Text("Download More Voices…")
                     }
-                    .buttonStyle(.link)
-                    .help("Open macOS Accessibility settings to download Enhanced and Premium voices")
-                }
-
-                Text("Choose a voice to enable pronunciation. Voices are sorted by quality.")
                     .font(.caption)
-                    .foregroundStyle(.secondary)
+                }
+                .buttonStyle(.link)
             }
             .padding()
 
@@ -143,23 +140,6 @@ struct VoicePickerPopover: View {
                 .padding()
             }
             .frame(maxHeight: 360)
-
-            Divider()
-
-            // Footer
-            HStack {
-                Text("Newly downloaded voices in Settings appear automatically.")
-                    .font(.caption2)
-                    .foregroundStyle(.secondary)
-                Spacer()
-                Button("Done") {
-                    isPresented = false
-                }
-                .buttonStyle(.bordered)
-                .controlSize(.small)
-            }
-            .padding(.horizontal)
-            .padding(.vertical, 8)
         }
         .frame(width: 440)
         .onAppear {

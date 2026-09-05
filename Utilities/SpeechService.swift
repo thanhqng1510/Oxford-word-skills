@@ -65,6 +65,14 @@ final class SpeechService {
     static let shared = SpeechService()
     static let previewSentence = "Welcome to Oxford Word Skills. Expand your vocabulary and master English pronunciation with confidence."
 
+    /// Cleans macOS system voice names by stripping redundant quality suffixes like (Premium) or (Enhanced).
+    static func cleanVoiceName(_ rawName: String) -> String {
+        rawName
+            .replacingOccurrences(of: "(Premium)", with: "", options: .caseInsensitive)
+            .replacingOccurrences(of: "(Enhanced)", with: "", options: .caseInsensitive)
+            .trimmingCharacters(in: .whitespaces)
+    }
+
     private let synthesizer = AVSpeechSynthesizer()
     private let voicePrefKey = "selectedVoiceIdentifier"
 
@@ -134,13 +142,15 @@ final class SpeechService {
                 if v1.quality.rawValue != v2.quality.rawValue {
                     return v1.quality.rawValue > v2.quality.rawValue
                 }
-                return v1.name.localizedStandardCompare(v2.name) == .orderedAscending
+                let clean1 = SpeechService.cleanVoiceName(v1.name)
+                let clean2 = SpeechService.cleanVoiceName(v2.name)
+                return clean1.localizedStandardCompare(clean2) == .orderedAscending
             }
 
             return sorted.map { voice in
                 AppVoice(
                     id: voice.identifier,
-                    name: voice.name,
+                    name: SpeechService.cleanVoiceName(voice.name),
                     locale: locale,
                     qualityRaw: voice.quality.rawValue,
                     genderRaw: voice.gender.rawValue
