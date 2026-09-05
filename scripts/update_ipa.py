@@ -20,11 +20,16 @@ from typing import Dict, List, Optional
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 PROJECT_ROOT = os.path.dirname(SCRIPT_DIR)
-LIB_DIR = os.path.join(PROJECT_ROOT, "packages", "wiktionary_ipa")
-if LIB_DIR not in sys.path:
-    sys.path.insert(0, LIB_DIR)
-
-import wiktionary_ipa as wipa
+try:
+    import wiktionary_ipa as wipa
+except ImportError:
+    local_pkg = os.path.abspath(os.path.join(PROJECT_ROOT, "..", "wiktionary-ipa", "src"))
+    if os.path.isdir(local_pkg) and local_pkg not in sys.path:
+        sys.path.insert(0, local_pkg)
+    try:
+        import wiktionary_ipa as wipa
+    except ImportError:
+        sys.exit("Error: 'wiktionary-ipa' package is required. Install it via 'pip install wiktionary-ipa'.")
 
 RESOURCES_DIR = os.path.join(PROJECT_ROOT, "Resources")
 DEFINITIONS_JSON = os.path.join(RESOURCES_DIR, "definitions.json")

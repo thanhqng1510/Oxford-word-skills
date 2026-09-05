@@ -26,9 +26,16 @@ RESOURCES_DIR = os.path.join(PROJECT_ROOT, "Resources")
 DEFINITIONS_JSON = os.path.join(RESOURCES_DIR, "definitions.json")
 EXTRAWORDLIST_XML = os.path.join(RESOURCES_DIR, "extrawordlist.xml")
 
-# Add packages/wiktionary_ipa to sys.path
-sys.path.insert(0, os.path.join(PROJECT_ROOT, "packages", "wiktionary_ipa"))
-from wiktionary_ipa.dialects import FORBIDDEN_SAMPA_REGEX as SAMPA_TOKENS, VALID_IPA_REGEX as VALID_IPA_CHARS
+try:
+    from wiktionary_ipa.dialects import FORBIDDEN_SAMPA_REGEX as SAMPA_TOKENS, VALID_IPA_REGEX as VALID_IPA_CHARS
+except ImportError:
+    local_pkg = os.path.abspath(os.path.join(PROJECT_ROOT, "..", "wiktionary-ipa", "src"))
+    if os.path.isdir(local_pkg) and local_pkg not in sys.path:
+        sys.path.insert(0, local_pkg)
+    try:
+        from wiktionary_ipa.dialects import FORBIDDEN_SAMPA_REGEX as SAMPA_TOKENS, VALID_IPA_REGEX as VALID_IPA_CHARS
+    except ImportError:
+        sys.exit("Error: 'wiktionary-ipa' package is required. Install it via 'pip install wiktionary-ipa'.")
 
 # American-English-specific phonemes that should not appear in RP
 # (ɚ = rhotic schwa, ɝ = rhotic mid-central, ɾ = tap/flap)

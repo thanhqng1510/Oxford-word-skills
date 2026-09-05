@@ -4,7 +4,7 @@ This directory provides tools to keep Oxford Word Skills vocabulary
 pronunciations accurate, complete, and up to date against British English (RP) standards.
 
 All network querying, parsing, dialect scoring, and prosody synthesis are powered by
-the dedicated library [`packages/wiktionary_ipa`](../packages/wiktionary_ipa).
+the standalone library [`wiktionary-ipa`](https://github.com/thanhqng1510/wiktionary-ipa).
 
 ---
 

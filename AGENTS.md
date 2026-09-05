@@ -22,7 +22,7 @@ Resources/definitions.json       # Rich definitions + phonetic IPA field
 scripts/verify_ipa_live.py       # Automated live web audit against Wiktionary (~45s, zero tokens)
 scripts/check_ipa.py             # Fast local IPA audit (< 1s, no network)
 scripts/update_ipa.py            # Delta updater — fetches IPA for new words from Wiktionary
-packages/wiktionary_ipa/         # Dedicated Python library for Wiktionary IPA parsing & audit
+# External: wiktionary-ipa       # Standalone library (https://github.com/thanhqng1510/wiktionary-ipa)
 ```
 
 ## Architecture Patterns
@@ -235,14 +235,16 @@ python3 scripts/update_ipa.py --word "ameliorate"
 python3 scripts/update_ipa.py --dry-run
 ```
 
-### Dedicated Library (`packages/wiktionary_ipa`)
-A standalone, standard-library-only Python library powering all Wiktionary lookups and validation:
+### Dedicated Library (`wiktionary-ipa`)
+All Wiktionary lookups and validation are powered by the standalone [`wiktionary-ipa`](https://github.com/thanhqng1510/wiktionary-ipa) library:
 ```bash
-# Run library unit tests (19 tests, 0.001s)
-python3 -m unittest discover -s packages/wiktionary_ipa/tests
+# Install via pip
+pip install wiktionary-ipa
+# or install from GitHub:
+# pip install git+https://github.com/thanhqng1510/wiktionary-ipa.git
 
 # Direct CLI lookup
-python3 -m wiktionary_ipa "abbreviation"
+wiktionary-ipa "abbreviation"
 ```
 
 ### IPA data sources & format rules
