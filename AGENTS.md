@@ -22,8 +22,7 @@ Resources/definitions.json       # Rich definitions + phonetic IPA field
 scripts/verify_ipa_live.py       # Automated live web audit against Wiktionary (~45s, zero tokens)
 scripts/check_ipa.py             # Fast local IPA audit (< 1s, no network)
 scripts/update_ipa.py            # Delta updater — fetches IPA for new words from Wiktionary
-scripts/audit_wiktionary_ipa.py  # Full Wiktionary re-audit (periodic)
-scripts/cache/wiktionary_cache.json  # Local Wiktionary cache (~3,000 entries)
+packages/wiktionary_ipa/         # Dedicated Python library for Wiktionary IPA parsing & audit
 ```
 
 ## Architecture Patterns
@@ -226,7 +225,7 @@ Run this **before every commit** that touches `definitions.json` or `extrawordli
 
 ### Adding new vocabulary — fetch IPA from Wiktionary
 ```bash
-# Fetch and apply IPA for all new/missing entries (uses local cache first)
+# Fetch and apply IPA for all new/missing entries live from Wiktionary
 python3 scripts/update_ipa.py
 
 # Single word
@@ -236,9 +235,14 @@ python3 scripts/update_ipa.py --word "ameliorate"
 python3 scripts/update_ipa.py --dry-run
 ```
 
-### Periodic full re-audit (quarterly or after major Wiktionary updates)
+### Dedicated Library (`packages/wiktionary_ipa`)
+A standalone, standard-library-only Python library powering all Wiktionary lookups and validation:
 ```bash
-python3 scripts/audit_wiktionary_ipa.py
+# Run library unit tests (19 tests, 0.001s)
+python3 -m unittest discover -s packages/wiktionary_ipa/tests
+
+# Direct CLI lookup
+python3 -m wiktionary_ipa "abbreviation"
 ```
 
 ### IPA data sources & format rules
@@ -247,7 +251,7 @@ python3 scripts/audit_wiktionary_ipa.py
 - **`ContentParser.sampaToIPA()`** short-circuits when the input starts with `/`, so storing
   Unicode IPA directly in `extrawordlist.xml` `<ipa>` CDATA elements is the correct pattern
 - **Forbidden**: `ɚ`, `ɝ`, `ɾ` (rhotic/tap — American English only)
-- **Cache**: `scripts/cache/wiktionary_cache.json` (~42 MB, ~3,000 entries) — commit it
+- **Zero Cache**: All lookups query live with batching, gzip, and polite rate-limiting
 
 ### IPA-related tests (in the 99-test suite)
 | Test | Validates |

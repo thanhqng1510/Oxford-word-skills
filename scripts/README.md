@@ -1,7 +1,10 @@
 # scripts/ — IPA Maintenance Toolkit
 
 This directory provides tools to keep Oxford Word Skills vocabulary
-pronunciations accurate, complete, and up to date.
+pronunciations accurate, complete, and up to date against British English (RP) standards.
+
+All network querying, parsing, dialect scoring, and prosody synthesis are powered by
+the dedicated library [`packages/wiktionary_ipa`](../packages/wiktionary_ipa).
 
 ---
 
@@ -12,7 +15,6 @@ pronunciations accurate, complete, and up to date.
 | `verify_ipa_live.py` | Automated live web audit against Wiktionary (no cache) | **Verification / Automation** — checks all words live on the web in ~45s |
 | `check_ipa.py` | Fast local audit of all IPA entries (< 1s, no network) | **Pre-commit / CI** — instant syntax & invariant check |
 | `update_ipa.py` | Fetches IPA from Wiktionary for new/missing words | When vocabulary is added |
-| `audit_wiktionary_ipa.py` | Full re-audit of all ~2,800 words against Wiktionary | Periodic (quarterly) re-verification |
 
 ---
 
@@ -39,11 +41,10 @@ python3 scripts/verify_ipa_live.py --fix
 ```
 
 **What it verifies live against the web:**
-- Fetches wikitext directly over HTTPS with rate limiting and gzip compression
+- Fetches wikitext directly over HTTPS with polite rate limiting and gzip compression
 - Dialect scoring filters out non-RP varieties (General American, Canadian, Australian, Scots, Northern English, Irish)
 - Detects phonemic drift, homograph stress mismatches, and diphthong corruptions
 - Evaluates phonetic equivalence (optional yod `(j)`, linking `(r)`, syllabic consonants `ʃn` vs `ʃən`, optional `(s)/(z)`)
-
 
 ---
 
@@ -74,7 +75,7 @@ Exit codes: `0` = all good, `1` = issues found.
 
 ---
 
-## `update_ipa.py` — Delta updater (network required)
+## `update_ipa.py` — Delta updater (network required, no cache)
 
 Use this whenever you **add new words** to the curriculum.
 
@@ -87,51 +88,14 @@ python3 scripts/update_ipa.py --dry-run
 
 # Update a specific word
 python3 scripts/update_ipa.py --word "ameliorate"
-
-# Force re-fetch from Wiktionary (ignore cache)
-python3 scripts/update_ipa.py --force --word "nuance"
 ```
 
 The script:
-1. Finds all words with missing/invalid IPA in `definitions.json`
-2. Checks the **local Wiktionary cache** first (`scripts/cache/wiktionary_cache.json`)
-3. Only hits the network for genuinely new words (rate-limited: 1 req/s)
-4. Extracts British English (Received Pronunciation) IPA
-5. Writes updates to both `definitions.json` and `extrawordlist.xml`
-6. Saves the updated cache for future runs
-
----
-
-## `audit_wiktionary_ipa.py` — Full re-audit (periodic, network required)
-
-This is the heavy tool used for the original Wiktionary audit (all ~2,800 words).
-Run it when you want a complete ground-truth refresh, e.g. after significant
-Wiktionary pronunciation updates.
-
-```bash
-# Full audit (uses cache, only fetches uncached entries)
-python3 scripts/audit_wiktionary_ipa.py
-
-# Re-fetch everything from Wiktionary (very slow — ~1h for full corpus)
-python3 scripts/audit_wiktionary_ipa.py --force-refetch
-
-# After audit, apply to data stores
-python3 /tmp/harmonize_ipa.py      # (recreate from transcript if needed)
-```
-
-The audit map output (`audited_ipa_map.json`) is committed in the `.agents/`
-working directory. Apply it using the harmonization approach in the PR.
-
----
-
-## `cache/wiktionary_cache.json`
-
-A local cache of ~3,000 Wiktionary page wikitexts (42 MB). It prevents
-redundant network requests and makes subsequent runs instant for cached words.
-
-- **Keep this committed** — it is the source of truth for IPA lookups.
-- It is updated automatically by `update_ipa.py` and `audit_wiktionary_ipa.py`.
-- Entry format: `{ "word": { "wikitext": "...", "ts": <unix_timestamp> } }`
+1. Finds all words with missing/invalid IPA in `definitions.json` and `extrawordlist.xml`
+2. Hits the Wiktionary API live using `wiktionary_ipa` (rate-limited, gzip compressed)
+3. Extracts British English (Received Pronunciation) IPA
+4. Writes updates to both `definitions.json` and `extrawordlist.xml`
+5. Runs `scripts/check_ipa.py` to validate invariants
 
 ---
 
@@ -141,7 +105,6 @@ redundant network requests and makes subsequent runs instant for cached words.
 2. Run `python3 scripts/update_ipa.py` to fetch and apply IPA for new entries.
 3. Run `python3 scripts/check_ipa.py` to verify — should show 0 issues.
 4. Run `python3 tests/run_all_tests.py` to confirm all 99 tests still pass.
-5. Commit everything including the updated `scripts/cache/wiktionary_cache.json`.
 
 ---
 

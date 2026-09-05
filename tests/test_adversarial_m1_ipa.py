@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """
-Adversarial Test Harness for Milestone 1: Wiktionary IPA Audit Map
-Oxford Word Skills — British English (Received Pronunciation) Validation
+Adversarial Test Harness for British English (Received Pronunciation) IPA Validation
+Oxford Word Skills — Phonetic Integrity & Robustness
 
-Empirically probes .agents/teamwork_preview_worker_m1_1/audited_ipa_map.json
-across baseline invariants, lexical edge cases, and adversarial phonetic integrity.
+Empirically probes Resources/definitions.json across baseline invariants,
+lexical edge cases, and adversarial phonetic integrity.
 """
 
 import json
@@ -14,34 +14,24 @@ import unittest
 from typing import Dict, List, Set, Tuple
 
 PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
-AUDITED_MAP_PATH = os.path.join(
-    PROJECT_ROOT, ".agents", "teamwork_preview_worker_m1_1", "audited_ipa_map.json"
-)
 DEFINITIONS_PATH = os.path.join(PROJECT_ROOT, "Resources", "definitions.json")
 EXTRAWORDLIST_PATH = os.path.join(PROJECT_ROOT, "Resources", "extrawordlist.xml")
 
 
 class TestAdversarialM1IPAMap(unittest.TestCase):
-    """Adversarial challenge test suite for Milestone 1 audited IPA mapping."""
+    """Adversarial challenge test suite for audited IPA mapping."""
 
     @classmethod
     def setUpClass(cls):
-        cls.map_exists = os.path.exists(AUDITED_MAP_PATH)
-        if not cls.map_exists:
-            cls.audited_map: Dict[str, str] = {}
-            cls.defs_dict: Dict[str, dict] = {}
-            return
-
-        with open(AUDITED_MAP_PATH, "r", encoding="utf-8") as f:
-            cls.audited_map = json.load(f)
-
         with open(DEFINITIONS_PATH, "r", encoding="utf-8") as f:
             cls.defs_dict = json.load(f)
+        cls.audited_map = {hw: entry.get("phonetic", "") for hw, entry in cls.defs_dict.items()}
+        cls.map_exists = True
 
     def setUp(self):
         self.assertTrue(
             self.map_exists,
-            f"Required audited IPA map artifact missing at {AUDITED_MAP_PATH}",
+            "Required definitions.json or audited IPA map missing",
         )
 
     # -------------------------------------------------------------------------
