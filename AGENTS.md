@@ -17,8 +17,12 @@ Views/                           # 9 SwiftUI views (see README for full list)
 Utilities/ContentParser.swift    # XML/JSON parsing, data pipeline
 Utilities/SpeechService.swift    # Multi-accent TTS service (@Observable)
 Resources/settings.xml           # Module/unit structure
-Resources/extrawordlist.xml      # Vocabulary with IPA
-Resources/definitions.json       # Rich definitions
+Resources/extrawordlist.xml      # Vocabulary with IPA (Unicode IPA, slash-enclosed)
+Resources/definitions.json       # Rich definitions + phonetic IPA field
+scripts/check_ipa.py             # Fast local IPA audit (< 1s, no network)
+scripts/update_ipa.py            # Delta updater — fetches IPA for new words from Wiktionary
+scripts/audit_wiktionary_ipa.py  # Full Wiktionary re-audit (periodic)
+scripts/cache/wiktionary_cache.json  # Local Wiktionary cache (~3,000 entries)
 ```
 
 ## Architecture Patterns
@@ -177,8 +181,9 @@ Run the full 3-phase automated validation suite (Python 4-tier tests, Swift engi
 ./run_e2e_tests.sh
 ```
 
-### Python E2E Test Suite (80 Tests)
-Verifies schema validity, curriculum alignment, definition completeness, and game mechanics:
+### Python E2E Test Suite (99 Tests)
+Verifies schema validity, curriculum alignment, definition completeness, game mechanics,
+and IPA correctness (completeness, format, SAMPA rejection, dialect validation):
 ```bash
 python3 tests/run_all_tests.py
 ```
@@ -196,7 +201,55 @@ swift Models/DataModels.swift Utilities/ContentParser.swift tests/stress_test_qu
 swift Models/DataModels.swift Utilities/ContentParser.swift tests/stress_test_headwords.swift
 ```
 
-## Delivery Workflow
+## IPA Maintenance Toolkit
+
+All vocabulary in the app uses verified British English (Received Pronunciation) IPA
+sourced from Wiktionary. Use these scripts for all IPA-related tasks.
+
+### Fast local audit — no network, < 1 second
+```bash
+python3 scripts/check_ipa.py              # summary (exit 1 if any issues)
+python3 scripts/check_ipa.py --verbose    # list every problem
+python3 scripts/check_ipa.py --json       # machine-readable JSON (CI-friendly)
+```
+Run this **before every commit** that touches `definitions.json` or `extrawordlist.xml`.
+
+### Adding new vocabulary — fetch IPA from Wiktionary
+```bash
+# Fetch and apply IPA for all new/missing entries (uses local cache first)
+python3 scripts/update_ipa.py
+
+# Single word
+python3 scripts/update_ipa.py --word "ameliorate"
+
+# Preview without writing
+python3 scripts/update_ipa.py --dry-run
+```
+
+### Periodic full re-audit (quarterly or after major Wiktionary updates)
+```bash
+python3 scripts/audit_wiktionary_ipa.py
+```
+
+### IPA data sources & format rules
+- **Source of truth**: English Wiktionary, UK/RP pronunciation (first choice)
+- **Format**: Always `/unicode-ipa/` (slash-enclosed Unicode, no SAMPA, no `ː` ASCII colon)
+- **`ContentParser.sampaToIPA()`** short-circuits when the input starts with `/`, so storing
+  Unicode IPA directly in `extrawordlist.xml` `<ipa>` CDATA elements is the correct pattern
+- **Forbidden**: `ɚ`, `ɝ`, `ɾ` (rhotic/tap — American English only)
+- **Cache**: `scripts/cache/wiktionary_cache.json` (~42 MB, ~3,000 entries) — commit it
+
+### IPA-related tests (in the 99-test suite)
+| Test | Validates |
+|---|---|
+| `test_f9_07` | 100% non-empty, slash-enclosed runtime IPA |
+| `test_f9_08` | Zero SAMPA residue in runtime words |
+| `test_t2_13` | Valid IPA character set only |
+| `test_t2_15` | No raw SAMPA tokens |
+| `test_t2_17` | No `ɚ`/`ɝ`/`ɾ` (American English) |
+| `test_t4_09` | Full 80-unit IPA audit |
+
+
 
 1. **Test**: Run `./run_e2e_tests.sh` + Swift stress tests.
 2. **Install**: Build Release and install to `/Applications/OxfordWordSkills.app`.
