@@ -325,18 +325,20 @@ def phonetically_equivalent(ipa1: str, ipa2: str) -> bool:
 def run_live_verification(
     words: Optional[List[str]] = None,
     fix: bool = False,
-    verbose: bool = False
+    verbose: bool = False,
+    quiet: bool = False,
 ) -> Dict[str, any]:
     """Executes live verification against en.wiktionary.org and returns audit results."""
     with open(DEFINITIONS_JSON, "r", encoding="utf-8") as f:
         defs_dict = json.load(f)
 
     target_words = words if words else sorted(list(defs_dict.keys()))
-    print(f"Starting live web verification for {len(target_words)} words against en.wiktionary.org...")
+    if not quiet:
+        print(f"Starting live web verification for {len(target_words)} words against en.wiktionary.org...")
 
     # Build query titles
     query_titles = [clean_query_title(w) for w in target_words]
-    pages_map = fetch_live_wiktionary_pages(query_titles, verbose=verbose)
+    pages_map = fetch_live_wiktionary_pages(query_titles, verbose=(verbose and not quiet))
 
     exact_matches = []
     equivalent_matches = []
@@ -386,25 +388,25 @@ def run_live_verification(
             if fix:
                 fixes_to_apply[word] = best_web_ipa
 
-    print("\n" + "=" * 60)
-    print("LIVE WEB VERIFICATION RESULTS (en.wiktionary.org)")
-    print("=" * 60)
-    print(f"Total Words Checked    : {len(target_words)}")
-    print(f"Exact Matches on Web   : {len(exact_matches)}")
-    print(f"Phonetic Equivalents   : {len(equivalent_matches)}")
-    print(f"Discrepancies on Web   : {len(discrepancies)}")
-    print(f"Not Directly on Web    : {len(not_on_wiktionary)} (phrases/idioms/compounds)")
-    print("=" * 60)
+    if not quiet:
+        print("\n" + "=" * 60)
+        print("LIVE WEB VERIFICATION RESULTS (en.wiktionary.org)")
+        print("=" * 60)
+        print(f"Total Words Checked    : {len(target_words)}")
+        print(f"Exact Matches on Web   : {len(exact_matches)}")
+        print(f"Phonetic Equivalents   : {len(equivalent_matches)}")
+        print(f"Discrepancies on Web   : {len(discrepancies)}")
+        print(f"Not Directly on Web    : {len(not_on_wiktionary)} (phrases/idioms/compounds)")
+        print("=" * 60)
 
-    if discrepancies and verbose:
-        print("\nDiscrepancies found:")
-        for d in discrepancies[:30]:
-            print(f"  {d['word']:25s} | Current: {d['current_ipa']:20s} | Web Wiktionary: {d['web_ipa']:20s}")
-        if len(discrepancies) > 30:
-            print(f"  ... and {len(discrepancies) - 30} more.")
+        if discrepancies and verbose:
+            print("\nDiscrepancies found:")
+            for d in discrepancies:
+                print(f"  {d['word']:25s} | Current: {d['current_ipa']:20s} | Web Wiktionary: {d['web_ipa']:20s}")
 
     if fix and fixes_to_apply:
-        print(f"\nApplying {len(fixes_to_apply)} live fixes to definitions.json and extrawordlist.xml...")
+        if not quiet:
+            print(f"\nApplying {len(fixes_to_apply)} live fixes to definitions.json and extrawordlist.xml...")
         # Apply to definitions.json
         for w, ipa in fixes_to_apply.items():
             if w in defs_dict:
@@ -430,7 +432,8 @@ def run_live_verification(
             f.write("<!-- Use this encoding for xml files with ipa -->\n")
             f.write(xml_bytes)
             f.write("\n")
-        print(f"✓ Updated {len(fixes_to_apply)} in definitions.json, {xml_fixes} in extrawordlist.xml")
+        if not quiet:
+            print(f"✓ Updated {len(fixes_to_apply)} in definitions.json, {xml_fixes} in extrawordlist.xml")
 
     return {
         "total": len(target_words),
@@ -450,7 +453,7 @@ def main():
     args = parser.parse_args()
 
     words = [args.word] if args.word else None
-    results = run_live_verification(words=words, fix=args.fix, verbose=args.verbose)
+    results = run_live_verification(words=words, fix=args.fix, verbose=args.verbose, quiet=args.json)
 
     if args.json:
         print(json.dumps(results, ensure_ascii=False, indent=2))
