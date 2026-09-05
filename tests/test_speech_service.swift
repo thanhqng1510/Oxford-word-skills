@@ -164,6 +164,42 @@ struct SpeechServiceTestRunner {
             service.selectVoice(validVoice)
         }
 
+        // 9. Test Native IPA Notation & Utterance Synthesis
+        print("\n9. Native IPA Notation & Utterance Synthesis:")
+        assertTest(SpeechService.cleanIPAString("/əˌbriːviˈeɪʃən/") == "əˌbriːviˈeɪʃən", "cleanIPAString strips enclosing slashes")
+        assertTest(SpeechService.cleanIPAString("   /ˈkɜːnəl/  \n") == "ˈkɜːnəl", "cleanIPAString trims whitespace and newlines")
+        assertTest(SpeechService.cleanIPAString("///") == "", "cleanIPAString collapses slash-only strings to empty")
+
+        // Utterance Creation with / without IPA
+        if let sampleVoice = service.allAvailableVoices.first,
+           let resolvedVoice = AVSpeechSynthesisVoice(identifier: sampleVoice.id) {
+            let uIPA = service.makeUtterance(text: "colonel", ipa: "/ˈkɜːnəl/", voice: resolvedVoice)
+            assertTest(uIPA.voice?.identifier == resolvedVoice.identifier, "makeUtterance assigns voice correctly for IPA utterance")
+            assertTest(abs(uIPA.rate - 0.45) < 0.01, "makeUtterance sets standard rate 0.45 for IPA utterance")
+
+            let attrStr = uIPA.attributedSpeechString
+            let ipaKey = NSAttributedString.Key(rawValue: AVSpeechSynthesisIPANotationAttribute)
+            let attrValue = attrStr.attribute(ipaKey, at: 0, effectiveRange: nil) as? String
+            assertTest(attrValue == "ˈkɜːnəl", "makeUtterance attaches AVSpeechSynthesisIPANotationAttribute with clean IPA: \(attrValue ?? "nil")")
+
+            let uPlain = service.makeUtterance(text: "Welcome", ipa: nil, voice: resolvedVoice)
+            assertTest(uPlain.speechString == "Welcome", "makeUtterance creates plain string utterance when IPA is nil")
+            assertTest(abs(uPlain.rate - 0.45) < 0.01, "makeUtterance sets rate 0.45 for plain string utterance")
+
+            let uEmptyIPA = service.makeUtterance(text: "Hello", ipa: "   ", voice: resolvedVoice)
+            assertTest(uEmptyIPA.speechString == "Hello", "makeUtterance falls back to plain string when IPA is empty/whitespace")
+
+            let uSlashIPA = service.makeUtterance(text: "Hello", ipa: "///", voice: resolvedVoice)
+            assertTest(uSlashIPA.speechString == "Hello", "makeUtterance falls back to plain string when IPA contains only slashes")
+        }
+
+        // Speak execution with IPA
+        service.speak("colonel", ipa: "/ˈkɜːnəl/")
+        service.speak("schedule", ipa: "ˈʃedjuːl")
+        service.speak("rock & roll", ipa: "/rɒk ən rəʊl/")
+        service.stop()
+        assertTest(true, "service.speak(text:ipa:) executes safely for valid IPA and special characters")
+
         print("\n═══════════════════════════════════════════")
         print("Results: \(passCount)/\(passCount + failCount) tests passed")
         if failCount == 0 {

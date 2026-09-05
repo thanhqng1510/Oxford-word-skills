@@ -167,8 +167,12 @@ class ContentViewModel {
         speechService.canSpeak
     }
 
-    func speak(_ text: String) {
-        speechService.speak(text)
+    func speak(_ text: String, ipa: String? = nil) {
+        speechService.speak(text, ipa: ipa)
+    }
+
+    func speak(_ word: Word) {
+        speechService.speak(word.speechText, ipa: word.ipa)
     }
 }
 

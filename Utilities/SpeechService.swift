@@ -167,23 +167,46 @@ final class SpeechService {
         }
     }
 
+    /// Cleans an IPA pronunciation string by stripping enclosing slashes and trimming whitespace.
+    static func cleanIPAString(_ rawIPA: String) -> String {
+        rawIPA.trimmingCharacters(in: CharacterSet(charactersIn: "/ \n\r\t"))
+    }
+
+    /// Creates an AVSpeechUtterance, prioritizing native IPA attributed string notation if available, or falling back to plain text.
+    func makeUtterance(text: String, ipa: String?, voice: AVSpeechSynthesisVoice) -> AVSpeechUtterance {
+        let trimmedText = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        let cleanIPA = ipa.map(Self.cleanIPAString) ?? ""
+
+        let utterance: AVSpeechUtterance
+        if !cleanIPA.isEmpty {
+            let attrStr = NSMutableAttributedString(string: trimmedText)
+            let ipaKey = NSAttributedString.Key(rawValue: AVSpeechSynthesisIPANotationAttribute)
+            attrStr.addAttribute(ipaKey, value: cleanIPA, range: NSRange(location: 0, length: trimmedText.utf16.count))
+            utterance = AVSpeechUtterance(attributedString: attrStr)
+        } else {
+            utterance = AVSpeechUtterance(string: trimmedText)
+        }
+
+        utterance.voice = voice
+        utterance.rate = 0.45
+        utterance.pitchMultiplier = 1.0
+        return utterance
+    }
+
     /// Selects a voice preference. Passing nil clears the selection.
     func selectVoice(_ voice: AppVoice?) {
         selectedVoice = voice
     }
 
-    /// Pronounces text using the selected voice. If no voice is selected, this is a safe no-op.
-    func speak(_ text: String) {
+    /// Pronounces text using the selected voice. If an IPA string is provided, synthesizes using native IPA notation.
+    func speak(_ text: String, ipa: String? = nil) {
         guard canSpeak, let voice = selectedVoice else { return }
         let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { return }
 
         stop()
         guard let resolvedVoice = AVSpeechSynthesisVoice(identifier: voice.id) else { return }
-        let utterance = AVSpeechUtterance(string: trimmed)
-        utterance.voice = resolvedVoice
-        utterance.rate = 0.45
-        utterance.pitchMultiplier = 1.0
+        let utterance = makeUtterance(text: trimmed, ipa: ipa, voice: resolvedVoice)
         synthesizer.speak(utterance)
     }
 

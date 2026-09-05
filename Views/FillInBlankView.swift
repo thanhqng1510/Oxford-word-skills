@@ -92,7 +92,7 @@ struct FillInBlankView: View {
                         .foregroundStyle(.secondary)
 
                     Button {
-                        viewModel.speak(item.word.speechText)
+                        viewModel.speak(item.word)
                     } label: {
                         Label("Play Again", systemImage: "speaker.wave.2.fill")
                             .font(.title2)
@@ -296,7 +296,7 @@ struct FillInBlankView: View {
 
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
             if let firstItem = items.first {
-                viewModel.speak(firstItem.word.speechText)
+                viewModel.speak(firstItem.word)
             }
         }
     }
@@ -311,7 +311,7 @@ struct FillInBlankView: View {
             // Auto-play next word
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
                 if let item = items[safe: currentIndex] {
-                    viewModel.speak(item.word.speechText)
+                    viewModel.speak(item.word)
                 }
             }
         } else {

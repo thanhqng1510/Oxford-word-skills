@@ -11,7 +11,7 @@ struct VocabularyListView: View {
                     Text(word.word)
                         .fontWeight(.medium)
                     Button {
-                        viewModel.speak(word.speechText)
+                        viewModel.speak(word)
                     } label: {
                         Image(systemName: "speaker.wave.2")
                             .font(.caption)
@@ -214,7 +214,7 @@ struct WordDetailSheet: View {
                             .font(.title)
                             .fontWeight(.bold)
                         Button {
-                            viewModel.speak(word.speechText)
+                            viewModel.speak(word)
                         } label: {
                             Image(systemName: "speaker.wave.2.fill")
                                 .font(.title3)
