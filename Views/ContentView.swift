@@ -108,18 +108,19 @@ struct VoicePickerPopover: View {
                 } label: {
                     HStack(spacing: 4) {
                         Image(systemName: "arrow.down.circle")
-                        Text("Download More Voices…")
+                        Text("Download Voices…")
                     }
                     .font(.caption)
                 }
                 .buttonStyle(.link)
             }
-            .padding()
+            .padding(.horizontal, 16)
+            .padding(.vertical, 12)
 
             Divider()
 
             ScrollView {
-                VStack(alignment: .leading, spacing: 16) {
+                VStack(alignment: .leading, spacing: 14) {
                     voiceSection(
                         title: "British English",
                         flag: "🇬🇧",
@@ -132,11 +133,12 @@ struct VoicePickerPopover: View {
                         voices: speechService.americanVoices
                     )
                 }
-                .padding()
+                .padding(.horizontal, 14)
+                .padding(.vertical, 12)
             }
             .frame(maxHeight: 360)
         }
-        .frame(width: 440)
+        .frame(width: 320)
         .onAppear {
             speechService.refreshVoices()
         }
