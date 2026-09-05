@@ -67,7 +67,6 @@ struct DetailView: View {
                             Text(selected.displayLabel)
                                 .font(.callout)
                                 .lineLimit(1)
-                                .frame(maxWidth: .infinity, alignment: .leading)
                             if !selected.qualitySymbol.isEmpty {
                                 Text(selected.qualitySymbol)
                                     .font(.caption2)
@@ -79,10 +78,8 @@ struct DetailView: View {
                                 .font(.callout)
                                 .foregroundStyle(.secondary)
                                 .lineLimit(1)
-                                .frame(maxWidth: .infinity, alignment: .leading)
                         }
                     }
-                    .frame(width: 135)
                 }
                 .popover(isPresented: $showingVoicePicker, arrowEdge: .bottom) {
                     VoicePickerPopover(
