@@ -277,6 +277,80 @@ class TestTier1Feature3_CompleteDefinitionPopulation(unittest.TestCase):
         meanings = entry.get("meanings", [])
         self.assertGreater(len(meanings), 0, "'brackets' must have non-empty meanings")
 
+    def test_f3_07_definitions_phonetic_completeness_and_format(self):
+        """Verify 100% of entries in definitions.json have non-empty slash-enclosed /.../ phonetics."""
+        empty_phonetics = []
+        invalid_format = []
+        for word, entry in self.defs_dict.items():
+            phonetic = entry.get("phonetic")
+            if phonetic is None or not str(phonetic).strip():
+                empty_phonetics.append(word)
+            else:
+                p_str = str(phonetic).strip()
+                if not (p_str.startswith("/") and p_str.endswith("/")) or len(p_str) <= 2:
+                    invalid_format.append((word, p_str))
+
+        self.assertEqual(
+            len(empty_phonetics),
+            0,
+            f"Found {len(empty_phonetics)} entries with empty 'phonetic' in definitions.json (Requirement R4.3): {empty_phonetics[:10]}",
+        )
+        self.assertEqual(
+            len(invalid_format),
+            0,
+            f"Found {len(invalid_format)} entries with invalid phonetic format (must be /.../ and len > 2): {invalid_format[:10]}",
+        )
+
+    def test_f3_08_definitions_phonetic_no_raw_sampa_or_illegal_chars(self):
+        """Verify definitions.json phonetics contain zero raw SAMPA tokens, brackets, or Americanisms."""
+        forbidden_sampa = set("%&QVUITAODSZ23@ÍÙ")
+        forbidden_american = {"ɚ", "ɝ", "ɾ"}
+        violations = []
+        for word, entry in self.defs_dict.items():
+            phonetic = entry.get("phonetic", "")
+            if not phonetic:
+                continue
+            if "[" in phonetic or "]" in phonetic:
+                violations.append((word, "bracketed allophone", phonetic))
+            sampa_chars = [c for c in phonetic if c in forbidden_sampa]
+            if sampa_chars:
+                violations.append((word, f"raw SAMPA characters {sampa_chars}", phonetic))
+            am_chars = [c for c in phonetic if c in forbidden_american]
+            if am_chars:
+                violations.append((word, f"American dialect symbols {am_chars}", phonetic))
+            if "//" in phonetic:
+                violations.append((word, "double slash", phonetic))
+
+        self.assertEqual(
+            len(violations),
+            0,
+            f"Found {len(violations)} phonetic character/symbol violations in definitions.json: {violations[:10]}",
+        )
+
+    def test_f3_09_definitions_phonetic_valid_length_and_characters(self):
+        """Verify definitions.json phonetics have realistic lengths and no ASCII colons."""
+        length_violations = []
+        ascii_colons = []
+        for word, entry in self.defs_dict.items():
+            phonetic = entry.get("phonetic", "").strip()
+            if not phonetic:
+                continue
+            if len(phonetic) < 3 or len(phonetic) > 120:
+                length_violations.append((word, len(phonetic), phonetic))
+            if ":" in phonetic:
+                ascii_colons.append((word, phonetic))
+
+        self.assertEqual(
+            len(length_violations),
+            0,
+            f"Found {len(length_violations)} phonetics with unrealistic lengths: {length_violations[:10]}",
+        )
+        self.assertEqual(
+            len(ascii_colons),
+            0,
+            f"Found {len(ascii_colons)} phonetics with ASCII ':' instead of IPA length mark 'ː': {ascii_colons[:10]}",
+        )
+
 
 class TestTier1Feature4_ExampleSentenceGeneration(unittest.TestCase):
     """F4: Example Sentence Generation & Enrichment Tests."""
@@ -677,21 +751,23 @@ class TestTier1Feature8_ComprehensiveE2ETestSuite(unittest.TestCase):
         self.assertTrue(os.path.exists(sh_path), f"Master shell script must exist at {sh_path}")
 
     def test_f8_04_test_infra_md_exists_and_complete(self):
-        """Verify testing documentation exists in AGENTS.md."""
-        agents_path = os.path.join(BASE_DIR, "AGENTS.md")
-        self.assertTrue(os.path.exists(agents_path), f"AGENTS.md must exist at {agents_path}")
-        with open(agents_path, "r", encoding="utf-8") as f:
+        """Verify TEST_INFRA.md exists at project root and has required sections."""
+        infra_path = os.path.join(BASE_DIR, "TEST_INFRA.md")
+        self.assertTrue(os.path.exists(infra_path), f"TEST_INFRA.md must exist at {infra_path}")
+        with open(infra_path, "r", encoding="utf-8") as f:
             content = f.read()
-        self.assertIn("Testing & Quality Assurance", content)
+        self.assertIn("Test Philosophy", content)
+        self.assertIn("Coverage Thresholds", content)
+        self.assertIn("Feature Inventory Test Mapping", content)
 
     def test_f8_05_test_ready_md_exists_and_complete(self):
-        """Verify README.md or AGENTS.md exists at root."""
-        readme_path = os.path.join(BASE_DIR, "README.md")
-        agents_path = os.path.join(BASE_DIR, "AGENTS.md")
-        self.assertTrue(
-            os.path.exists(readme_path) or os.path.exists(agents_path),
-            "README.md or AGENTS.md must exist",
-        )
+        """Verify TEST_READY.md exists at project root and has required sections."""
+        ready_path = os.path.join(BASE_DIR, "TEST_READY.md")
+        self.assertTrue(os.path.exists(ready_path), f"TEST_READY.md must exist at {ready_path}")
+        with open(ready_path, "r", encoding="utf-8") as f:
+            content = f.read()
+        self.assertIn("Test Suite Status", content)
+        self.assertIn("Tier Breakdown", content)
 
 
 class TestTier1Feature9_ProjectCompilationAndEngineIntegrity(unittest.TestCase):
@@ -789,6 +865,58 @@ class TestTier1Feature9_ProjectCompilationAndEngineIntegrity(unittest.TestCase):
                 content = f.read()
             self.assertIn("selectedNavigation", content, f"{filename} must route selectedNavigation on back action")
             self.assertIn("chevron.left", content, f"{filename} must provide chevron.left back button")
+
+    def test_f9_07_runtime_words_ipa_completeness_and_format(self):
+        """Verify 100% of runtime words across all 80 units have non-empty, slash-enclosed /.../ IPA."""
+        empty_ipa_words = []
+        invalid_format_words = []
+        double_slash_words = []
+
+        for unit_num in range(1, 81):
+            words = self.words_by_unit.get(unit_num, [])
+            for w in words:
+                ipa = getattr(w, "ipa", "").strip()
+                if not ipa:
+                    empty_ipa_words.append((unit_num, w.word))
+                elif not (ipa.startswith("/") and ipa.endswith("/")) or len(ipa) <= 2:
+                    invalid_format_words.append((unit_num, w.word, ipa))
+                elif ipa.endswith("//") or ipa.startswith("//"):
+                    double_slash_words.append((unit_num, w.word, ipa))
+
+        self.assertEqual(
+            len(empty_ipa_words),
+            0,
+            f"Found {len(empty_ipa_words)} runtime words with empty IPA across units: {empty_ipa_words[:10]}",
+        )
+        self.assertEqual(
+            len(invalid_format_words),
+            0,
+            f"Found {len(invalid_format_words)} runtime words with invalid IPA format (must be /.../): {invalid_format_words[:10]}",
+        )
+        self.assertEqual(
+            len(double_slash_words),
+            0,
+            f"Found {len(double_slash_words)} runtime words with double slash bugs: {double_slash_words[:10]}",
+        )
+
+    def test_f9_08_runtime_words_ipa_no_lingering_sampa(self):
+        """Verify 100% of runtime words across all 80 units contain zero lingering raw SAMPA characters."""
+        forbidden_sampa = set("%&QVUITAODSZ23@ÍÙ")
+        sampa_violations = []
+
+        for unit_num in range(1, 81):
+            words = self.words_by_unit.get(unit_num, [])
+            for w in words:
+                ipa = getattr(w, "ipa", "")
+                bad_chars = [c for c in ipa if c in forbidden_sampa]
+                if bad_chars:
+                    sampa_violations.append((unit_num, w.word, ipa, bad_chars))
+
+        self.assertEqual(
+            len(sampa_violations),
+            0,
+            f"Found {len(sampa_violations)} runtime words with lingering SAMPA characters across units: {sampa_violations[:10]}",
+        )
 
 
 if __name__ == "__main__":

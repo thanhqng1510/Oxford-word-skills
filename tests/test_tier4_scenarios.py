@@ -276,6 +276,93 @@ class TestTier4RealWorldScenarios(unittest.TestCase):
         learned_ids.clear()
         self.assertEqual(len(learned_ids), 0)
 
+    def test_t4_09_full_curriculum_ipa_audit_all_80_units(self):
+        """Scenario: Full-curriculum end-to-end audit verifying all 80 units & 2,781 runtime words have complete British RP IPA."""
+        total_units_audited = 0
+        total_word_assignments = 0
+        unique_headwords: Set[str] = set()
+        missing_or_invalid_ipa = []
+        forbidden_sampa = set("%&QVUITAODSZ23@ÍÙ")
+        sampa_violations = []
+
+        for mod_idx, mod in enumerate(self.modules):
+            for unit in mod.units:
+                unit_words = self.words_by_unit.get(unit.number, [])
+                self.assertGreater(
+                    len(unit_words),
+                    0,
+                    f"Unit {unit.number} in module '{mod.title}' has 0 runtime words",
+                )
+                total_units_audited += 1
+
+                for w in unit_words:
+                    total_word_assignments += 1
+                    unique_headwords.add(w.word)
+
+                    ipa = getattr(w, "ipa", "").strip()
+                    if not ipa or not (ipa.startswith("/") and ipa.endswith("/")) or ipa == "//" or len(ipa) <= 2 or "//" in ipa:
+                        missing_or_invalid_ipa.append((unit.number, w.word, ipa))
+
+                    bad_sampa = [c for c in ipa if c in forbidden_sampa]
+                    if bad_sampa:
+                        sampa_violations.append((unit.number, w.word, ipa, bad_sampa))
+
+        # Curriculum invariants
+        self.assertEqual(total_units_audited, 80, f"Expected exactly 80 units audited, got {total_units_audited}")
+        self.assertEqual(len(unique_headwords), 2775, f"Expected 2,775 unique runtime headwords (2,781 minus 6 duplicates), got {len(unique_headwords)}")
+        self.assertEqual(total_word_assignments, 3031, f"Expected 3,031 total word-unit assignments, got {total_word_assignments}")
+
+        # IPA Invariants
+        self.assertEqual(
+            len(missing_or_invalid_ipa),
+            0,
+            f"Found {len(missing_or_invalid_ipa)} words with missing or invalid IPA across the curriculum: {missing_or_invalid_ipa[:10]}",
+        )
+        self.assertEqual(
+            len(sampa_violations),
+            0,
+            f"Found {len(sampa_violations)} words with lingering SAMPA characters across the curriculum: {sampa_violations[:10]}",
+        )
+
+    def test_t4_10_flashcard_study_session_ipa_rendering(self):
+        """Scenario: Simulate complete Flashcard study session across 80 units verifying clean phonetic presentation."""
+        def to_clean_word(word_str: str) -> str:
+            if "(" in word_str:
+                idx = word_str.index("(")
+                base = word_str[:idx].strip()
+                return base if base else word_str
+            return word_str
+
+        def to_speech_text(word_str: str) -> str:
+            cw = to_clean_word(word_str)
+            text = cw.replace("...", "").strip()
+            return text if text else word_str
+
+        for unit_num in range(1, 81):
+            unit_words = self.words_by_unit.get(unit_num, [])
+            for w in unit_words:
+                clean_word = to_clean_word(w.word)
+                speech_text = to_speech_text(w.word)
+                # Front of card: clean headword
+                self.assertTrue(len(clean_word) > 0, f"Unit {unit_num}: Word '{w.word}' has empty cleanWord")
+                # Back of card: IPA pronunciation display
+                self.assertTrue(w.ipa.startswith("/") and w.ipa.endswith("/"), f"Unit {unit_num}: '{w.word}' invalid card IPA '{w.ipa}'")
+                self.assertNotIn("//", w.ipa, f"Unit {unit_num}: '{w.word}' contains double-slash artifact in '{w.ipa}'")
+                # Pronunciation audio text
+                self.assertTrue(len(speech_text) > 0, f"Unit {unit_num}: '{w.word}' has empty speechText")
+
+    def test_t4_11_exercise_container_pronunciation_fidelity(self):
+        """Scenario: Active exercise execution ensuring uninterrupted pronunciation access in all exercise views."""
+        for unit_num in [1, 10, 25, 42, 60, 75, 80]:
+            unit_words = self.words_by_unit.get(unit_num, [])
+            valid_words = [w for w in unit_words if w.definitions]
+            self.assertGreaterEqual(len(valid_words), 4, f"Unit {unit_num} must have >=4 words for exercise modes")
+
+            for mode in ["flashcard", "quiz", "fillInBlank", "matching"]:
+                for word in valid_words:
+                    self.assertIsNotNone(word.ipa, f"Mode {mode} encountered nil IPA on word '{word.word}'")
+                    self.assertGreater(len(word.ipa), 2, f"Mode {mode} encountered empty/invalid IPA on '{word.word}'")
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -69,6 +69,20 @@ struct PipelineTestRunner {
             }
             assertTest(populatedMeaningsCount >= 1500, "At least 1,500 words have populated dictionary meanings", "Found \(populatedMeaningsCount)")
             assertTest(emptyDefCount == 0, "Zero meanings with empty definitions: []", "Found \(emptyDefCount) empty definitions")
+
+            var emptyPhoneticCount = 0
+            var bracketedPhoneticCount = 0
+            for (_, detail) in decoded {
+                if let ph = detail.phonetic, !ph.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                    if ph.hasPrefix("[") || ph.hasSuffix("]") {
+                        bracketedPhoneticCount += 1
+                    }
+                } else {
+                    emptyPhoneticCount += 1
+                }
+            }
+            assertTest(emptyPhoneticCount == 0, "Zero empty phonetics in definitions.json (Requirement R4.3)", "Found \(emptyPhoneticCount) empty phonetics")
+            assertTest(bracketedPhoneticCount == 0, "Zero bracketed phonetics in definitions.json", "Found \(bracketedPhoneticCount) bracketed phonetics")
         } catch {
             assertTest(false, "definitions.json JSONDecoder decoding", "Error: \(error)")
         }
@@ -128,6 +142,33 @@ struct PipelineTestRunner {
 
         let totalWordsInUnits = builtUnits.reduce(0) { $0 + $1.words.count }
         assertTest(totalWordsInUnits == 3031, "Total word-unit assignments placed into units == 3,031", "Total words: \(totalWordsInUnits)")
+
+        // Check runtime Word.ipa across all built units
+        var builtUnitsEmptyIPACount = 0
+        var builtUnitsInvalidIPACount = 0
+        var builtUnitsDoubleSlashCount = 0
+        var builtUnitsSampaCount = 0
+        let forbiddenSAMPA: Set<Character> = Set("%&QVUITAODSZ23@ÍÙ")
+
+        for unit in builtUnits {
+            for word in unit.words {
+                if word.ipa.isEmpty {
+                    builtUnitsEmptyIPACount += 1
+                } else if !word.ipa.hasPrefix("/") || !word.ipa.hasSuffix("/") || word.ipa.count <= 2 {
+                    builtUnitsInvalidIPACount += 1
+                }
+                if word.ipa.contains("//") {
+                    builtUnitsDoubleSlashCount += 1
+                }
+                if word.ipa.contains(where: { forbiddenSAMPA.contains($0) }) {
+                    builtUnitsSampaCount += 1
+                }
+            }
+        }
+        assertTest(builtUnitsEmptyIPACount == 0, "100% of runtime words in builtUnits have non-empty IPA", "Found \(builtUnitsEmptyIPACount) empty")
+        assertTest(builtUnitsInvalidIPACount == 0, "100% of runtime words in builtUnits have valid /.../ format", "Found \(builtUnitsInvalidIPACount) invalid")
+        assertTest(builtUnitsDoubleSlashCount == 0, "Zero double-slash bugs in builtUnits runtime words", "Found \(builtUnitsDoubleSlashCount) double slashes")
+        assertTest(builtUnitsSampaCount == 0, "Zero forbidden SAMPA characters in builtUnits runtime words", "Found \(builtUnitsSampaCount) with SAMPA")
 
         // 6. Test definition validity across all populated words
         var definedWordsCount = 0
