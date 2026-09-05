@@ -10,6 +10,7 @@ struct VocabularyListView: View {
                 HStack(spacing: 6) {
                     Text(word.word)
                         .fontWeight(.medium)
+                        .textSelection(.enabled)
                     Button {
                         viewModel.speak(word.speechText)
                     } label: {
@@ -27,6 +28,7 @@ struct VocabularyListView: View {
                     Text(word.ipa)
                         .font(.system(.body, design: .serif))
                         .foregroundStyle(.secondary)
+                        .textSelection(.enabled)
                 }
             }
             .width(min: 110, ideal: 140)
@@ -46,6 +48,7 @@ struct VocabularyListView: View {
                             .font(.caption)
                             .foregroundStyle(.secondary)
                             .lineLimit(2)
+                            .textSelection(.enabled)
                     } else {
                         Text("No definition available")
                             .font(.caption)
@@ -86,6 +89,7 @@ struct VocabularyListView: View {
                 Text(word.unitNumbers.map(String.init).joined(separator: ", "))
                     .font(.caption)
                     .foregroundStyle(.secondary)
+                    .textSelection(.enabled)
             }
             .width(min: 60, ideal: 80)
 
@@ -100,6 +104,7 @@ struct VocabularyListView: View {
             }
             .width(60)
         }
+        .textSelection(.enabled)
         .sheet(item: $selectedWordForDetail) { word in
             WordDetailSheet(word: word, viewModel: viewModel)
         }
@@ -187,6 +192,7 @@ struct UnitHeaderView: View {
                 .controlSize(.small)
             }
         }
+        .textSelection(.enabled)
         .padding()
     }
 }
@@ -341,6 +347,7 @@ struct WordDetailSheet: View {
                 .padding()
             }
         }
+        .textSelection(.enabled)
         .frame(minWidth: 540, minHeight: 440)
     }
 }

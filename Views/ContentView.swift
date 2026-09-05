@@ -53,6 +53,7 @@ struct DetailView: View {
                 ProgressDashboardView(viewModel: viewModel)
             }
         }
+        .textSelection(.enabled)
         .searchable(text: $viewModel.searchText, prompt: "Search words or definitions...")
         .toolbar {
             ToolbarItemGroup(placement: .primaryAction) {

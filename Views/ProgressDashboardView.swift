@@ -12,6 +12,7 @@ struct ProgressDashboardView: View {
             }
             .padding()
         }
+        .textSelection(.enabled)
     }
 
     private var header: some View {
