@@ -17,8 +17,8 @@ Views/                           # 9 SwiftUI views (see README for full list)
 Utilities/ContentParser.swift    # XML/JSON parsing, data pipeline
 Utilities/SpeechService.swift    # Multi-accent TTS service (@Observable)
 Resources/settings.xml           # Module/unit structure
-Resources/extrawordlist.xml      # Vocabulary with IPA
-Resources/definitions.json       # Rich definitions
+Resources/extrawordlist.xml      # Vocabulary with IPA (Unicode IPA, slash-enclosed)
+Resources/definitions.json       # Rich definitions + phonetic IPA field
 ```
 
 ## Architecture Patterns
@@ -177,8 +177,9 @@ Run the full 3-phase automated validation suite (Python 4-tier tests, Swift engi
 ./run_e2e_tests.sh
 ```
 
-### Python E2E Test Suite (80 Tests)
-Verifies schema validity, curriculum alignment, definition completeness, and game mechanics:
+### Python E2E Test Suite (99 Tests)
+Verifies schema validity, curriculum alignment, definition completeness, game mechanics,
+and IPA correctness (completeness, format, SAMPA rejection, dialect validation):
 ```bash
 python3 tests/run_all_tests.py
 ```
@@ -195,6 +196,28 @@ Simulates 10,000+ quiz questions, distractor availability, and headword normaliz
 swift Models/DataModels.swift Utilities/ContentParser.swift tests/stress_test_quiz_matching.swift
 swift Models/DataModels.swift Utilities/ContentParser.swift tests/stress_test_headwords.swift
 ```
+
+## IPA Pronunciation Standards
+
+All vocabulary in the app uses verified British English (Received Pronunciation) IPA
+sourced from English Wiktionary and Oxford Word Skills.
+
+### IPA Data Sources & Format Rules
+- **Source of truth**: English Wiktionary, UK/RP pronunciation (first choice)
+- **Format**: Always `/unicode-ipa/` (slash-enclosed Unicode, no SAMPA, no `ː` ASCII colon)
+- **`ContentParser.sampaToIPA()`** short-circuits when the input starts with `/`, so storing
+  Unicode IPA directly in `extrawordlist.xml` `<ipa>` CDATA elements is the correct pattern
+- **Forbidden**: `ɚ`, `ɝ`, `ɾ` (rhotic/tap — American English only)
+
+### IPA-related tests (in the 99-test suite)
+| Test | Validates |
+|---|---|
+| `test_f9_07` | 100% non-empty, slash-enclosed runtime IPA |
+| `test_f9_08` | Zero SAMPA residue in runtime words |
+| `test_t2_13` | Valid IPA character set only |
+| `test_t2_15` | No raw SAMPA tokens |
+| `test_t2_17` | No `ɚ`/`ɝ`/`ɾ` (American English) |
+| `test_t4_09` | Full 80-unit IPA audit |
 
 ## Delivery Workflow
 

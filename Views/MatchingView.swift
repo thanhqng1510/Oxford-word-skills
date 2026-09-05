@@ -43,6 +43,7 @@ struct MatchingView: View {
             }
         }
         .padding()
+        .textSelection(.enabled)
         .onAppear { generatePairs() }
     }
 

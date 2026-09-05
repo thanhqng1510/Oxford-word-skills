@@ -240,6 +240,155 @@ class TestTier2BoundaryCases(unittest.TestCase):
 
         self.assertEqual(len(bad_keys), 0, f"Found {len(bad_keys)} whitespace-corrupted keys: {bad_keys}")
 
+    def test_t2_13_ipa_character_set_whitelist(self):
+        """Boundary: Validate all IPA characters against British Received Pronunciation whitelist."""
+        # Standard British English RP IPA character set
+        allowed_chars = set(
+            " abcdefghijklmnopqrstuvwxyz"
+            "æɑɒɔəɛɜɪʊʌ"
+            "ðŋʃʒθ"
+            "ˈˌː"
+            "/().-,'… "
+        )
+
+        invalid_chars_xml = []
+        for w in self.raw_words:
+            if not is_valid_swift_word(w.word):
+                continue
+            bad = [c for c in w.ipa if c.lower() not in allowed_chars]
+            if bad:
+                invalid_chars_xml.append((w.word, w.ipa, bad))
+
+        invalid_chars_json = []
+        for word, entry in self.defs_dict.items():
+            phonetic = entry.get("phonetic", "")
+            if not phonetic:
+                continue
+            bad = [c for c in phonetic if c.lower() not in allowed_chars]
+            if bad:
+                invalid_chars_json.append((word, phonetic, bad))
+
+        self.assertEqual(
+            len(invalid_chars_xml),
+            0,
+            f"Found {len(invalid_chars_xml)} words in extrawordlist.xml with non-whitelist IPA characters: {invalid_chars_xml[:10]}",
+        )
+        self.assertEqual(
+            len(invalid_chars_json),
+            0,
+            f"Found {len(invalid_chars_json)} entries in definitions.json with non-whitelist IPA characters: {invalid_chars_json[:10]}",
+        )
+
+    def test_t2_14_reject_bracketed_allophones(self):
+        """Boundary: Reject narrow allophonic square bracket transcriptions [...] in favor of phonemic /.../."""
+        bracketed_xml = [w.word for w in self.raw_words if "[" in w.ipa or "]" in w.ipa]
+        bracketed_json = [k for k, v in self.defs_dict.items() if "[" in v.get("phonetic", "") or "]" in v.get("phonetic", "")]
+
+        self.assertEqual(
+            len(bracketed_xml),
+            0,
+            f"Found {len(bracketed_xml)} bracketed allophones in extrawordlist.xml: {bracketed_xml[:10]}",
+        )
+        self.assertEqual(
+            len(bracketed_json),
+            0,
+            f"Found {len(bracketed_json)} bracketed allophones in definitions.json (Requirement R4.2): {bracketed_json[:10]}",
+        )
+
+    def test_t2_15_reject_raw_sampa_tokens(self):
+        """Boundary: Reject unconverted legacy ASCII SAMPA tokens in rendered IPA."""
+        forbidden_sampa = set("%&QVUITAODSZ23@ÍÙ")
+        sampa_xml = []
+        for w in self.raw_words:
+            bad = [c for c in w.ipa if c in forbidden_sampa]
+            if bad:
+                sampa_xml.append((w.word, w.ipa, bad))
+
+        sampa_json = []
+        for k, v in self.defs_dict.items():
+            phonetic = v.get("phonetic", "")
+            bad = [c for c in phonetic if c in forbidden_sampa]
+            if bad:
+                sampa_json.append((k, phonetic, bad))
+
+        self.assertEqual(
+            len(sampa_xml),
+            0,
+            f"Found {len(sampa_xml)} raw SAMPA occurrences in extrawordlist.xml: {sampa_xml[:10]}",
+        )
+        self.assertEqual(
+            len(sampa_json),
+            0,
+            f"Found {len(sampa_json)} raw SAMPA occurrences in definitions.json: {sampa_json[:10]}",
+        )
+
+    def test_t2_16_reject_ascii_colons(self):
+        """Boundary: Reject standard ASCII colon ':' used as vowel length mark (must use IPA length mark 'ː')."""
+        colons_xml = [w.word for w in self.raw_words if ":" in w.ipa]
+        colons_json = [k for k, v in self.defs_dict.items() if ":" in v.get("phonetic", "")]
+
+        self.assertEqual(
+            len(colons_xml),
+            0,
+            f"Found {len(colons_xml)} occurrences of ASCII colon ':' in extrawordlist.xml: {colons_xml[:10]}",
+        )
+        self.assertEqual(
+            len(colons_json),
+            0,
+            f"Found {len(colons_json)} occurrences of ASCII colon ':' in definitions.json: {colons_json[:10]}",
+        )
+
+    def test_t2_17_reject_americanisms(self):
+        """Boundary: Reject General American dialect symbols (rhotic schwa 'ɚ', 'ɝ', flap 'ɾ')."""
+        american_chars = {"ɚ", "ɝ", "ɾ"}
+        american_xml = []
+        for w in self.raw_words:
+            bad = [c for c in w.ipa if c in american_chars]
+            if bad:
+                american_xml.append((w.word, w.ipa, bad))
+
+        american_json = []
+        for k, v in self.defs_dict.items():
+            phonetic = v.get("phonetic", "")
+            bad = [c for c in phonetic if c in american_chars]
+            if bad:
+                american_json.append((k, phonetic, bad))
+
+        self.assertEqual(
+            len(american_xml),
+            0,
+            f"Found {len(american_xml)} Americanisms in extrawordlist.xml: {american_xml[:10]}",
+        )
+        self.assertEqual(
+            len(american_json),
+            0,
+            f"Found {len(american_json)} Americanisms in definitions.json (Requirement R1/R4): {american_json[:10]}",
+        )
+
+    def test_t2_18_reject_trailing_and_double_slashes(self):
+        """Boundary: Reject trailing slash bugs (e.g. '//', '/...//') and empty slash pairs."""
+        slash_bugs_xml = []
+        for w in self.raw_words:
+            if "//" in w.ipa or w.ipa == "/":
+                slash_bugs_xml.append((w.word, w.ipa))
+
+        slash_bugs_json = []
+        for k, v in self.defs_dict.items():
+            phonetic = v.get("phonetic", "")
+            if "//" in phonetic or phonetic == "/" or phonetic == "//":
+                slash_bugs_json.append((k, phonetic))
+
+        self.assertEqual(
+            len(slash_bugs_xml),
+            0,
+            f"Found {len(slash_bugs_xml)} trailing/double slash bugs in extrawordlist.xml: {slash_bugs_xml[:10]}",
+        )
+        self.assertEqual(
+            len(slash_bugs_json),
+            0,
+            f"Found {len(slash_bugs_json)} trailing/double slash bugs in definitions.json: {slash_bugs_json[:10]}",
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

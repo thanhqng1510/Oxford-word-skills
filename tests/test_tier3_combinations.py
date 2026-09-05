@@ -191,6 +191,94 @@ class TestTier3CrossFeatureCombinations(unittest.TestCase):
 
         self.assertEqual(len(seen_units), 80, f"All 80 units must be covered by modules, got {len(seen_units)}")
 
+    def test_t3_11_content_parser_fallback_xml_and_definitions(self):
+        """Cross-Feature: Verify fallback logic interaction between extrawordlist.xml and definitions.json."""
+        # Simulated fallback engine behavior matching PROJECT.md Swift contract
+        def resolve_ipa(xml_ipa: str, def_phonetic: str) -> str:
+            clean_xml = xml_ipa.strip()
+            clean_def = def_phonetic.strip()
+            if clean_xml and clean_xml != "//" and clean_xml != "/":
+                return clean_xml
+            if clean_def and clean_def != "//" and clean_def != "/":
+                if clean_def.startswith("/") and clean_def.endswith("/"):
+                    return clean_def
+                return f"/{clean_def}/"
+            return ""
+
+        # Test simulated edge conditions
+        self.assertEqual(resolve_ipa("/æd/", ""), "/æd/", "Valid XML IPA should be preferred")
+        self.assertEqual(resolve_ipa("", "/æd/"), "/æd/", "Empty XML IPA should fallback to definitions.json")
+        self.assertEqual(resolve_ipa("//", "/æd/"), "/æd/", "Malformed '//' XML IPA should fallback to definitions.json")
+        self.assertEqual(resolve_ipa("", "æd"), "/æd/", "Un-slashed definitions phonetic should be auto-enclosed on fallback")
+
+        # Verify across dataset that fallback produces 100% non-empty IPAs
+        unresolvable = []
+        for w in self.runtime_words:
+            def_phonetic = self.defs_dict.get(w.word, {}).get("phonetic", "")
+            resolved = resolve_ipa(w.ipa, def_phonetic)
+            if not resolved or resolved == "//":
+                unresolvable.append(w.word)
+
+        self.assertEqual(
+            len(unresolvable),
+            0,
+            f"Found {len(unresolvable)} words unresolvable via XML / definitions fallback: {unresolvable[:10]}",
+        )
+
+    def test_t3_12_speech_text_pronunciation_cleaning_interaction(self):
+        """Cross-Feature: Verify cleanWord, speechText, and IPA interaction for annotated words."""
+        # Check annotated words e.g. 'ad (= advertisement)'
+        annotated_words = [w for w in self.runtime_words if "(" in w.word]
+        self.assertGreaterEqual(len(annotated_words), 50, "Expected at least 50 annotated words")
+
+        for w in annotated_words:
+            # IPA must not contain the annotation or '=' sign
+            self.assertNotIn(
+                "=",
+                w.ipa,
+                f"Word '{w.word}' has '=' sign in IPA '{w.ipa}'",
+            )
+            # IPA should be non-empty and valid
+            self.assertTrue(
+                w.ipa.startswith("/") and w.ipa.endswith("/"),
+                f"Word '{w.word}' must have slash-enclosed IPA, got '{w.ipa}'",
+            )
+
+    def test_t3_13_quiz_distractor_matching_with_ipa(self):
+        """Cross-Feature: Verify quiz distractors within a unit do not share both identical definition and IPA."""
+        ambiguous_questions = []
+        for unit_num in range(1, 81):
+            words = self.words_by_unit.get(unit_num, [])
+            valid_words = [w for w in words if w.definitions]
+            for target in valid_words:
+                target_def = target.short_definition
+                target_ipa = target.ipa
+                # Find distractors with both identical definition and identical IPA
+                identical_distractors = [
+                    w.word for w in valid_words
+                    if w.word != target.word and w.short_definition == target_def and w.ipa == target_ipa
+                ]
+                if identical_distractors:
+                    ambiguous_questions.append((unit_num, target.word, identical_distractors))
+
+        self.assertEqual(
+            len(ambiguous_questions),
+            0,
+            f"Found {len(ambiguous_questions)} questions where distractors share identical definition & IPA: {ambiguous_questions[:5]}",
+        )
+
+    def test_t3_14_ipa_and_audio_alignment(self):
+        """Cross-Feature: Verify all words marked with hasAudio have complete, non-empty IPA."""
+        audio_words = [w for w in self.runtime_words if w.has_audio]
+        self.assertGreaterEqual(len(audio_words), 700, "Expected >=700 audio-enabled words")
+
+        missing_ipa_audio_words = [w.word for w in audio_words if not w.ipa or w.ipa == "//"]
+        self.assertEqual(
+            len(missing_ipa_audio_words),
+            0,
+            f"Found {len(missing_ipa_audio_words)} audio-enabled words with missing IPA: {missing_ipa_audio_words[:10]}",
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

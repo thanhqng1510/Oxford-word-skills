@@ -10,7 +10,6 @@ struct VocabularyListView: View {
                 HStack(spacing: 6) {
                     Text(word.word)
                         .fontWeight(.medium)
-                        .textSelection(.enabled)
                     Button {
                         viewModel.speak(word.speechText)
                     } label: {
@@ -28,7 +27,6 @@ struct VocabularyListView: View {
                     Text(word.ipa)
                         .font(.system(.body, design: .serif))
                         .foregroundStyle(.secondary)
-                        .textSelection(.enabled)
                 }
             }
             .width(min: 110, ideal: 140)
@@ -48,7 +46,6 @@ struct VocabularyListView: View {
                             .font(.caption)
                             .foregroundStyle(.secondary)
                             .lineLimit(2)
-                            .textSelection(.enabled)
                     } else {
                         Text("No definition available")
                             .font(.caption)
@@ -63,14 +60,20 @@ struct VocabularyListView: View {
                                 .font(.caption2)
                                 .fontWeight(.semibold)
                                 .padding(.horizontal, 5)
-                                .padding(.vertical, 2)
-                                .background(.blue.opacity(0.15), in: Capsule())
+                                .padding(.vertical, 1)
+                                .background(.secondary.opacity(0.15), in: Capsule())
                         }
                         .buttonStyle(.plain)
-                        .help("View all \(word.definitions.count) meanings")
                     }
 
-                    Spacer(minLength: 0)
+                    if let note = word.parentheticalGloss, !note.isEmpty {
+                        Text(note)
+                            .font(.caption2)
+                            .foregroundStyle(.blue)
+                            .lineLimit(1)
+                    }
+
+                    Spacer()
 
                     Button {
                         selectedWordForDetail = word
@@ -89,7 +92,6 @@ struct VocabularyListView: View {
                 Text(word.unitNumbers.map(String.init).joined(separator: ", "))
                     .font(.caption)
                     .foregroundStyle(.secondary)
-                    .textSelection(.enabled)
             }
             .width(min: 60, ideal: 80)
 
