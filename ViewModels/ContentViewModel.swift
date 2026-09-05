@@ -156,4 +156,29 @@ class ContentViewModel {
             }
         }
     }
+
+    // MARK: - Speech & Pronunciation
+
+    var speechService: SpeechService {
+        SpeechService.shared
+    }
+
+    var canSpeak: Bool {
+        speechService.canSpeak
+    }
+
+    func speak(_ text: String) {
+        speechService.speak(text)
+    }
+}
+
+// MARK: - Speech Action View Modifier
+
+extension View {
+    /// Applies standardized disabled state and tooltip for pronunciation actions.
+    func speechAction(canSpeak: Bool, actionDescription: String = "Listen to pronunciation") -> some View {
+        self
+            .disabled(!canSpeak)
+            .help(canSpeak ? actionDescription : "Please select a voice in the toolbar first")
+    }
 }

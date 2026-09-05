@@ -11,14 +11,13 @@ struct VocabularyListView: View {
                     Text(word.word)
                         .fontWeight(.medium)
                     Button {
-                        SpeechService.shared.speak(word.speechText)
+                        viewModel.speak(word.speechText)
                     } label: {
                         Image(systemName: "speaker.wave.2")
                             .font(.caption)
                     }
                     .buttonStyle(.plain)
-                    .disabled(!SpeechService.shared.canSpeak)
-                    .help(SpeechService.shared.canSpeak ? "Pronounce" : "Please select a voice in the toolbar first")
+                    .speechAction(canSpeak: viewModel.canSpeak, actionDescription: "Pronounce")
                 }
             }
             .width(min: 120, ideal: 180)
@@ -207,14 +206,13 @@ struct WordDetailSheet: View {
                             .font(.title)
                             .fontWeight(.bold)
                         Button {
-                            SpeechService.shared.speak(word.speechText)
+                            viewModel.speak(word.speechText)
                         } label: {
                             Image(systemName: "speaker.wave.2.fill")
                                 .font(.title3)
                         }
                         .buttonStyle(.plain)
-                        .disabled(!SpeechService.shared.canSpeak)
-                        .help(SpeechService.shared.canSpeak ? "Listen to pronunciation" : "Please select a voice in the toolbar first")
+                        .speechAction(canSpeak: viewModel.canSpeak, actionDescription: "Listen to pronunciation")
                     }
 
                     if !word.ipa.isEmpty {

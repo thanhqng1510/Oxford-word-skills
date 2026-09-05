@@ -158,13 +158,12 @@ struct FlashcardView: View {
 
                             HStack(spacing: 16) {
                                 Button {
-                                    SpeechService.shared.speak(word.speechText)
+                                    viewModel.speak(word.speechText)
                                 } label: {
                                     Label("Listen", systemImage: "speaker.wave.2.fill")
                                 }
                                 .buttonStyle(.borderedProminent)
-                                .disabled(!SpeechService.shared.canSpeak)
-                                .help(SpeechService.shared.canSpeak ? "Listen" : "Please select a voice in the toolbar first")
+                                .speechAction(canSpeak: viewModel.canSpeak, actionDescription: "Listen")
 
                                 if !word.examples.isEmpty {
                                     Button {
@@ -265,14 +264,13 @@ struct FlashcardView: View {
 
             Button {
                 if let text = currentWord?.speechText {
-                    SpeechService.shared.speak(text)
+                    viewModel.speak(text)
                 }
             } label: {
                 Image(systemName: "speaker.wave.2.fill")
                     .font(.title2)
             }
-            .disabled(!SpeechService.shared.canSpeak)
-            .help(SpeechService.shared.canSpeak ? "Listen to pronunciation" : "Please select a voice in the toolbar first")
+            .speechAction(canSpeak: viewModel.canSpeak, actionDescription: "Listen to pronunciation")
 
             Button {
                 withAnimation { nextCard() }

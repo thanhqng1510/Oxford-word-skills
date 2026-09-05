@@ -1,6 +1,4 @@
 import AVFoundation
-import AppKit
-import SwiftUI
 
 /// Supported language locales for vocabulary pronunciation.
 enum VoiceLocale: String, Codable, CaseIterable, Identifiable {
@@ -32,20 +30,11 @@ enum VoiceLocale: String, Codable, CaseIterable, Identifiable {
 }
 
 /// Represents a concrete installed system voice with its quality tier and metadata.
-struct AppVoice: Identifiable, Hashable, Codable {
+struct AppVoice: Identifiable, Hashable {
     let id: String
     let name: String
     let locale: VoiceLocale
-    let qualityRaw: Int
-    let genderRaw: Int
-
-    var quality: AVSpeechSynthesisVoiceQuality {
-        AVSpeechSynthesisVoiceQuality(rawValue: qualityRaw) ?? .default
-    }
-
-    var gender: AVSpeechSynthesisVoiceGender {
-        AVSpeechSynthesisVoiceGender(rawValue: genderRaw) ?? .unspecified
-    }
+    let quality: AVSpeechSynthesisVoiceQuality
 
     var qualityBadge: String {
         switch quality {
@@ -160,8 +149,7 @@ final class SpeechService {
                     id: voice.identifier,
                     name: SpeechService.cleanVoiceName(voice.name),
                     locale: locale,
-                    qualityRaw: voice.quality.rawValue,
-                    genderRaw: voice.gender.rawValue
+                    quality: voice.quality
                 )
             }
         }
@@ -213,13 +201,6 @@ final class SpeechService {
     func stop() {
         if synthesizer.isSpeaking {
             synthesizer.stopSpeaking(at: .immediate)
-        }
-    }
-
-    /// Deep-links to macOS System Settings > Accessibility > Read & Speak / Spoken Content.
-    func openSystemVoiceSettings() {
-        if let url = URL(string: "x-apple.systempreferences:com.apple.preference.universalaccess?SpokenContent") {
-            NSWorkspace.shared.open(url)
         }
     }
 }
