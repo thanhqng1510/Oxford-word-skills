@@ -1,117 +1,207 @@
 import AVFoundation
+import AppKit
+import SwiftUI
 
-/// Represents a configurable pronunciation voice option.
-struct VoiceOption: Identifiable, Hashable, Codable {
-    let id: String           // Unique identifier e.g. "en-GB"
-    let languageCode: String // BCP-47 language tag e.g. "en-GB"
-    let displayName: String  // User-facing name e.g. "British"
-    let countryCode: String  // 2-letter region e.g. "GB"
-    let flagEmoji: String    // Regional flag emoji e.g. "🇬🇧"
+/// Supported language locales for vocabulary pronunciation.
+enum VoiceLocale: String, Codable, CaseIterable, Identifiable {
+    case british = "en-GB"
+    case american = "en-US"
 
-    var shortLabel: String {
-        "\(flagEmoji) \(countryCode)"
+    var id: String { rawValue }
+
+    var displayName: String {
+        switch self {
+        case .british: return "British English"
+        case .american: return "American English"
+        }
     }
 
-    static let british = VoiceOption(
-        id: "en-GB",
-        languageCode: "en-GB",
-        displayName: "British",
-        countryCode: "GB",
-        flagEmoji: "🇬🇧"
-    )
+    var shortLabel: String {
+        switch self {
+        case .british: return "🇬🇧 GB"
+        case .american: return "🇺🇸 US"
+        }
+    }
 
-    static let american = VoiceOption(
-        id: "en-US",
-        languageCode: "en-US",
-        displayName: "American",
-        countryCode: "US",
-        flagEmoji: "🇺🇸"
-    )
-
-    /// Pre-configured supported voice options.
-    /// Additional accents can be added here seamlessly without changing UI or engine logic.
-    static let supportedVoices: [VoiceOption] = [
-        .british,
-        .american
-    ]
-
-    static let `default` = british
+    var flagEmoji: String {
+        switch self {
+        case .british: return "🇬🇧"
+        case .american: return "🇺🇸"
+        }
+    }
 }
 
-import SwiftUI
+/// Represents a concrete installed system voice with its quality tier and metadata.
+struct AppVoice: Identifiable, Hashable, Codable {
+    let id: String
+    let name: String
+    let locale: VoiceLocale
+    let qualityRaw: Int
+    let genderRaw: Int
+
+    var quality: AVSpeechSynthesisVoiceQuality {
+        AVSpeechSynthesisVoiceQuality(rawValue: qualityRaw) ?? .default
+    }
+
+    var gender: AVSpeechSynthesisVoiceGender {
+        AVSpeechSynthesisVoiceGender(rawValue: genderRaw) ?? .unspecified
+    }
+
+    var qualityBadge: String {
+        switch quality {
+        case .premium: return "Premium ✨"
+        case .enhanced: return "Enhanced ⭐️"
+        default: return "Standard"
+        }
+    }
+
+    var displayLabel: String {
+        "\(locale.flagEmoji) \(name)"
+    }
+}
 
 @Observable
 final class SpeechService {
     static let shared = SpeechService()
+    static let previewSentence = "Welcome to Oxford Word Skills. Expand your vocabulary and master English pronunciation with confidence."
+
     private let synthesizer = AVSpeechSynthesizer()
-    private var voiceCache: [String: AVSpeechSynthesisVoice] = [:]
+    private let voicePrefKey = "selectedVoiceIdentifier"
 
-    private let voicePrefKey = "selectedVoiceId"
+    /// Installed voices sorted by quality: Premium -> Enhanced -> Standard.
+    private(set) var britishVoices: [AppVoice] = []
+    private(set) var americanVoices: [AppVoice] = []
 
-    /// Observable selected voice, persisted automatically to UserDefaults.
-    var selectedVoice: VoiceOption = .default {
+    /// All available installed voices across supported accents.
+    var allAvailableVoices: [AppVoice] {
+        britishVoices + americanVoices
+    }
+
+    /// User's currently selected voice. If nil, pronunciation is disabled.
+    private(set) var selectedVoice: AppVoice? {
         didSet {
-            UserDefaults.standard.set(selectedVoice.id, forKey: voicePrefKey)
-        }
-    }
-
-    private init() {
-        populateInitialVoices()
-        if let savedId = UserDefaults.standard.string(forKey: voicePrefKey),
-           let match = VoiceOption.supportedVoices.first(where: { $0.id == savedId }) {
-            self.selectedVoice = match
-        }
-    }
-
-    private func populateInitialVoices() {
-        let systemVoices = AVSpeechSynthesisVoice.speechVoices()
-        for option in VoiceOption.supportedVoices {
-            if let best = systemVoices
-                .filter({ $0.language == option.languageCode })
-                .max(by: { $0.quality.rawValue < $1.quality.rawValue }) {
-                voiceCache[option.id] = best
+            if let selectedVoice {
+                UserDefaults.standard.set(selectedVoice.id, forKey: voicePrefKey)
+            } else {
+                UserDefaults.standard.removeObject(forKey: voicePrefKey)
             }
         }
     }
 
-    /// Resolves the highest-quality synthesis voice for the requested voice option with a multi-tier fallback chain.
-    func voice(for option: VoiceOption) -> AVSpeechSynthesisVoice? {
-        // 1. Cached high-quality system voice
-        if let cached = voiceCache[option.id] {
-            return cached
-        }
-        // 2. Language-code synthesized voice
-        if let fallback = AVSpeechSynthesisVoice(language: option.languageCode) {
-            voiceCache[option.id] = fallback
-            return fallback
-        }
-        // 3. Fallback to default voice
-        if option.id != VoiceOption.default.id, let defaultVoice = voice(for: .default) {
-            return defaultVoice
-        }
-        // 4. System English fallback
-        return AVSpeechSynthesisVoice(language: "en-GB") ?? AVSpeechSynthesisVoice(language: "en-US")
+    /// True only if a valid voice has been explicitly chosen by the user.
+    var canSpeak: Bool {
+        selectedVoice != nil
     }
 
-    /// Pronounces text using the active voice from state, or an optional override voice if specified.
-    func speak(_ text: String, voice overrideVoice: VoiceOption? = nil) {
+    private init() {
+        refreshVoices()
+        restorePersistedVoice()
+    }
+
+    /// Restores the saved voice identifier from UserDefaults if it matches an installed voice.
+    private func restorePersistedVoice() {
+        if let savedId = UserDefaults.standard.string(forKey: voicePrefKey),
+           let matched = allAvailableVoices.first(where: { $0.id == savedId }) {
+            self.selectedVoice = matched
+        } else {
+            self.selectedVoice = nil
+        }
+    }
+
+    /// Scans installed voices, filters for en-GB and en-US, and sorts by quality (Premium > Enhanced > Standard).
+    func refreshVoices() {
+        let allVoices = AVSpeechSynthesisVoice.speechVoices()
+
+        func processVoices(for locale: VoiceLocale) -> [AppVoice] {
+            let matching = allVoices.filter { $0.language == locale.rawValue }
+
+            // Filter out novelty voices and legacy 1990s Eloquence screen-readers
+            let filtered = matching.filter { voice in
+                if voice.identifier.contains("speech.synthesis.voice.") { return false }
+                if voice.identifier.contains("eloquence") { return false }
+                // De-duplicate super-compact if compact or higher quality is available
+                if voice.identifier.contains("super-compact") {
+                    let hasBetter = matching.contains {
+                        $0.name == voice.name && !$0.identifier.contains("super-compact")
+                    }
+                    if hasBetter { return false }
+                }
+                return true
+            }
+
+            // Sort by quality descending (3 -> 2 -> 1), then by name ascending
+            let sorted = filtered.sorted { v1, v2 in
+                if v1.quality.rawValue != v2.quality.rawValue {
+                    return v1.quality.rawValue > v2.quality.rawValue
+                }
+                return v1.name.localizedStandardCompare(v2.name) == .orderedAscending
+            }
+
+            return sorted.map { voice in
+                AppVoice(
+                    id: voice.identifier,
+                    name: voice.name,
+                    locale: locale,
+                    qualityRaw: voice.quality.rawValue,
+                    genderRaw: voice.gender.rawValue
+                )
+            }
+        }
+
+        britishVoices = processVoices(for: .british)
+        americanVoices = processVoices(for: .american)
+
+        // Validate that currently selected voice is still installed
+        if let current = selectedVoice {
+            if let updated = allAvailableVoices.first(where: { $0.id == current.id }) {
+                selectedVoice = updated
+            } else {
+                selectedVoice = nil
+            }
+        }
+    }
+
+    /// Selects a voice preference. Passing nil clears the selection.
+    func selectVoice(_ voice: AppVoice?) {
+        selectedVoice = voice
+    }
+
+    /// Pronounces text using the selected voice. If no voice is selected, this is a safe no-op.
+    func speak(_ text: String) {
+        guard canSpeak, let voice = selectedVoice else { return }
         let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { return }
 
         stop()
+        guard let resolvedVoice = AVSpeechSynthesisVoice(identifier: voice.id) else { return }
         let utterance = AVSpeechUtterance(string: trimmed)
-        let targetVoice = overrideVoice ?? selectedVoice
-        if let resolvedVoice = voice(for: targetVoice) {
-            utterance.voice = resolvedVoice
-        }
+        utterance.voice = resolvedVoice
         utterance.rate = 0.45
         utterance.pitchMultiplier = 1.0
         synthesizer.speak(utterance)
     }
 
+    /// Plays a sample audio preview using a specific voice.
+    func preview(voice: AppVoice) {
+        stop()
+        guard let resolvedVoice = AVSpeechSynthesisVoice(identifier: voice.id) else { return }
+        let utterance = AVSpeechUtterance(string: Self.previewSentence)
+        utterance.voice = resolvedVoice
+        utterance.rate = 0.45
+        synthesizer.speak(utterance)
+    }
+
+    /// Stops any in-progress speech playback.
     func stop() {
         if synthesizer.isSpeaking {
             synthesizer.stopSpeaking(at: .immediate)
+        }
+    }
+
+    /// Deep-links to macOS System Settings > Accessibility > Read & Speak / Spoken Content.
+    func openSystemVoiceSettings() {
+        if let url = URL(string: "x-apple.systempreferences:com.apple.preference.universalaccess?SpokenContent") {
+            NSWorkspace.shared.open(url)
         }
     }
 }

@@ -98,6 +98,8 @@ struct FillInBlankView: View {
                     }
                     .buttonStyle(.borderedProminent)
                     .controlSize(.large)
+                    .disabled(!SpeechService.shared.canSpeak)
+                    .help(SpeechService.shared.canSpeak ? "Play audio again" : "Please select a voice in the toolbar first")
 
                     if let def = item.targetDefinition, (revealed || hintLevel > 0) {
                         VStack(spacing: 6) {

@@ -122,6 +122,8 @@ struct QuizView: View {
                             Label("Listen", systemImage: "speaker.wave.2.fill")
                         }
                         .buttonStyle(.bordered)
+                        .disabled(!SpeechService.shared.canSpeak)
+                        .help(SpeechService.shared.canSpeak ? "Listen to pronunciation" : "Please select a voice in the toolbar first")
                         Text("Choose the correct definition:")
                             .font(.headline)
                             .foregroundStyle(.secondary)
@@ -157,6 +159,8 @@ struct QuizView: View {
                                         .font(.caption)
                                 }
                                 .buttonStyle(.plain)
+                                .disabled(!SpeechService.shared.canSpeak)
+                                .help(SpeechService.shared.canSpeak ? "Listen to pronunciation" : "Please select a voice in the toolbar first")
                             }
                             .font(.callout)
                         }

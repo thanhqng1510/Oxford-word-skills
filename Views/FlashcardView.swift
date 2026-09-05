@@ -163,6 +163,8 @@ struct FlashcardView: View {
                                     Label("Listen", systemImage: "speaker.wave.2.fill")
                                 }
                                 .buttonStyle(.borderedProminent)
+                                .disabled(!SpeechService.shared.canSpeak)
+                                .help(SpeechService.shared.canSpeak ? "Listen" : "Please select a voice in the toolbar first")
 
                                 if !word.examples.isEmpty {
                                     Button {
@@ -269,6 +271,8 @@ struct FlashcardView: View {
                 Image(systemName: "speaker.wave.2.fill")
                     .font(.title2)
             }
+            .disabled(!SpeechService.shared.canSpeak)
+            .help(SpeechService.shared.canSpeak ? "Listen to pronunciation" : "Please select a voice in the toolbar first")
 
             Button {
                 withAnimation { nextCard() }

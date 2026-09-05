@@ -17,7 +17,8 @@ struct VocabularyListView: View {
                             .font(.caption)
                     }
                     .buttonStyle(.plain)
-                    .help("Pronounce")
+                    .disabled(!SpeechService.shared.canSpeak)
+                    .help(SpeechService.shared.canSpeak ? "Pronounce" : "Please select a voice in the toolbar first")
                 }
             }
             .width(min: 120, ideal: 180)
@@ -212,7 +213,8 @@ struct WordDetailSheet: View {
                                 .font(.title3)
                         }
                         .buttonStyle(.plain)
-                        .help("Listen to pronunciation")
+                        .disabled(!SpeechService.shared.canSpeak)
+                        .help(SpeechService.shared.canSpeak ? "Listen to pronunciation" : "Please select a voice in the toolbar first")
                     }
 
                     if !word.ipa.isEmpty {
