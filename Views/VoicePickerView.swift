@@ -39,23 +39,15 @@ struct VoicePickerView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 14) {
                     voiceSection(
-                        title: "British English",
+                        title: "British English Voices",
                         flag: "🇬🇧",
                         voices: speechService.britishVoices
-                    )
-
-                    Divider()
-
-                    voiceSection(
-                        title: "American English",
-                        flag: "🇺🇸",
-                        voices: speechService.americanVoices
                     )
                 }
                 .padding(.horizontal, 14)
                 .padding(.vertical, 12)
             }
-            .frame(maxHeight: 360)
+            .frame(maxHeight: 280)
         }
         .frame(width: 320)
         .onAppear {

@@ -39,10 +39,7 @@ struct SpeechServiceTestRunner {
         assertTest(VoiceLocale.british.rawValue == "en-GB", "British locale code is en-GB")
         assertTest(VoiceLocale.british.flagEmoji == "🇬🇧", "British flag is 🇬🇧")
         assertTest(VoiceLocale.british.displayName == "British English", "British displayName is 'British English'")
-        assertTest(VoiceLocale.american.rawValue == "en-US", "American locale code is en-US")
-        assertTest(VoiceLocale.american.flagEmoji == "🇺🇸", "American flag is 🇺🇸")
-        assertTest(VoiceLocale.american.displayName == "American English", "American displayName is 'American English'")
-        assertTest(VoiceLocale.allCases.count == 2, "Exactly 2 voice locales supported (en-GB and en-US)")
+        assertTest(VoiceLocale.allCases.count == 1, "Exclusively British English (en-GB) supported")
 
         // 2. Test SpeechService Voice Discovery & Filtering
         print("\n2. SpeechService Voice Discovery & Filtering:")
@@ -50,7 +47,7 @@ struct SpeechServiceTestRunner {
         service.refreshVoices()
 
         assertTest(!service.britishVoices.isEmpty, "Found at least one British voice on the system (found: \(service.britishVoices.count))")
-        assertTest(!service.americanVoices.isEmpty, "Found at least one American voice on the system (found: \(service.americanVoices.count))")
+        assertTest(service.allAvailableVoices.count == service.britishVoices.count, "allAvailableVoices strictly matches britishVoices")
 
         let allDiscovered = service.allAvailableVoices
         let hasNovelty = allDiscovered.contains { $0.id.contains("speech.synthesis.voice.") }
@@ -62,8 +59,8 @@ struct SpeechServiceTestRunner {
         let allGBMatch = service.britishVoices.allSatisfy { $0.locale == .british }
         assertTest(allGBMatch, "All britishVoices belong strictly to British English (en-GB)")
 
-        let allUSMatch = service.americanVoices.allSatisfy { $0.locale == .american }
-        assertTest(allUSMatch, "All americanVoices belong strictly to American English (en-US)")
+        let hasAnyNonGB = allDiscovered.contains { $0.locale != .british }
+        assertTest(!hasAnyNonGB, "Zero non-British (e.g. American) voices in available voice list")
 
         // 3. Test Voice Name Cleanliness (No (Premium) or (Enhanced) in names)
         print("\n3. Voice Name Cleanliness:")
@@ -107,7 +104,6 @@ struct SpeechServiceTestRunner {
         }
 
         assertTest(isSortedByQuality(service.britishVoices), "British voices are strictly sorted by quality (descending) then name")
-        assertTest(isSortedByQuality(service.americanVoices), "American voices are strictly sorted by quality (descending) then name")
 
         // 4. Test Strict Selection & Disabled State
         print("\n4. Strict Selection & Disabled State:")
@@ -128,13 +124,6 @@ struct SpeechServiceTestRunner {
 
             let savedId = UserDefaults.standard.string(forKey: "selectedVoiceIdentifier")
             assertTest(savedId == sampleVoice.id, "Selected voice ID is persisted to UserDefaults: \(savedId ?? "")")
-        }
-
-        if let sampleUSVoice = service.americanVoices.first {
-            service.selectVoice(sampleUSVoice)
-            assertTest(service.selectedVoice?.id == sampleUSVoice.id, "selectedVoice switches to American voice: \(sampleUSVoice.name)")
-            let savedId = UserDefaults.standard.string(forKey: "selectedVoiceIdentifier")
-            assertTest(savedId == sampleUSVoice.id, "Updated voice ID is persisted to UserDefaults")
         }
 
         // 6. Test Voice Preview
@@ -164,64 +153,29 @@ struct SpeechServiceTestRunner {
             service.selectVoice(validVoice)
         }
 
-        // 9. Test Apple IPA Tuning & Utterance Synthesis
-        print("\n9. Apple IPA Tuning & Utterance Synthesis:")
-        assertTest(SpeechService.adjustIPAForApple("/əˌbriːviˈeɪʃən/") == "əˈbriviˈeɪʃən", "adjustIPAForApple converts secondary stress and normalizes iː")
-        assertTest(SpeechService.adjustIPAForApple("   /ˈkɜːnəl/  \n") == "ˈkɜnəl", "adjustIPAForApple normalizes ɜː and trims whitespace")
-        assertTest(SpeechService.adjustIPAForApple("///") == "", "adjustIPAForApple collapses slash-only strings to empty")
-
-        // Affricates tying
-        assertTest(SpeechService.adjustIPAForApple("/tʃɑːns/") == "t͡ʃɑns", "adjustIPAForApple ties tʃ into t͡ʃ and normalizes ɑː")
-        assertTest(SpeechService.adjustIPAForApple("/brɪdʒ/") == "brɪd͡ʒ", "adjustIPAForApple ties dʒ into d͡ʒ")
-        assertTest(SpeechService.adjustIPAForApple("/t͡ʃæt/") == "t͡ʃæt", "adjustIPAForApple does not double-tie already tied t͡ʃ")
-
-        // Parentheses & non-rhotic (r)
-        assertTest(SpeechService.adjustIPAForApple("/ækˈseləreɪtə(r)/") == "ækˈseləreɪtə", "adjustIPAForApple removes non-rhotic (r)")
-        assertTest(SpeechService.adjustIPAForApple("/ˈæbsəˌl(j)uːtli/") == "ˈæbsəˈlutli", "adjustIPAForApple drops yod in l(j) and converts ˌ")
-        assertTest(SpeechService.adjustIPAForApple("/ækˈses(ə)ri/") == "ækˈsesəri", "adjustIPAForApple preserves optional vowel inside parens")
-
-        // Dash normalization
-        assertTest(SpeechService.adjustIPAForApple("wɔɹd-hɔɹd") == "wɔɹd.hɔɹd", "adjustIPAForApple converts hyphens to syllable dots")
-        assertTest(SpeechService.adjustIPAForApple("wɔɹd—hɔɹd") == "wɔɹd.hɔɹd", "adjustIPAForApple converts em dashes to syllable dots")
-        assertTest(SpeechService.adjustIPAForApple("ˈwɔɹd—ˌhɔɹd") == "ˈwɔɹdˈhɔɹd", "adjustIPAForApple normalizes dot next to stress mark")
-
-        // Long vowels
-        assertTest(SpeechService.adjustIPAForApple("/ˈʃedjuːl/") == "ˈʃedjul", "adjustIPAForApple normalizes uː to u")
-        assertTest(SpeechService.adjustIPAForApple("/ˈɑːɡjəmənt/") == "ˈɑɡjəmənt", "adjustIPAForApple normalizes ɑː to ɑ")
-        assertTest(SpeechService.adjustIPAForApple("/ˈkɜːnl/") == "ˈkɜnl", "adjustIPAForApple normalizes ɜː to ɜ")
-
-        // Multi-word phrases
-        assertTest(SpeechService.adjustIPAForApple("/ˌeɪ ˌtiː ˈem/") == "ˈeɪ ˈti ˈem", "adjustIPAForApple handles acronym phrases with spaces")
-
-        // Utterance Creation with / without IPA
+        // 9. Test Native Plain-Text Utterance Synthesis
+        print("\n9. Native Plain-Text Utterance Synthesis (Neural Prosody):")
         if let sampleVoice = service.allAvailableVoices.first,
            let resolvedVoice = AVSpeechSynthesisVoice(identifier: sampleVoice.id) {
-            let uIPA = service.makeUtterance(text: "colonel", ipa: "/ˈkɜːnəl/", voice: resolvedVoice)
-            assertTest(uIPA.voice?.identifier == resolvedVoice.identifier, "makeUtterance assigns voice correctly for IPA utterance")
-            assertTest(abs(uIPA.rate - 0.45) < 0.01, "makeUtterance sets standard rate 0.45 for IPA utterance")
+            let u1 = service.makeUtterance(text: "colonel", voice: resolvedVoice)
+            assertTest(u1.voice?.identifier == resolvedVoice.identifier, "makeUtterance assigns voice correctly")
+            assertTest(u1.speechString == "colonel", "makeUtterance uses native plain text string for neural synthesis")
+            assertTest(abs(u1.rate - 0.48) < 0.01, "makeUtterance sets optimal learning rate 0.48")
 
-            let attrStr = uIPA.attributedSpeechString
-            let ipaKey = NSAttributedString.Key(rawValue: AVSpeechSynthesisIPANotationAttribute)
-            let attrValue = attrStr.attribute(ipaKey, at: 0, effectiveRange: nil) as? String
-            assertTest(attrValue == "ˈkɜnəl", "makeUtterance attaches AVSpeechSynthesisIPANotationAttribute with tuned IPA: \(attrValue ?? "nil")")
+            let uPlain = service.makeUtterance(text: "  Welcome  \n", voice: resolvedVoice)
+            assertTest(uPlain.speechString == "Welcome", "makeUtterance trims whitespace from text")
+            assertTest(abs(uPlain.rate - 0.48) < 0.01, "makeUtterance sets rate 0.48 for plain string utterance")
 
-            let uPlain = service.makeUtterance(text: "Welcome", ipa: nil, voice: resolvedVoice)
-            assertTest(uPlain.speechString == "Welcome", "makeUtterance creates plain string utterance when IPA is nil")
-            assertTest(abs(uPlain.rate - 0.45) < 0.01, "makeUtterance sets rate 0.45 for plain string utterance")
-
-            let uEmptyIPA = service.makeUtterance(text: "Hello", ipa: "   ", voice: resolvedVoice)
-            assertTest(uEmptyIPA.speechString == "Hello", "makeUtterance falls back to plain string when IPA is empty/whitespace")
-
-            let uSlashIPA = service.makeUtterance(text: "Hello", ipa: "///", voice: resolvedVoice)
-            assertTest(uSlashIPA.speechString == "Hello", "makeUtterance falls back to plain string when IPA contains only slashes")
+            let uOverload = service.makeUtterance(text: "chance", ipa: "/tʃɑːns/", voice: resolvedVoice)
+            assertTest(uOverload.speechString == "chance", "backward-compatible makeUtterance with IPA uses clean text string")
         }
 
-        // Speak execution with IPA
-        service.speak("colonel", ipa: "/ˈkɜːnəl/")
-        service.speak("schedule", ipa: "ˈʃedjuːl")
-        service.speak("rock & roll", ipa: "/rɒk ən rəʊl/")
+        // Speak execution with plain text
+        service.speak("colonel")
+        service.speak("schedule", ipa: "/ˈʃedjuːl/")
+        service.speak("rock & roll")
         service.stop()
-        assertTest(true, "service.speak(text:ipa:) executes safely for valid IPA and special characters")
+        assertTest(true, "service.speak executes safely for words and special characters")
 
         print("\n═══════════════════════════════════════════")
         print("Results: \(passCount)/\(passCount + failCount) tests passed")

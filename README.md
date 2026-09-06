@@ -62,7 +62,7 @@ Oxford Word Skills is a desktop study tool that helps English language learners 
 
 ### Additional
 
-- Selectable British (GB) & American (US) text-to-speech for pronunciation
+- Selectable British English (en-GB) text-to-speech for pronunciation
 - IPA phonetic transcription for every word
 - Built with modern Swift and Apple frameworks (SwiftUI, AVFoundation)
 
