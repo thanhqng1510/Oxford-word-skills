@@ -170,6 +170,10 @@ class ContentViewModel {
     func speak(_ text: String) {
         speechService.speak(text)
     }
+
+    func speak(_ word: Word) {
+        speechService.speak(word.speechText)
+    }
 }
 
 // MARK: - Speech Action View Modifier

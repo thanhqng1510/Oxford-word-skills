@@ -4,7 +4,7 @@
 
 - macOS 26 SwiftUI vocabulary learning app
 - 12 modules, 80 units, ~11,800 words with IPA, definitions, synonyms, antonyms
-- Zero dependencies — Apple frameworks only (SwiftUI, Foundation, AVFoundation)
+- Built primarily with Apple frameworks (SwiftUI, Foundation, AVFoundation); SPM dependencies permitted when justified
 - Build: `xcodebuild build -scheme OxfordWordSkills -destination 'platform=macOS'`
 - Test: `./run_e2e_tests.sh` or `python3 tests/run_all_tests.py`
 
@@ -15,7 +15,7 @@ Models/DataModels.swift          # Word, Unit, Module, ExerciseType, NavigationT
 ViewModels/ContentViewModel.swift # Single @Observable state owner
 Views/                           # 9 SwiftUI views (see README for full list)
 Utilities/ContentParser.swift    # XML/JSON parsing, data pipeline
-Utilities/SpeechService.swift    # Multi-accent TTS service (@Observable)
+Utilities/SpeechService.swift    # British English TTS service (@Observable)
 Resources/settings.xml           # Module/unit structure
 Resources/extrawordlist.xml      # Vocabulary with IPA (Unicode IPA, slash-enclosed)
 Resources/definitions.json       # Rich definitions + phonetic IPA field
@@ -55,7 +55,7 @@ Learned words stored as `Set<String>` in UserDefaults. Key: `"learnedWords"`. Wo
 - `@Bindable` for two-way view binding
 - Semantic colors: `.foregroundStyle(.secondary)`, not `Color.gray`
 - No forced unwrapping — use `guard` / `if let`
-- No third-party packages — ever
+- Prefer native Apple frameworks; SPM packages are allowed when clearly beneficial (avoid reinventing complex wheels)
 
 ### SwiftUI Patterns
 
@@ -274,7 +274,7 @@ wiktionary-ipa "abbreviation"
 ## What to Avoid
 
 - Never push directly to `main` — all changes (including docs, rules, and code) must go through a feature branch and PR
-- No SPM dependencies — the project is dependency-free
+- Unnecessary dependencies — prefer native Apple frameworks where practical, but SPM dependencies are allowed when they provide clear value
 - No `@Published` / `ObservableObject` — use `@Observable`
 - No iOS-only APIs — this is macOS-only
 - No hardcoded `Color` values — use semantic styles
