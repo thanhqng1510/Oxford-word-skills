@@ -41,7 +41,7 @@ struct VoicePickerView: View {
                     voiceSection(
                         title: "British English Voices",
                         flag: "🇬🇧",
-                        voices: speechService.britishVoices
+                        voices: speechService.availableVoices
                     )
                 }
                 .padding(.horizontal, 14)

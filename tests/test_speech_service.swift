@@ -34,33 +34,32 @@ struct SpeechServiceTestRunner {
 
         print("\n=== Oxford Word Skills — SpeechService Unit Tests ===\n")
 
-        // 1. Test VoiceLocale
-        print("1. VoiceLocale configuration:")
-        assertTest(VoiceLocale.british.rawValue == "en-GB", "British locale code is en-GB")
-        assertTest(VoiceLocale.british.flagEmoji == "🇬🇧", "British flag is 🇬🇧")
-        assertTest(VoiceLocale.british.displayName == "British English", "British displayName is 'British English'")
-        assertTest(VoiceLocale.allCases.count == 1, "Exclusively British English (en-GB) supported")
+        // 1. Test AppVoice configuration
+        print("1. AppVoice configuration:")
+        assertTest(AppVoice.britishLocale == "en-GB", "British locale code is en-GB")
+        let dummyVoice = AppVoice(id: "test.id", name: "Arthur", quality: .premium)
+        assertTest(dummyVoice.displayLabel == "🇬🇧 Arthur", "AppVoice displayLabel prefixes British flag: \(dummyVoice.displayLabel)")
+        assertTest(dummyVoice.qualityBadge == "Premium ✨", "AppVoice qualityBadge displays tier correctly")
+        assertTest(dummyVoice.qualitySymbol == "✨", "AppVoice qualitySymbol displays tier icon")
 
         // 2. Test SpeechService Voice Discovery & Filtering
         print("\n2. SpeechService Voice Discovery & Filtering:")
         let service = SpeechService.shared
         service.refreshVoices()
 
-        assertTest(!service.britishVoices.isEmpty, "Found at least one British voice on the system (found: \(service.britishVoices.count))")
-        assertTest(service.allAvailableVoices.count == service.britishVoices.count, "allAvailableVoices strictly matches britishVoices")
+        assertTest(!service.availableVoices.isEmpty, "Found at least one British voice on the system (found: \(service.availableVoices.count))")
 
-        let allDiscovered = service.allAvailableVoices
+        let allDiscovered = service.availableVoices
         let hasNovelty = allDiscovered.contains { $0.id.contains("speech.synthesis.voice.") }
         assertTest(!hasNovelty, "Novelty joke voices are filtered out")
 
         let hasEloquence = allDiscovered.contains { $0.id.contains("eloquence") }
         assertTest(!hasEloquence, "Legacy 1990s Eloquence screen-reader voices are filtered out")
 
-        let allGBMatch = service.britishVoices.allSatisfy { $0.locale == .british }
-        assertTest(allGBMatch, "All britishVoices belong strictly to British English (en-GB)")
-
-        let hasAnyNonGB = allDiscovered.contains { $0.locale != .british }
-        assertTest(!hasAnyNonGB, "Zero non-British (e.g. American) voices in available voice list")
+        let allGBMatch = service.availableVoices.allSatisfy {
+            AVSpeechSynthesisVoice(identifier: $0.id)?.language == AppVoice.britishLocale
+        }
+        assertTest(allGBMatch, "All availableVoices belong strictly to British English (en-GB)")
 
         // 3. Test Voice Name Cleanliness (No (Premium) or (Enhanced) in names)
         print("\n3. Voice Name Cleanliness:")
@@ -103,10 +102,10 @@ struct SpeechServiceTestRunner {
             return true
         }
 
-        assertTest(isSortedByQuality(service.britishVoices), "British voices are strictly sorted by quality (descending) then name")
+        assertTest(isSortedByQuality(service.availableVoices), "British voices are strictly sorted by quality (descending) then name")
 
-        // 4. Test Strict Selection & Disabled State
-        print("\n4. Strict Selection & Disabled State:")
+        // 5. Test Strict Selection & Disabled State
+        print("\n5. Strict Selection & Disabled State:")
         service.selectVoice(nil)
         assertTest(service.selectedVoice == nil, "selectedVoice is nil when no voice is selected")
         assertTest(service.canSpeak == false, "canSpeak is false when no voice is selected")
@@ -115,9 +114,9 @@ struct SpeechServiceTestRunner {
         service.speak("Test sentence")
         assertTest(true, "speak() safely handles nil selectedVoice without error or crash")
 
-        // 5. Test Voice Selection & Persistence
-        print("\n5. Voice Selection & Persistence:")
-        if let sampleVoice = service.britishVoices.first {
+        // 6. Test Voice Selection & Persistence
+        print("\n6. Voice Selection & Persistence:")
+        if let sampleVoice = service.availableVoices.first {
             service.selectVoice(sampleVoice)
             assertTest(service.selectedVoice?.id == sampleVoice.id, "selectedVoice matches selected British voice: \(sampleVoice.name)")
             assertTest(service.canSpeak == true, "canSpeak is true when a voice is selected")
@@ -126,36 +125,36 @@ struct SpeechServiceTestRunner {
             assertTest(savedId == sampleVoice.id, "Selected voice ID is persisted to UserDefaults: \(savedId ?? "")")
         }
 
-        // 6. Test Voice Preview
-        print("\n6. Voice Preview Execution:")
-        if let previewVoice = service.allAvailableVoices.first {
+        // 7. Test Voice Preview
+        print("\n7. Voice Preview Execution:")
+        if let previewVoice = service.availableVoices.first {
             service.preview(voice: previewVoice)
             assertTest(true, "preview(voice:) executes safely for \(previewVoice.name)")
             service.stop()
         }
 
-        // 7. Test Safe Speak Execution
-        print("\n7. Speak Execution & Edge Cases:")
+        // 8. Test Safe Speak Execution
+        print("\n8. Speak Execution & Edge Cases:")
         service.speak("") // Empty string
         service.speak("   \n\t") // Whitespace string
         service.speak("Pronunciation test") // Valid string
         service.stop()
         assertTest(true, "SpeechService handles empty, whitespace, and valid strings safely")
 
-        // 8. Test Invalid Voice ID Handling
-        print("\n8. Invalid Voice ID Handling:")
+        // 9. Test Invalid Voice ID Handling
+        print("\n9. Invalid Voice ID Handling:")
         UserDefaults.standard.set("com.apple.voice.nonexistent.fake", forKey: "selectedVoiceIdentifier")
-        let testVoice = service.allAvailableVoices.first(where: { $0.id == "com.apple.voice.nonexistent.fake" })
+        let testVoice = service.availableVoices.first(where: { $0.id == "com.apple.voice.nonexistent.fake" })
         assertTest(testVoice == nil, "Non-existent voice ID is not matched in available voices")
 
         // Restore a valid selection
-        if let validVoice = service.britishVoices.first {
+        if let validVoice = service.availableVoices.first {
             service.selectVoice(validVoice)
         }
 
-        // 9. Test Native Plain-Text Utterance Synthesis
-        print("\n9. Native Plain-Text Utterance Synthesis (Neural Prosody):")
-        if let sampleVoice = service.allAvailableVoices.first,
+        // 10. Test Native Plain-Text Utterance Synthesis
+        print("\n10. Native Plain-Text Utterance Synthesis (Neural Prosody):")
+        if let sampleVoice = service.availableVoices.first,
            let resolvedVoice = AVSpeechSynthesisVoice(identifier: sampleVoice.id) {
             let u1 = service.makeUtterance(text: "colonel", voice: resolvedVoice)
             assertTest(u1.voice?.identifier == resolvedVoice.identifier, "makeUtterance assigns voice correctly")

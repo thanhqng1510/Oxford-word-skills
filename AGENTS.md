@@ -15,7 +15,7 @@ Models/DataModels.swift          # Word, Unit, Module, ExerciseType, NavigationT
 ViewModels/ContentViewModel.swift # Single @Observable state owner
 Views/                           # 9 SwiftUI views (see README for full list)
 Utilities/ContentParser.swift    # XML/JSON parsing, data pipeline
-Utilities/SpeechService.swift    # Multi-accent TTS service (@Observable)
+Utilities/SpeechService.swift    # British English TTS service (@Observable)
 Resources/settings.xml           # Module/unit structure
 Resources/extrawordlist.xml      # Vocabulary with IPA (Unicode IPA, slash-enclosed)
 Resources/definitions.json       # Rich definitions + phonetic IPA field

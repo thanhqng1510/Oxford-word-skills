@@ -64,7 +64,7 @@ Oxford Word Skills is a desktop study tool that helps English language learners 
 
 - Selectable British English (en-GB) text-to-speech for pronunciation
 - IPA phonetic transcription for every word
-- Built with modern Swift and Apple frameworks (SwiftUI, AVFoundation)
+- Built with modern Swift and Apple frameworks (SwiftUI, AVFoundation); SPM dependencies permitted when justified
 
 ## Requirements
 
@@ -108,7 +108,7 @@ OxfordWordSkills/
 │   └── UpdateAvailableView.swift   # In-app update sheet
 ├── Utilities/
 │   ├── ContentParser.swift         # XML/JSON data pipeline
-│   ├── SpeechService.swift         # Multi-accent Text-to-Speech (GB & US)
+│   ├── SpeechService.swift         # British English Text-to-Speech (en-GB)
 │   └── UpdateService.swift         # GitHub release check & update service
 ├── Resources/
 │   ├── settings.xml                # Module/unit/section structure

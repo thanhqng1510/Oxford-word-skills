@@ -1,29 +1,11 @@
 import AVFoundation
 
-/// Supported language locales for vocabulary pronunciation.
-enum VoiceLocale: String, Codable, CaseIterable, Identifiable {
-    case british = "en-GB"
-
-    var id: String { rawValue }
-
-    var displayName: String {
-        "British English"
-    }
-
-    var shortLabel: String {
-        "🇬🇧 GB"
-    }
-
-    var flagEmoji: String {
-        "🇬🇧"
-    }
-}
-
-/// Represents a concrete installed system voice with its quality tier and metadata.
+/// Represents a concrete installed British system voice with its quality tier and metadata.
 struct AppVoice: Identifiable, Hashable {
+    static let britishLocale = "en-GB"
+
     let id: String
     let name: String
-    let locale: VoiceLocale
     let quality: AVSpeechSynthesisVoiceQuality
 
     var qualityBadge: String {
@@ -43,7 +25,7 @@ struct AppVoice: Identifiable, Hashable {
     }
 
     var displayLabel: String {
-        "\(locale.flagEmoji) \(name)"
+        "🇬🇧 \(name)"
     }
 }
 
@@ -64,12 +46,7 @@ final class SpeechService {
     private let voicePrefKey = "selectedVoiceIdentifier"
 
     /// Installed British voices sorted by quality: Premium -> Enhanced -> Standard.
-    private(set) var britishVoices: [AppVoice] = []
-
-    /// All available installed British voices.
-    var allAvailableVoices: [AppVoice] {
-        britishVoices
-    }
+    private(set) var availableVoices: [AppVoice] = []
 
     /// User's currently selected voice. If nil, pronunciation is disabled.
     private(set) var selectedVoice: AppVoice? {
@@ -88,27 +65,14 @@ final class SpeechService {
     }
 
     private init() {
-        primeSynthesizerLocale()
         refreshVoices()
         restorePersistedVoice()
-    }
-
-    /// Primes AVSpeechSynthesizer with en-GB to ensure internal phoneme tables load correctly (Apple Radar FB9688443).
-    private func primeSynthesizerLocale() {
-        let preferred = Locale.preferredLanguages
-        if preferred.first != "en-GB" {
-            let prefKey = "AppleLanguages"
-            UserDefaults.standard.set(["en-GB"], forKey: prefKey)
-            synthesizer.speak(AVSpeechUtterance(string: ""))
-            synthesizer.stopSpeaking(at: .immediate)
-            UserDefaults.standard.set(preferred, forKey: prefKey)
-        }
     }
 
     /// Restores the saved voice identifier from UserDefaults if it matches an installed voice.
     private func restorePersistedVoice() {
         if let savedId = UserDefaults.standard.string(forKey: voicePrefKey),
-           let matched = allAvailableVoices.first(where: { $0.id == savedId }) {
+           let matched = availableVoices.first(where: { $0.id == savedId }) {
             self.selectedVoice = matched
         } else {
             self.selectedVoice = nil
@@ -118,7 +82,7 @@ final class SpeechService {
     /// Scans installed voices, filters strictly for en-GB, and sorts by quality (Premium > Enhanced > Standard).
     func refreshVoices() {
         let allVoices = AVSpeechSynthesisVoice.speechVoices()
-        let matching = allVoices.filter { $0.language == VoiceLocale.british.rawValue }
+        let matching = allVoices.filter { $0.language == AppVoice.britishLocale }
 
         // Filter out novelty voices and legacy 1990s Eloquence screen-readers
         let filtered = matching.filter { voice in
@@ -144,18 +108,17 @@ final class SpeechService {
             return clean1.localizedStandardCompare(clean2) == .orderedAscending
         }
 
-        britishVoices = sorted.map { voice in
+        availableVoices = sorted.map { voice in
             AppVoice(
                 id: voice.identifier,
                 name: SpeechService.cleanVoiceName(voice.name),
-                locale: .british,
                 quality: voice.quality
             )
         }
 
         // Validate that currently selected voice is still installed
         if let current = selectedVoice {
-            if let updated = allAvailableVoices.first(where: { $0.id == current.id }) {
+            if let updated = availableVoices.first(where: { $0.id == current.id }) {
                 selectedVoice = updated
             } else {
                 selectedVoice = nil
