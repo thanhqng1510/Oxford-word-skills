@@ -64,7 +64,7 @@ Oxford Word Skills is a desktop study tool that helps English language learners 
 
 - Selectable British (GB) & American (US) text-to-speech for pronunciation
 - IPA phonetic transcription for every word
-- Zero third-party dependencies — Apple frameworks only
+- Built with modern Swift and Apple frameworks (SwiftUI, AVFoundation)
 
 ## Requirements
 
