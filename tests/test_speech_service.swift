@@ -164,11 +164,34 @@ struct SpeechServiceTestRunner {
             service.selectVoice(validVoice)
         }
 
-        // 9. Test Native IPA Notation & Utterance Synthesis
-        print("\n9. Native IPA Notation & Utterance Synthesis:")
-        assertTest(SpeechService.cleanIPAString("/əˌbriːviˈeɪʃən/") == "əˌbriːviˈeɪʃən", "cleanIPAString strips enclosing slashes")
-        assertTest(SpeechService.cleanIPAString("   /ˈkɜːnəl/  \n") == "ˈkɜːnəl", "cleanIPAString trims whitespace and newlines")
-        assertTest(SpeechService.cleanIPAString("///") == "", "cleanIPAString collapses slash-only strings to empty")
+        // 9. Test Apple IPA Tuning & Utterance Synthesis
+        print("\n9. Apple IPA Tuning & Utterance Synthesis:")
+        assertTest(SpeechService.adjustIPAForApple("/əˌbriːviˈeɪʃən/") == "əˈbriviˈeɪʃən", "adjustIPAForApple converts secondary stress and normalizes iː")
+        assertTest(SpeechService.adjustIPAForApple("   /ˈkɜːnəl/  \n") == "ˈkɜnəl", "adjustIPAForApple normalizes ɜː and trims whitespace")
+        assertTest(SpeechService.adjustIPAForApple("///") == "", "adjustIPAForApple collapses slash-only strings to empty")
+
+        // Affricates tying
+        assertTest(SpeechService.adjustIPAForApple("/tʃɑːns/") == "t͡ʃɑns", "adjustIPAForApple ties tʃ into t͡ʃ and normalizes ɑː")
+        assertTest(SpeechService.adjustIPAForApple("/brɪdʒ/") == "brɪd͡ʒ", "adjustIPAForApple ties dʒ into d͡ʒ")
+        assertTest(SpeechService.adjustIPAForApple("/t͡ʃæt/") == "t͡ʃæt", "adjustIPAForApple does not double-tie already tied t͡ʃ")
+
+        // Parentheses & non-rhotic (r)
+        assertTest(SpeechService.adjustIPAForApple("/ækˈseləreɪtə(r)/") == "ækˈseləreɪtə", "adjustIPAForApple removes non-rhotic (r)")
+        assertTest(SpeechService.adjustIPAForApple("/ˈæbsəˌl(j)uːtli/") == "ˈæbsəˈlutli", "adjustIPAForApple drops yod in l(j) and converts ˌ")
+        assertTest(SpeechService.adjustIPAForApple("/ækˈses(ə)ri/") == "ækˈsesəri", "adjustIPAForApple preserves optional vowel inside parens")
+
+        // Dash normalization
+        assertTest(SpeechService.adjustIPAForApple("wɔɹd-hɔɹd") == "wɔɹd.hɔɹd", "adjustIPAForApple converts hyphens to syllable dots")
+        assertTest(SpeechService.adjustIPAForApple("wɔɹd—hɔɹd") == "wɔɹd.hɔɹd", "adjustIPAForApple converts em dashes to syllable dots")
+        assertTest(SpeechService.adjustIPAForApple("ˈwɔɹd—ˌhɔɹd") == "ˈwɔɹdˈhɔɹd", "adjustIPAForApple normalizes dot next to stress mark")
+
+        // Long vowels
+        assertTest(SpeechService.adjustIPAForApple("/ˈʃedjuːl/") == "ˈʃedjul", "adjustIPAForApple normalizes uː to u")
+        assertTest(SpeechService.adjustIPAForApple("/ˈɑːɡjəmənt/") == "ˈɑɡjəmənt", "adjustIPAForApple normalizes ɑː to ɑ")
+        assertTest(SpeechService.adjustIPAForApple("/ˈkɜːnl/") == "ˈkɜnl", "adjustIPAForApple normalizes ɜː to ɜ")
+
+        // Multi-word phrases
+        assertTest(SpeechService.adjustIPAForApple("/ˌeɪ ˌtiː ˈem/") == "ˈeɪ ˈti ˈem", "adjustIPAForApple handles acronym phrases with spaces")
 
         // Utterance Creation with / without IPA
         if let sampleVoice = service.allAvailableVoices.first,
@@ -180,7 +203,7 @@ struct SpeechServiceTestRunner {
             let attrStr = uIPA.attributedSpeechString
             let ipaKey = NSAttributedString.Key(rawValue: AVSpeechSynthesisIPANotationAttribute)
             let attrValue = attrStr.attribute(ipaKey, at: 0, effectiveRange: nil) as? String
-            assertTest(attrValue == "ˈkɜːnəl", "makeUtterance attaches AVSpeechSynthesisIPANotationAttribute with clean IPA: \(attrValue ?? "nil")")
+            assertTest(attrValue == "ˈkɜnəl", "makeUtterance attaches AVSpeechSynthesisIPANotationAttribute with tuned IPA: \(attrValue ?? "nil")")
 
             let uPlain = service.makeUtterance(text: "Welcome", ipa: nil, voice: resolvedVoice)
             assertTest(uPlain.speechString == "Welcome", "makeUtterance creates plain string utterance when IPA is nil")

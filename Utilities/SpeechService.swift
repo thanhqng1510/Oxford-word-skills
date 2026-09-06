@@ -99,8 +99,21 @@ final class SpeechService {
     }
 
     private init() {
+        primeSynthesizerLocale()
         refreshVoices()
         restorePersistedVoice()
+    }
+
+    /// Primes AVSpeechSynthesizer with en-GB to ensure internal phoneme tables load correctly (Apple Radar FB9688443).
+    private func primeSynthesizerLocale() {
+        let preferred = Locale.preferredLanguages
+        if preferred.first != "en-GB" {
+            let prefKey = "AppleLanguages"
+            UserDefaults.standard.set(["en-GB"], forKey: prefKey)
+            synthesizer.speak(AVSpeechUtterance(string: ""))
+            synthesizer.stopSpeaking(at: .immediate)
+            UserDefaults.standard.set(preferred, forKey: prefKey)
+        }
     }
 
     /// Restores the saved voice identifier from UserDefaults if it matches an installed voice.
@@ -167,21 +180,94 @@ final class SpeechService {
         }
     }
 
-    /// Cleans an IPA pronunciation string by stripping enclosing slashes and trimming whitespace.
+    /// Unicode dash variants mapped to syllable separators.
+    private static let dashCharacters = [
+        "\u{002D}", // hyphen-minus
+        "\u{2010}", // hyphen
+        "\u{2011}", // non-breaking hyphen
+        "\u{2012}", // figure dash
+        "\u{2013}", // en dash
+        "\u{2014}", // em dash
+        "\u{2212}"  // minus sign
+    ]
+
+    /// Legacy compatibility alias for cleanIPAString.
     static func cleanIPAString(_ rawIPA: String) -> String {
-        rawIPA.trimmingCharacters(in: CharacterSet(charactersIn: "/ \n\r\t"))
+        adjustIPAForApple(rawIPA)
     }
 
-    /// Creates an AVSpeechUtterance, prioritizing native IPA attributed string notation if available, or falling back to plain text.
+    /// Tunes raw dictionary IPA specifically for Apple's speech synthesis engine:
+    /// - Normalizes dashes to syllable dots
+    /// - Replaces unsupported secondary stress ˌ with primary stress ˈ
+    /// - Adds combining tie bars to affricates (tʃ → t͡ʃ, dʒ → d͡ʒ)
+    /// - Normalizes long vowels (iː, uː, ɑː, ɔː, ɜː) that Apple TTS elongates unnaturally
+    /// - Resolves non-rhotic (r) and dictionary parentheses
+    static func adjustIPAForApple(_ rawIPA: String) -> String {
+        var ipa = rawIPA
+            .replacingOccurrences(of: "\u{00A0}", with: " ")
+            .trimmingCharacters(in: CharacterSet(charactersIn: "/[] \t\r\n"))
+
+        guard !ipa.isEmpty else { return "" }
+
+        // 1. Remove non-rhotic linking (r) for isolation pronunciation
+        ipa = ipa.replacingOccurrences(of: "(r)", with: "")
+
+        // 2. Yod-dropping after l: l(j) -> l (e.g. absolutely)
+        ipa = ipa.replacingOccurrences(of: "l(j)", with: "l")
+
+        // 3. Strip remaining dictionary parentheses
+        ipa = ipa.replacingOccurrences(of: "(", with: "")
+                 .replacingOccurrences(of: ")", with: "")
+
+        // 4. Convert all Unicode dash types to syllable dots
+        for dash in dashCharacters {
+            ipa = ipa.replacingOccurrences(of: dash, with: ".")
+        }
+
+        // 5. Replace secondary stress with primary stress (secondary not supported by Apple TTS)
+        ipa = ipa.replacingOccurrences(of: "ˌ", with: "ˈ")
+
+        // 6. Tie affricates so Apple TTS does not pronounce separate consonants (e.g. chance, bridge)
+        ipa = ipa.replacingOccurrences(of: "t͡ʃ", with: "tʃ")
+                 .replacingOccurrences(of: "d͡ʒ", with: "dʒ")
+        ipa = ipa.replacingOccurrences(of: "tʃ", with: "t͡ʃ")
+                 .replacingOccurrences(of: "dʒ", with: "d͡ʒ")
+
+        // 7. Simplify long vowels that Apple TTS elongates into robotic drones
+        ipa = ipa.replacingOccurrences(of: "iː", with: "i")
+                 .replacingOccurrences(of: "uː", with: "u")
+                 .replacingOccurrences(of: "ɑː", with: "ɑ")
+                 .replacingOccurrences(of: "ɔː", with: "ɔ")
+                 .replacingOccurrences(of: "ɜː", with: "ɜ")
+                 .replacingOccurrences(of: "eː", with: "e͡ɪ")
+                 .replacingOccurrences(of: "oː", with: "o͡ʊ")
+                 .replacingOccurrences(of: "æː", with: "æ")
+                 .replacingOccurrences(of: "ː", with: "")
+                 .replacingOccurrences(of: ":", with: "")
+
+        // 8. Clean up consecutive punctuation and stresses
+        while ipa.contains("..") {
+            ipa = ipa.replacingOccurrences(of: "..", with: ".")
+        }
+        while ipa.contains("ˈˈ") {
+            ipa = ipa.replacingOccurrences(of: "ˈˈ", with: "ˈ")
+        }
+        ipa = ipa.replacingOccurrences(of: ".ˈ", with: "ˈ")
+                 .replacingOccurrences(of: "ˈ.", with: "ˈ")
+
+        return ipa.trimmingCharacters(in: CharacterSet(charactersIn: "."))
+    }
+
+    /// Creates an AVSpeechUtterance, prioritizing tuned Apple IPA notation if available, or falling back to plain text.
     func makeUtterance(text: String, ipa: String?, voice: AVSpeechSynthesisVoice) -> AVSpeechUtterance {
         let trimmedText = text.trimmingCharacters(in: .whitespacesAndNewlines)
-        let cleanIPA = ipa.map(Self.cleanIPAString) ?? ""
+        let tunedIPA = ipa.map(Self.adjustIPAForApple) ?? ""
 
         let utterance: AVSpeechUtterance
-        if !cleanIPA.isEmpty {
+        if !tunedIPA.isEmpty {
             let attrStr = NSMutableAttributedString(string: trimmedText)
             let ipaKey = NSAttributedString.Key(rawValue: AVSpeechSynthesisIPANotationAttribute)
-            attrStr.addAttribute(ipaKey, value: cleanIPA, range: NSRange(location: 0, length: trimmedText.utf16.count))
+            attrStr.addAttribute(ipaKey, value: tunedIPA, range: NSRange(location: 0, length: trimmedText.utf16.count))
             utterance = AVSpeechUtterance(attributedString: attrStr)
         } else {
             utterance = AVSpeechUtterance(string: trimmedText)
