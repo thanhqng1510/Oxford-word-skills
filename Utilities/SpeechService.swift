@@ -157,9 +157,7 @@ final class SpeechService {
     func preview(voice: AppVoice) {
         stop()
         guard let resolvedVoice = AVSpeechSynthesisVoice(identifier: voice.id) else { return }
-        let utterance = AVSpeechUtterance(string: Self.previewSentence)
-        utterance.voice = resolvedVoice
-        utterance.rate = 0.48
+        let utterance = makeUtterance(text: Self.previewSentence, voice: resolvedVoice)
         synthesizer.speak(utterance)
     }
 
