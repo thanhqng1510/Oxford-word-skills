@@ -173,18 +173,13 @@ final class SpeechService {
         return utterance
     }
 
-    /// Backward-compatible overload ignoring raw IPA to preserve native neural speech synthesis.
-    func makeUtterance(text: String, ipa: String?, voice: AVSpeechSynthesisVoice) -> AVSpeechUtterance {
-        makeUtterance(text: text, voice: voice)
-    }
-
     /// Selects a voice preference. Passing nil clears the selection.
     func selectVoice(_ voice: AppVoice?) {
         selectedVoice = voice
     }
 
     /// Pronounces text using the selected British voice with native neural speech synthesis.
-    func speak(_ text: String, ipa: String? = nil) {
+    func speak(_ text: String) {
         guard canSpeak, let voice = selectedVoice else { return }
         let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { return }

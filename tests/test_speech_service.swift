@@ -165,14 +165,11 @@ struct SpeechServiceTestRunner {
             let uPlain = service.makeUtterance(text: "  Welcome  \n", voice: resolvedVoice)
             assertTest(uPlain.speechString == "Welcome", "makeUtterance trims whitespace from text")
             assertTest(abs(uPlain.rate - 0.48) < 0.01, "makeUtterance sets rate 0.48 for plain string utterance")
-
-            let uOverload = service.makeUtterance(text: "chance", ipa: "/tʃɑːns/", voice: resolvedVoice)
-            assertTest(uOverload.speechString == "chance", "backward-compatible makeUtterance with IPA uses clean text string")
         }
 
         // Speak execution with plain text
         service.speak("colonel")
-        service.speak("schedule", ipa: "/ˈʃedjuːl/")
+        service.speak("schedule")
         service.speak("rock & roll")
         service.stop()
         assertTest(true, "service.speak executes safely for words and special characters")
